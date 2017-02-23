@@ -8,6 +8,9 @@
       <itemPath>../include/picconfig.h</itemPath>
       <itemPath>../include/mpu9250.h</itemPath>
       <itemPath>../include/mpu_i2c.h</itemPath>
+      <itemPath>../include/mpu9250_motiondriver.h</itemPath>
+      <itemPath>../include/dmpKey.h</itemPath>
+      <itemPath>../include/dmpmap.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -27,6 +30,7 @@
       <itemPath>../src/main.c</itemPath>
       <itemPath>../src/mpu9250.c</itemPath>
       <itemPath>../src/mpu_i2c.c</itemPath>
+      <itemPath>../src/mpu9250_motiondriver.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -79,6 +83,10 @@
         <ccscompiler>
         </ccscompiler>
       </item>
+      <item path="../src/mpu9250_motiondriver.c" ex="true" overriding="false">
+        <ccscompiler>
+        </ccscompiler>
+      </item>
       <item path="../src/mpu_i2c.c" ex="true" overriding="false">
         <ccscompiler>
         </ccscompiler>
@@ -113,7 +121,6 @@
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="UART 1" value="true"/>
         <property key="UART 2" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
@@ -148,6 +155,11 @@
         <property key="programoptions.uselvpprogramming" value="false"/>
         <property key="voltagevalue" value="3.25"/>
       </PICkit3PlatformTool>
+      <VSMViewerPlatformTool>
+        <property key="design.file" value="../../schematics/selfbalancing.pdsprj"/>
+        <property key="target.ip.address" value="localhost"/>
+        <property key="target.ip.port" value="8001"/>
+      </VSMViewerPlatformTool>
       <ccscompiler>
         <property key="close-after-compile" value="true"/>
         <property key="compile-for-icd" value="false"/>

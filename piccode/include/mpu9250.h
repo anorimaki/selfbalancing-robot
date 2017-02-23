@@ -38,5 +38,28 @@ void mpu_configure_fifo(int8 sensors);
 
 void mpu_init();
 
+void mpu_cnf_dmp_firmware( int16 start_addr, int16 sample_rate );
+
+void mpu_set_compass_sample_rate(int16 rate);
+
+void mpu_set_dmp_state( int1 enable );
+
+inline int8 mpu_read_reg(int8 reg);
+
+int16 mpu_fifo_available();
+
+int1 mpu_read_fifo_stream(int8 length, int8* data, int8* more );
+
+void mpu_write_mem( int16 mem_addr, int16 length, int8 *data );
+
+void mpu_read_mem( int16 mem_addr, int16 length, int8 *data );
+
+void mpu_reg_dump();
+
+#define MPU_ERROR_DEVICE_NOT_PRESENT        1
+#define MPU_ERROR_MESSAGE_NOT_CONFIRMED     2
+#define MPU_ERROR_WRITE_VERIFY_FAILED       3 
+void mpu_error_handler( int8 code );
+
 #endif	/* MPU9250_H */
 

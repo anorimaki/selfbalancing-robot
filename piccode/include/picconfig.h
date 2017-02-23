@@ -14,6 +14,8 @@
 #FUSES NOCKSFSM              	//Clock Switching is disabled, fail Safe clock monitor is disabled
 
 #device ICSP=1
+//#device PASS_STRINGS=IN_RAM
+//#device PSV=16 
 
 //#FUSES FRC_PLL               	//Internal Fast RC oscillator with PLL
 

@@ -56,6 +56,8 @@ void mpu_read_mem( int16 mem_addr, int16 length, int8 *data );
 
 void mpu_reg_dump();
 
+int8 mpu_who_am_i();
+
 #define MPU_ERROR_DEVICE_NOT_PRESENT        1
 #define MPU_ERROR_MESSAGE_NOT_CONFIRMED     2
 #define MPU_ERROR_WRITE_VERIFY_FAILED       3 

@@ -30,5 +30,16 @@ int1 dmp_read_fifo( signed int16 *gyro, signed int16 *accel, signed int32 *quat 
 
 void dmp_set_interrupt_mode(int8 mode);
 
+
+#define DMP_ORIENTATION_Z_UP		136
+#define DMP_ORIENTATION_Z_DOWN		396
+#define DMP_ORIENTATION_X_UP		14
+#define DMP_ORIENTATION_X_DOWN		266
+#define DMP_ORIENTATION_Y_UP		112
+#define DMP_ORIENTATION_Y_DOWN		336
+#define DMP_ORIENTATION_X_FORWARD	133
+#define DMP_ORIENTATION_X_BACK      161
+void dmp_set_orientation(int16 orient);
+
 #endif	/* MPU9250_MOTIONDRIVER_H */
 

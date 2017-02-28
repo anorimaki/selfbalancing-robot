@@ -647,8 +647,8 @@ int1 dmp_read_fifo_quat( signed int32 *quat, unsigned char *more )
  */
 int1 dmp_read_fifo( signed int16 *gyro, signed int16 *accel, signed int32 *quat )
 {
-    unsigned char fifo_data[MAX_PACKET_LENGTH];
-    unsigned char ii = 0;
+    int8 fifo_data[MAX_PACKET_LENGTH];
+   int8 ii = 0;
 
       /* Get a packet. */
 	int8 more;
@@ -660,14 +660,10 @@ int1 dmp_read_fifo( signed int16 *gyro, signed int16 *accel, signed int32 *quat 
 #ifdef FIFO_CORRUPTION_CHECK
         long quat_q14[4], quat_mag_sq;
 #endif
-        quat[0] = ((long)fifo_data[0] << 24) | ((long)fifo_data[1] << 16) |
-            ((long)fifo_data[2] << 8) | fifo_data[3];
-        quat[1] = ((long)fifo_data[4] << 24) | ((long)fifo_data[5] << 16) |
-            ((long)fifo_data[6] << 8) | fifo_data[7];
-        quat[2] = ((long)fifo_data[8] << 24) | ((long)fifo_data[9] << 16) |
-            ((long)fifo_data[10] << 8) | fifo_data[11];
-        quat[3] = ((long)fifo_data[12] << 24) | ((long)fifo_data[13] << 16) |
-            ((long)fifo_data[14] << 8) | fifo_data[15];
+		quat[0] = make32(fifo_data[0],fifo_data[1],fifo_data[2],fifo_data[3]);
+		quat[1] = make32(fifo_data[4],fifo_data[5],fifo_data[6],fifo_data[7]);
+		quat[2] = make32(fifo_data[8],fifo_data[9],fifo_data[10],fifo_data[11]);
+		quat[3] = make32(fifo_data[12],fifo_data[13],fifo_data[14],fifo_data[15]);
         ii += 16;
 #ifdef FIFO_CORRUPTION_CHECK
         /* We can detect a corrupted FIFO by monitoring the quaternion data and
@@ -688,25 +684,43 @@ int1 dmp_read_fifo( signed int16 *gyro, signed int16 *accel, signed int32 *quat 
             (quat_mag_sq > QUAT_MAG_SQ_MAX)) {
             /* Quaternion is outside of the acceptable threshold. */
             mpu_reset_fifo();
-            sensors[0] = 0;
             return -1;
         }
-        sensors[0] |= INV_WXYZ_QUAT;
 #endif
     }
 
     if (dmp.feature_mask & DMP_FEATURE_SEND_RAW_ACCEL) {
-        accel[0] = (((signed int16)fifo_data[ii+0]) << 8) | fifo_data[ii+1];
-        accel[1] = (((signed int16)fifo_data[ii+2]) << 8) | fifo_data[ii+3];
-        accel[2] = (((signed int16)fifo_data[ii+4]) << 8) | fifo_data[ii+5];
-        ii += 6;
+		int8 aux = fifo_data[ii];
+		++ii;
+        accel[0] = make16(aux,fifo_data[ii]);
+		++ii;
+		
+		aux = fifo_data[ii];
+		++ii;
+        accel[1] = make16(aux,fifo_data[ii]);
+		++ii;
+		
+		aux = fifo_data[ii];
+		++ii;
+        accel[2] = make16(aux,fifo_data[ii]);
+		++ii;
     }
 
     if (dmp.feature_mask & DMP_FEATURE_SEND_ANY_GYRO) {
-        gyro[0] = (((signed int16)fifo_data[ii+0]) << 8) | fifo_data[ii+1];
-        gyro[1] = (((signed int16)fifo_data[ii+2]) << 8) | fifo_data[ii+3];
-        gyro[2] = (((signed int16)fifo_data[ii+4]) << 8) | fifo_data[ii+5];
-        ii += 6;
+		int8 aux = fifo_data[ii];
+		++ii;
+        gyro[0] = make16(aux,fifo_data[ii]);
+		++ii;
+		
+		aux = fifo_data[ii];
+		++ii;
+        gyro[1] = make16(aux,fifo_data[ii]);
+		++ii;
+		
+		aux = fifo_data[ii];
+		++ii;
+        gyro[2] = make16(aux,fifo_data[ii]);
+		++ii;
     }
 
     /* Gesture data is at the end of the DMP packet. Parse it and call
@@ -868,4 +882,52 @@ void dmp_set_interrupt_mode(int8 mode)
 		case DMP_INT_GESTURE:
 			mpu_write_mem(CFG_FIFO_ON_EVENT, 11, regs_gesture);
     }
+}
+
+
+
+/**
+ *  @brief      Push gyro and accel orientation to the DMP.
+ *  The orientation is represented here as the output of
+ *  @e inv_orientation_matrix_to_scalar.
+ *  @param[in]  orient  Gyro and accel orientation in body frame.
+ *  @return     0 if successful.
+ */
+void dmp_set_orientation(int16 orient)
+{
+    int8 gyro_regs[3], accel_regs[3];
+    int8 gyro_axes[3] = {DINA4C, DINACD, DINA6C};
+    int8 accel_axes[3] = {DINA0C, DINAC9, DINA2C};
+    int8 gyro_sign[3] = {DINA36, DINA56, DINA76};
+    int8 accel_sign[3] = {DINA26, DINA46, DINA66};
+
+    gyro_regs[0] = gyro_axes[orient & 3];
+    gyro_regs[1] = gyro_axes[(orient >> 3) & 3];
+    gyro_regs[2] = gyro_axes[(orient >> 6) & 3];
+    accel_regs[0] = accel_axes[orient & 3];
+    accel_regs[1] = accel_axes[(orient >> 3) & 3];
+    accel_regs[2] = accel_axes[(orient >> 6) & 3];
+
+    /* Chip-to-body, axes only. */
+    mpu_write_mem(FCFG_1, 3, gyro_regs);
+    mpu_write_mem(FCFG_2, 3, accel_regs);
+
+    memcpy(gyro_regs, gyro_sign, 3);
+    memcpy(accel_regs, accel_sign, 3);
+    if (orient & 4) {
+        gyro_regs[0] |= 1;
+        accel_regs[0] |= 1;
+    }
+    if (orient & 0x20) {
+        gyro_regs[1] |= 1;
+        accel_regs[1] |= 1;
+    }
+    if (orient & 0x100) {
+        gyro_regs[2] |= 1;
+        accel_regs[2] |= 1;
+    }
+
+    /* Chip-to-body, sign only. */
+    mpu_write_mem(FCFG_3, 3, gyro_regs);
+    mpu_write_mem(FCFG_7, 3, accel_regs);
 }

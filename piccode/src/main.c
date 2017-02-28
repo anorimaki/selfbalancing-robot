@@ -26,78 +26,56 @@ void init()
 	
 	dmp_load_motion_driver_firmware();
 	
-//	dmp_enable_feature( DMP_FEATURE_SEND_RAW_ACCEL );
-	dmp_enable_6x_lp_quat(1);
+	dmp_enable_feature( DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_RAW_GYRO |
+							DMP_FEATURE_6X_LP_QUAT );
 	dmp_enable_gyro_cal(1);
 	dmp_set_fifo_rate(5);
 	mpu_set_dmp_state(1);
 }
 
-#define QUATERNATION_TO_FLOAT_MASK	0x3FFFFFFF
-#define QUATERNATION_TO_FLOAT_DIV	0x40000000
 
-float quaternation_to_float( signed int32 number, int8 q )
+float accel_to_g( signed int16 number )
 {
-	signed int32 i = number >> 16;
-	if ( number & 0x80000000 )
-		i |= 0xFFFF0000;
-	return i;
-#if 0
-	float ret = (int32)(number & QUATERNATION_TO_FLOAT_MASK);
-	ret /= QUATERNATION_TO_FLOAT_DIV;
-	signed int32 i = number >> 30;
-	ret += i;
-	return (i & 0x2) ? -ret : ret;
-#if 0
-	unsigned long mask;
-	for (int i=0; i<q; i++)
-		mask |= (1<<i);
-	return (number >> q) + ((number & mask) / (float) (2<<(q-1)));
-#endif
-#endif
+	return (float)number / 16384.0f;
 }
-
 
 
 void compute_euler_angles( signed int32* quat, float* angles )
 {
-    float dqw = quaternation_to_float(quat[0], 30);
-    float dqx = quaternation_to_float(quat[1], 30);
-    float dqy = quaternation_to_float(quat[2], 30);
-    float dqz = quaternation_to_float(quat[3], 30);
+	int i;
 
-#if 1	
-//	tb[1] = asin(2.0*(q[0]*q[2] - q[1]*q[3]));
-//	tb[0] = atan2(2.0*(q[2]*q[3] + q[0]*q[1]), 1.0 - 2.0*(q[1]*q[1] + q[2]*q[2]));
-//	tb[2] = atan2(2.0*(q[1]*q[2] + q[0]*q[3]), 1.0 - 2.0*(q[2]*q[2] + q[3]*q[3]));
+			//Normalize quaternation
+	float quatf[4];
+	for( i =0;i<4;i++) 
+		quatf[i]=quat[i];
+	float sum = 0.0;
+	for( i=0;i<4;i++) 
+		sum += quatf[i]*quatf[i];
+	float qlen=sqrt(sum);
+	
+	float dqw = quatf[0]/qlen;
+    float dqx = quatf[1]/qlen;
+    float dqy = quatf[2]/qlen;
+    float dqz = quatf[3]/qlen;
+
 	float ysqr = dqy * dqy;
     float t0 = 1.0f - 2.0f * (ysqr + dqz * dqz);
     float t1 = 2.0f * (dqx * dqy + dqw * dqz);
     float t2 = 2.0f * (dqw * dqy - dqx * dqz);
     float t3 = 2.0f * (dqy * dqz + dqw * dqx);
     float t4 = 1.0f - 2.0f * (dqx * dqx + ysqr);
-#else
-    float ysqr = dqy * dqy;
-    float t0 = -2.0f * (ysqr + dqz * dqz) + 1.0f;
-    float t1 = +2.0f * (dqx * dqy - dqw * dqz);
-    float t2 = -2.0f * (dqx * dqz + dqw * dqy);
-    float t3 = +2.0f * (dqy * dqz - dqw * dqx);
-    float t4 = -2.0f * (dqx * dqx + ysqr) + 1.0f;
-#endif
   
 	// Keep t2 within range of asin (-1, 1)
-//    t2 = t2 > 1.0f ? 1.0f : t2;
-//    t2 = t2 < -1.0f ? -1.0f : t2;
-  
+    t2 = t2 > 1.0f ? 1.0f : t2;
+    t2 = t2 < -1.0f ? -1.0f : t2;
+	
     angles[0] = asin(t2);
     angles[1] = atan2(t3, t4);
     angles[2] = atan2(t1, t0);
 	
-	for ( int i = 0; i<3; ++i ) {
+	for ( i = 0; i<3; ++i ) {
 		float f = angles[i];
 		f *= (180.0 / PI);
-	//	if ( f < 0 ) 
-	//		f = 360.0 + f;
 		angles[i] = f;
 	} 
 }
@@ -110,26 +88,29 @@ void main()
 	
 	init();
 	
+	printf( "Who am i: %X\n", mpu_who_am_i() );
+	
 	while(1)
 	{
-#if 0
+		signed int16 gyro[3];
 		signed int16 accel[3];
-		if ( dmp_read_fifo( 0, accel, 0 ) ) {
-			printf( "%05Ld %05Ld %05Ld\n", accel[0], accel[1], accel[2]  );
-		}
-#else
 		signed int32 quat[4];
-		int8 more;
-		if ( dmp_read_fifo_quat( quat, &more ) )
-		{
+		if ( dmp_read_fifo( gyro, accel, quat ) ) {
 			float angles[3];
 			compute_euler_angles( quat, angles );
-					
-			printf( "%LX %LX %LX %LX  ->  %f %f %f\n",
-				quat[0], quat[1], quat[2], quat[3], 
-				angles[0], angles[1], angles[2]  );
+			
+			printf( "Accel: %f %f %f\n",
+				accel_to_g(accel[0]), accel_to_g(accel[1]),
+				accel_to_g(accel[2]) );
+			
+		//	printf( "Gyro: %Ld %Ld %Ld\n",
+		//		gyro[0], gyro[1], gyro[2] );
+			
+			printf( "Quater: %08LX %08LX %08LX %08LX ->  %f %f %f\n",
+				quat[0], quat[1], quat[2], quat[3],
+				angles[0], angles[1], angles[2] );
 		}
-#endif
+
 		delay_ms(1);
 	}
 }

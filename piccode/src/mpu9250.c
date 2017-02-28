@@ -12,6 +12,7 @@
 
 #define MPU_NUM_REG				118
 
+#define MPU_REG_WHO_AM_I		0x75
 #define MPU_REG_PWR_MGMT_1		0x6B
 #define MPU_REG_PWR_MGMT_2		0x6C
 #define MPU_REG_GYRO_CFG		0x1B
@@ -788,4 +789,10 @@ void mpu_reg_dump()
         int8 data = mpu_read( MPU_I2C_ADDR, ii );
         dpm_log_i("%5x: %5x\r\n", ii, data);
     }
+}
+
+
+int8 mpu_who_am_i()
+{
+	return mpu_read( MPU_I2C_ADDR, MPU_REG_WHO_AM_I );
 }

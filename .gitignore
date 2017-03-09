@@ -1,5 +1,7 @@
 /thirdparty/
 /no_git/
+/esp-12f_adaptrer/*.workspace
+/esp-12f_adaptrer/*.pdsbak
 /schematics/*.workspace
 /schematics/*.pdsbak
 /piccode/*.ccspjt
@@ -11,3 +13,4 @@
 !**/mpl/Makefile
 **/mpl/nbproject/*
 !**/mpl/nbproject/*.xml
+/esp8266/Release/

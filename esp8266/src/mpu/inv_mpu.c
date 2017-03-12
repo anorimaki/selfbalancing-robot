@@ -1827,6 +1827,7 @@ int mpu_read_fifo_stream(unsigned short length, unsigned char *data,
     if (i2c_read(st.hw->addr, st.reg->fifo_count_h, 2, tmp))
         return -1;
     fifo_count = (tmp[0] << 8) | tmp[1];
+
     if (fifo_count < length) {
         more[0] = 0;
         return -1;
@@ -1836,7 +1837,7 @@ int mpu_read_fifo_stream(unsigned short length, unsigned char *data,
         if (i2c_read(st.hw->addr, st.reg->int_status, 1, tmp))
             return -1;
         if (tmp[0] & BIT_FIFO_OVERFLOW) {
-            mpu_reset_fifo();
+        	mpu_reset_fifo();
             return -2;
         }
     }

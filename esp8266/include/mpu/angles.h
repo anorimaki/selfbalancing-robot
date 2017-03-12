@@ -2,6 +2,7 @@
 #define MPU_ANGLES_H_
 
 #include "mpu/quaternation.h"
+#include <math.h>
 
 namespace mpu
 {
@@ -16,23 +17,29 @@ public:
 		// roll (x-axis rotation)
 		float t0 = +2.0 * (q.w() * q.x() + q.y() * q.z());
 		float t1 = +1.0 - 2.0 * (q.x() * q.x() + ysqr);
-		m_roll = std::atan2(t0, t1);
+		m_roll = atan2(t0, t1);
 
 		// pitch (y-axis rotation)
 		float t2 = +2.0 * (q.w() * q.y() - q.z() * q.x());
 		t2 = t2 > 1.0 ? 1.0 : t2;
 		t2 = t2 < -1.0 ? -1.0 : t2;
-		m_pitch = std::asin(t2);
+		m_pitch = asin(t2);
 
 		// yaw (z-axis rotation)
 		float t3 = +2.0 * (q.w() * q.z() + q.x() * q.y());
 		float t4 = +1.0 - 2.0 * (ysqr + q.z() * q.z());
-		m_yaw = std::atan2(t3, t4);
+		m_yaw = atan2(t3, t4);
 	}
 
 	float yaw() const { return m_yaw; }
 	float pitch() const { return m_pitch; }
 	float roll() const { return m_roll; }
+
+	void toDegress() {
+		m_yaw *= (180.0 / PI);
+		m_pitch *= (180.0 / PI);
+		m_roll *= (180.0 / PI);
+	}
 
 private:
 	float m_yaw;

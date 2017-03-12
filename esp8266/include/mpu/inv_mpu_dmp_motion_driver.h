@@ -17,6 +17,10 @@
 #ifndef _INV_MPU_DMP_MOTION_DRIVER_H_
 #define _INV_MPU_DMP_MOTION_DRIVER_H_
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define TAP_X               (0x01)
 #define TAP_Y               (0x02)
 #define TAP_Z               (0x04)
@@ -93,5 +97,8 @@ int dmp_enable_gyro_cal(unsigned char enable);
 int dmp_read_fifo(short *gyro, short *accel, long *quat,
     unsigned long *timestamp, short *sensors, unsigned char *more);
 
-#endif  /* #ifndef _INV_MPU_DMP_MOTION_DRIVER_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* #ifndef _INV_MPU_DMP_MOTION_DRIVER_H_ */

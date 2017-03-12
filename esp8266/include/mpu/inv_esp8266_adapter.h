@@ -26,14 +26,18 @@ int esp8266_i2c_read(unsigned char slave_addr, unsigned char reg_addr,
 int esp8266_i2c_write(unsigned char slave_addr, unsigned char reg_addr,
                        unsigned char length, unsigned char * data);
 
+void esp8266_trace( const char * format, ... );
 
 #define i2c_write(a, b, c, d) 	esp8266_i2c_write(a, b, c, d)
 #define i2c_read(a, b, c, d)  	esp8266_i2c_read(a, b, c, d)
 #define delay_ms(ms)  			esp8266_delay_ms(ms)
 #define get_ms(ms_addr)    		esp8266_get_ms(ms_addr)
-#define log_i    				_MLPrintLog
-#define log_e     				_MLPrintLog
-static inline int reg_int_cb(struct int_param_s *int_param)
+#define log_i    				esp8266_trace
+#define log_e    				esp8266_trace
+#ifndef min
+#define min(a,b) 				((a<b)?a:b)
+#endif
+static inline int reg_int_cb(struct int_param_s* dummy)
 {
 	return -1;
 }

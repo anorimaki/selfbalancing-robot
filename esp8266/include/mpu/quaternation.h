@@ -1,12 +1,15 @@
 #ifndef MPU_QUATERNATION_H_
 #define MPU_QUATERNATION_H_
 
+#include <math.h>
+
 namespace mpu
 {
 
 class Quaternation
 {
 public:
+	Quaternation() {}
 	Quaternation( long lw, long lx, long ly, long lz ) {
 		m_w = lw;
 		m_x = lx;

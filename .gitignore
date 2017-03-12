@@ -14,3 +14,4 @@
 **/mpl/nbproject/*
 !**/mpl/nbproject/*.xml
 /esp8266/Release/
+/esp8266/include/wifiproperties.h

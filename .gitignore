@@ -11,6 +11,8 @@
 **/mpl/*
 !**/mpl/nbproject
 !**/mpl/Makefile
+!**/mpl/*.mc3
+!**/mpl/mcc_generated_files/
 **/mpl/nbproject/*
 !**/mpl/nbproject/*.xml
 /esp8266/Release/

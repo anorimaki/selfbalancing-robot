@@ -17,10 +17,11 @@
 						<toolChain id="io.sloeber.core.toolChain.release.1542605502" name="Arduino Toolchain( Sloeber edition)" superClass="io.sloeber.core.toolChain.release">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="io.sloeber.targetplatform.516830323" name="Arduino Target" osList="all" superClass="io.sloeber.targetplatform"/>
 							<builder buildPath="${workspace_loc:/selfbalancing_esp8266}/Release" id="io.sloeber.sketch.builder.1857980700" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="io.sloeber.sketch.builder"/>
-							<tool id="io.sloeber.tool.sketch.compiler.cpp.1961552886" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
+							<tool commandLinePattern="${A.RECIPE.CPP.O.PATTERN.1} ${FLAGS} -save-temps -D__IN_ECLIPSE__=1 -x c++ ${INPUTS} ${A.RECIPE.CPP.O.PATTERN.2} ${OUTPUT} ${A.RECIPE.CPP.O.PATTERN.3} ${JANTJE.EXTRA.COMPILE} ${JANTJE.EXTRA.CPP.COMPILE} " id="io.sloeber.tool.sketch.compiler.cpp.1961552886" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
 								<option id="io.sloeber.compiler.cpp.sketch.option.incpath.739091118" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
+									<listOptionValue builtIn="false" value="../../piccode/include/api"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include/mpu}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/libraries/ESP8266WebServer}&quot;"/>
@@ -34,7 +35,9 @@
 							<tool id="io.sloeber.tool.compiler.c.341211431" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
 								<option id="io.sloeber.compiler.c.sketch.option.incpath.1681213380" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="../../piccode/include/api"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
+									<listOptionValue builtIn="false" value="../piccode/include/api"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include/mpu}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/libraries/ESP8266WebServer}&quot;"/>

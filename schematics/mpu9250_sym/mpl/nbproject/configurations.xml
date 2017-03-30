@@ -408,7 +408,7 @@
         <property key="create-symbol-file" value="true"/>
         <property key="debug-file" value="false"/>
         <property key="errors-and-warnings" value="+EA"/>
-        <property key="extra-include-directories" value="../include"/>
+        <property key="extra-include-directories" value=""/>
         <property key="keep-after-compile" value="false"/>
         <property key="keep-for-xx-seconds" value=""/>
         <property key="keep-if-errors" value="false"/>

@@ -17,31 +17,27 @@ void Mpu9250::init( ErrorHandler errorHandler )
 {
 	m_errorHandler = errorHandler;
 
-	Wire.begin();
-	twi_setClock(400000);
-	twi_setClockStretchLimit(250);
-
 	struct int_param_s int_param;
 	if ( mpu_init(&int_param) )
-		RETURN_ERROR(EMPTY);
+		TRACE_ERROR_AND_RETURN(EMPTY());
 
 	if ( mpu_set_sensors( INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS ) )
-		RETURN_ERROR(EMPTY);
+		TRACE_ERROR_AND_RETURN(EMPTY());
 
 	if ( dmp_load_motion_driver_firmware() )
-		RETURN_ERROR(EMPTY);
+		TRACE_ERROR_AND_RETURN(EMPTY());
 
 	if ( dmp_enable_feature( DMP_FEATURE_6X_LP_QUAT ) )
-		RETURN_ERROR(EMPTY);
+		TRACE_ERROR_AND_RETURN(EMPTY());
 
 	if ( dmp_enable_gyro_cal(1) )
-		RETURN_ERROR(EMPTY);
+		TRACE_ERROR_AND_RETURN(EMPTY());
 
 	if ( dmp_set_fifo_rate(5) )
-		RETURN_ERROR(EMPTY);
+		TRACE_ERROR_AND_RETURN(EMPTY());
 
 	if ( mpu_set_dmp_state(1) )
-		RETURN_ERROR(EMPTY);
+		TRACE_ERROR_AND_RETURN(EMPTY());
 }
 
 

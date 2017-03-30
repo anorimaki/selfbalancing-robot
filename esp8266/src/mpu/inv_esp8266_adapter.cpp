@@ -23,12 +23,12 @@ int esp8266_i2c_write(unsigned char slave_addr, unsigned char reg_addr,
 	Wire.beginTransmission(slave_addr);
 
 	if ( Wire.write(reg_addr) != 1 )
-		RETURN_ERROR(-1)
+		TRACE_ERROR_AND_RETURN(-1)
 
 	for ( unsigned char i = 0; i < length; i++)
 	{
 		if ( Wire.write(data[i]) != 1 )
-			RETURN_ERROR(-1)
+			TRACE_ERROR_AND_RETURN(-1)
 	}
 
 	Wire.endTransmission(true);
@@ -43,7 +43,7 @@ int esp8266_i2c_read(unsigned char slave_addr, unsigned char reg_addr,
 {
 	Wire.beginTransmission(slave_addr);
 	if ( Wire.write(reg_addr) != 1 )
-		RETURN_ERROR(-1)
+		TRACE_ERROR_AND_RETURN(-1)
 
 	Wire.endTransmission(false);
 
@@ -56,7 +56,7 @@ int esp8266_i2c_read(unsigned char slave_addr, unsigned char reg_addr,
 	}
 #else
 	if ( Wire.requestFrom(slave_addr, length) != length )
-		RETURN_ERROR(-1)
+		TRACE_ERROR_AND_RETURN(-1)
 
 	for ( unsigned char i = 0; i < length; i++ )
 		data[i] = Wire.read();

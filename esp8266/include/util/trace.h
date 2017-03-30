@@ -10,14 +10,14 @@
 
 #include "Arduino.h"
 
-
-#define EMPTY
-#define TRACE() \
-		Serial.printf( "%s: %d\n", __FILE__, __LINE__ );
-
-#define RETURN_ERROR(a) { \
+#define EMPTY()
+#define TRACE_ERROR_MSG_AND_RETURN(msg,v) { \
+		Serial.printf( "Error (%s: %d): %s\n", __FILE__, __LINE__, msg ); \
+		return v; }
+#define TRACE_ERROR_AND_RETURN(v) { \
 		Serial.printf( "Error (%s: %d)\n", __FILE__, __LINE__ ); \
-		return a; }
+		return v; }
+
 
 
 #endif /* INCLUDE_UTIL_TRACE_H_ */

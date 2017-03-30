@@ -15,5 +15,6 @@
 !**/mpl/mcc_generated_files/
 **/mpl/nbproject/*
 !**/mpl/nbproject/*.xml
+/esp8266/.settings/
 /esp8266/Release/
 /esp8266/include/wifiproperties.h

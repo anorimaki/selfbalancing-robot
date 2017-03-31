@@ -7,6 +7,9 @@
 int main(void)
 {
     SYSTEM_Initialize();
+	
+	
+	
 	mpu9250_init();
 
     while( 1 )

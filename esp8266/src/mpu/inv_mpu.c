@@ -719,7 +719,7 @@ int mpu_read_reg(unsigned char reg, unsigned char *data)
  */
 int mpu_init(struct int_param_s *int_param)
 {
-    unsigned char data[6];
+	unsigned char data[6];
 
     /* Reset device. */
     data[0] = BIT_RESET;
@@ -730,7 +730,7 @@ int mpu_init(struct int_param_s *int_param)
     /* Wake up chip. */
     data[0] = 0x00;
     if (i2c_write(st.hw->addr, st.reg->pwr_mgmt_1, 1, data))
-        return -1;
+        return -2;
 
    st.chip_cfg.accel_half = 0;
 
@@ -740,7 +740,7 @@ int mpu_init(struct int_param_s *int_param)
      */
     data[0] = BIT_FIFO_SIZE_1024 | 0x8;
     if (i2c_write(st.hw->addr, st.reg->accel_cfg2, 1, data))
-        return -1;
+        return -3;
 #endif
 
     /* Set to invalid values to ensure no I2C writes are skipped. */
@@ -767,15 +767,15 @@ int mpu_init(struct int_param_s *int_param)
     st.chip_cfg.dmp_sample_rate = 0;
 
     if (mpu_set_gyro_fsr(2000))
-        return -1;
+        return -4;
     if (mpu_set_accel_fsr(2))
-        return -1;
+        return -5;
     if (mpu_set_lpf(42))
-        return -1;
+        return -6;
     if (mpu_set_sample_rate(50))
-        return -1;
+        return -7;
     if (mpu_configure_fifo(0))
-        return -1;
+        return -8;
 
 #ifndef EMPL_TARGET_STM32F4    
     if (int_param)
@@ -785,11 +785,11 @@ int mpu_init(struct int_param_s *int_param)
 #ifdef AK89xx_SECONDARY
     setup_compass();
     if (mpu_set_compass_sample_rate(10))
-        return -1;
+        return -9;
 #else
     /* Already disabled by setup_compass. */
     if (mpu_set_bypass(0))
-        return -1;
+        return -10;
 #endif
 
     mpu_set_sensors(0);
@@ -1828,6 +1828,8 @@ int mpu_read_fifo_stream(unsigned short length, unsigned char *data,
         return -1;
     fifo_count = (tmp[0] << 8) | tmp[1];
 
+//    log_i( "fifo: %d\n", fifo_count );
+
     if (fifo_count < length) {
         more[0] = 0;
         return -1;
@@ -2263,17 +2265,19 @@ static int accel_6500_self_test(long *bias_regular, long *bias_st, int debug)
 		for (i = 0; i < 3; i++) {
 			st_shift_cust[i] = bias_st[i] - bias_regular[i];
 			if(debug) {
-				log_i("Bias_Shift=%7.4f, Bias_Reg=%7.4f, Bias_HWST=%7.4f\r\n",
-						st_shift_cust[i]/1.f, bias_regular[i]/1.f,
-						bias_st[i]/1.f);
-				log_i("OTP value: %7.4f\r\n", ct_shift_prod[i]/1.f);
+				log_i("Bias_Shift=%s, Bias_Reg=%s, Bias_HWST=%s\r\n",
+						to_s(0, st_shift_cust[i]/1.f),
+						to_s(1, bias_regular[i]/1.f),
+						to_s(2, bias_st[i]/1.f));
+				log_i("OTP value: %s\r\n", to_s(0, ct_shift_prod[i]/1.f));
 			}
 
 			st_shift_ratio[i] = st_shift_cust[i] / ct_shift_prod[i] - 1.f;
 
 			if(debug)
-				log_i("ratio=%7.4f, threshold=%7.4f\r\n", st_shift_ratio[i]/1.f,
-							test.max_accel_var/1.f);
+				log_i("ratio=%s, threshold=%s\r\n",
+							to_s(0, st_shift_ratio[i]/1.f),
+							to_s(1, test.max_accel_var/1.f));
 
 			if (fabs(st_shift_ratio[i]) > test.max_accel_var) {
 				if(debug)
@@ -2289,15 +2293,18 @@ static int accel_6500_self_test(long *bias_regular, long *bias_st, int debug)
 
 		if(debug) {
 			log_i("ACCEL:CRITERIA B\r\n");
-			log_i("Min MG: %7.4f\r\n", accel_st_al_min/1.f);
-			log_i("Max MG: %7.4f\r\n", accel_st_al_max/1.f);
+			log_i("Min MG: %s\r\n", to_s(0, accel_st_al_min/1.f));
+			log_i("Max MG: %s\r\n", to_s(0, accel_st_al_max/1.f));
 		}
 
 		for (i = 0; i < 3; i++) {
 			st_shift_cust[i] = bias_st[i] - bias_regular[i];
 
 			if(debug)
-				log_i("Bias_shift=%7.4f, st=%7.4f, reg=%7.4f\n", st_shift_cust[i]/1.f, bias_st[i]/1.f, bias_regular[i]/1.f);
+				log_i("Bias_shift=%s, st=%s, reg=%s\n",
+							to_s(0, st_shift_cust[i]/1.f),
+							to_s(1, bias_st[i]/1.f),
+							to_s(2, bias_regular[i]/1.f));
 			if(st_shift_cust[i] < accel_st_al_min || st_shift_cust[i] > accel_st_al_max) {
 				if(debug)
 					log_i("Accel FAIL axis:%d <= 225mg or >= 675mg\n", i);
@@ -2310,7 +2317,7 @@ static int accel_6500_self_test(long *bias_regular, long *bias_st, int debug)
 	/* Self Test Pass/Fail Criteria C */
 		accel_offset_max = test.max_g_offset * 65536.f;
 		if(debug)
-			log_i("Accel:CRITERIA C: bias less than %7.4f\n", accel_offset_max/1.f);
+			log_i("Accel:CRITERIA C: bias less than %s\n", to_s(0, accel_offset_max/1.f));
 		for (i = 0; i < 3; i++) {
 			if(fabs(bias_regular[i]) > accel_offset_max) {
 				if(debug)
@@ -2359,17 +2366,19 @@ static int gyro_6500_self_test(long *bias_regular, long *bias_st, int debug)
 			st_shift_cust[i] = bias_st[i] - bias_regular[i];
 
 			if(debug) {
-				log_i("Bias_Shift=%7.4f, Bias_Reg=%7.4f, Bias_HWST=%7.4f\r\n",
-						st_shift_cust[i]/1.f, bias_regular[i]/1.f,
-						bias_st[i]/1.f);
-				log_i("OTP value: %7.4f\r\n", ct_shift_prod[i]/1.f);
+				log_i("Bias_Shift=%s, Bias_Reg=%s, Bias_HWST=%s\r\n",
+						to_s(0, st_shift_cust[i]/1.f),
+						to_s(1, bias_regular[i]/1.f),
+						to_s(2, bias_st[i]/1.f));
+				log_i("OTP value: %s\r\n", to_s(0, ct_shift_prod[i]/1.f));
 			}
 
 			st_shift_ratio[i] = st_shift_cust[i] / ct_shift_prod[i];
 
 			if(debug)
-				log_i("ratio=%7.4f, threshold=%7.4f\r\n", st_shift_ratio[i]/1.f,
-							test.max_gyro_var/1.f);
+				log_i("ratio=%s, threshold=%s\r\n",
+							to_s(0, st_shift_ratio[i]/1.f),
+							to_s(1, test.max_gyro_var/1.f));
 
 			if (fabs(st_shift_ratio[i]) < test.max_gyro_var) {
 				if(debug)
@@ -2384,14 +2393,17 @@ static int gyro_6500_self_test(long *bias_regular, long *bias_st, int debug)
 
 		if(debug) {
 			log_i("GYRO:CRITERIA B\r\n");
-			log_i("Max DPS: %7.4f\r\n", gyro_st_al_max/1.f);
+			log_i("Max DPS: %s\r\n", to_s(0, gyro_st_al_max/1.f));
 		}
 
 		for (i = 0; i < 3; i++) {
 			st_shift_cust[i] = bias_st[i] - bias_regular[i];
 
 			if(debug)
-				log_i("Bias_shift=%7.4f, st=%7.4f, reg=%7.4f\n", st_shift_cust[i]/1.f, bias_st[i]/1.f, bias_regular[i]/1.f);
+				log_i("Bias_shift=%s, st=%s, reg=%s\n",
+							to_s(0, st_shift_cust[i]/1.f),
+							to_s(1, bias_st[i]/1.f),
+							to_s(2, bias_regular[i]/1.f));
 			if(st_shift_cust[i] < gyro_st_al_max) {
 				if(debug)
 					log_i("GYRO FAIL axis:%d greater than 60dps\n", i);
@@ -2404,7 +2416,7 @@ static int gyro_6500_self_test(long *bias_regular, long *bias_st, int debug)
 	/* Self Test Pass/Fail Criteria C */
 		gyro_offset_max = test.min_dps * 65536.f;
 		if(debug)
-			log_i("Gyro:CRITERIA C: bias less than %7.4f\n", gyro_offset_max/1.f);
+			log_i("Gyro:CRITERIA C: bias less than %s\n", to_s(0, gyro_offset_max/1.f));
 		for (i = 0; i < 3; i++) {
 			if(fabs(bias_regular[i]) > gyro_offset_max) {
 				if(debug)
@@ -2536,8 +2548,10 @@ static int get_st_6500_biases(long *gyro, long *accel, unsigned char hw_test, in
 
 
     if(debug) {
-    	log_i("Accel offset data HWST bit=%d: %7.4f %7.4f %7.4f\r\n", hw_test, accel[0]/65536.f, accel[1]/65536.f, accel[2]/65536.f);
-    	log_i("Gyro offset data HWST bit=%d: %7.4f %7.4f %7.4f\r\n", hw_test, gyro[0]/65536.f, gyro[1]/65536.f, gyro[2]/65536.f);
+    	log_i("Accel offset data HWST bit=%d: %s %s %s\r\n", hw_test,
+    				to_s(0, accel[0]/65536.f), to_s(1, accel[1]/65536.f), to_s(2, accel[2]/65536.f));
+    	log_i("Gyro offset data HWST bit=%d: %s %s %s\r\n", hw_test,
+    				to_s(0, gyro[0]/65536.f), to_s(1, gyro[1]/65536.f), to_s(2, gyro[2]/65536.f));
     }
 
     return 0;

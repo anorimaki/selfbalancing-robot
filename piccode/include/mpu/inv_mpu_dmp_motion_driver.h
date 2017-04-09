@@ -93,5 +93,7 @@ int dmp_enable_gyro_cal(unsigned char enable);
 int dmp_read_fifo(short *gyro, short *accel, long *quat,
     unsigned long *timestamp, short *sensors, unsigned char *more);
 
+void dmp_set_init_state();
+
 #endif  /* #ifndef _INV_MPU_DMP_MOTION_DRIVER_H_ */
 

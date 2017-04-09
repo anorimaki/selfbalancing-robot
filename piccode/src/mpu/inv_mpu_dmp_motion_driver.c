@@ -486,7 +486,7 @@ static const unsigned short sStartAddress = 0x0400;
 #define DMP_SAMPLE_RATE     (200)
 #define GYRO_SF             (46850825LL * 200 / DMP_SAMPLE_RATE)
 
-#define FIFO_CORRUPTION_CHECK
+//#define FIFO_CORRUPTION_CHECK
 #ifdef FIFO_CORRUPTION_CHECK
 #define QUAT_ERROR_THRESH       (1L<<24)
 #define QUAT_MAG_SQ_NORMALIZED  (1L<<28)
@@ -645,7 +645,7 @@ int dmp_set_accel_bias(long *bias)
 
     mpu_get_accel_sens(&accel_sens);
     accel_sf = (long long)accel_sens << 15;
-    __no_operation();
+ //   __no_operation();
 
     accel_bias_body[0] = bias[dmp.orient & 3];
     if (dmp.orient & 4)
@@ -1069,6 +1069,7 @@ int dmp_enable_feature(unsigned short mask)
 
     if (mask & DMP_FEATURE_TAP) {
         /* Enable tap. */
+#if 0		
         tmp[0] = 0xF8;
         mpu_write_mem(CFG_20, 1, tmp);
         dmp_set_tap_thresh(TAP_XYZ, 250);
@@ -1080,6 +1081,7 @@ int dmp_enable_feature(unsigned short mask)
         dmp_set_shake_reject_thresh(GYRO_SF, 200);
         dmp_set_shake_reject_time(40);
         dmp_set_shake_reject_timeout(10);
+#endif
     } else {
         tmp[0] = 0xD8;
         mpu_write_mem(CFG_20, 1, tmp);
@@ -1284,8 +1286,9 @@ int dmp_read_fifo(short *gyro, short *accel, long *quat,
     sensors[0] = 0;
 
     /* Get a packet. */
-    if (mpu_read_fifo_stream(dmp.packet_length, fifo_data, more))
-        return -1;
+	int err;
+    if ( (err=mpu_read_fifo_stream(dmp.packet_length, fifo_data, more)) != 0 )
+        return err;
 
     /* Parse DMP packet. */
     if (dmp.feature_mask & (DMP_FEATURE_LP_QUAT | DMP_FEATURE_6X_LP_QUAT)) {
@@ -1380,6 +1383,18 @@ int dmp_register_android_orient_cb(void (*func)(unsigned char))
 {
     dmp.android_orient_cb = func;
     return 0;
+}
+
+
+void dmp_set_init_state()
+{
+	//dmp_enable_feature( DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL ) 
+	dmp.feature_mask = DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL |
+						DMP_FEATURE_PEDOMETER;
+    dmp.packet_length = 16;
+	
+	//dmp_set_fifo_rate(5)
+	dmp.fifo_rate = 200;
 }
 
 /**

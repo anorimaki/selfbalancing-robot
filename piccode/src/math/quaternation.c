@@ -49,6 +49,18 @@ fix16_t quat_pitch( Quaternation* q ) {
 	fix16_t t2 = (fix16_mul( q->w, q->y ) - fix16_mul( q->z, q->x ));
 	t2 <<= 1;
 	t2 = t2 > 0x10000 ? 0x10000 : t2;
-	t2 = t2 < 0xFFFF0000 ? 0xFFFF0000 : t2;
+	t2 = t2 < (long)0xFFFF0000 ? 0xFFFF0000 : t2;
 	return fix16_asin(t2);
+}
+
+
+fix16_t quat_roll( Quaternation* q ) {
+	fix16_t t0 = (fix16_mul( q->w ,q->x ) + fix16_mul( q->y, q->z ));
+	t0 <<= 1;
+	
+	fix16_t t1 = (fix16_mul( q->x, q->x ) + fix16_mul( q->y, q->y ));
+	t1 <<= 1;
+	t1 = 0x00010000 - t1;
+	
+	return fix16_atan2(t0, t1);
 }

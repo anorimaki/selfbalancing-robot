@@ -125,10 +125,10 @@ void I2C1_Initialize(void)
     I2C1CON = 0x8040;
     // P disabled; S disabled; I2COV disabled; IWCOL disabled; 
     I2C1STAT = 0x0000;
-    // I2CADD 1; 
-    I2C1_SlaveAddressSet(0x0001);
-    // AMSK 127; 
-    I2C1_SlaveAddressMaskSet(0x007F);
+    // I2CADD 16; 
+    I2C1_SlaveAddressSet(0x0010);
+    // AMSK 0; 
+    I2C1_SlaveAddressMaskSet(0x0000);
 
     // make sure this is set first
     i2c1_slave_state = S_SLAVE_IDLE;
@@ -433,98 +433,3 @@ inline void __attribute__ ((always_inline)) I2C1_ReceiveProcess(void)
     *p_i2c1_write_pointer = I2C1_RECEIVE_REG;
 
 }
-
-/* Note: This is an example of the I2C1_StatusCallback()
-         implementation. This is an emulated EEPROM Memory
-         configured to act as a I2C Slave Device.
-         For specific slave device implementation, remove
-         or modify this function to the specific slave device
-         behavior.
-*/
-
-static uint8_t i2c1_slaveWriteData = 0xAA;
-
-bool I2C1_StatusCallback(I2C1_SLAVE_DRIVER_STATUS status)
-{
-
-    // this emulates the slave device memory where data written to slave
-    // is placed and data read from slave is taken
-    static uint8_t EMULATE_EEPROM_Memory[64] =
-            {
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            };
-
-    static uint16_t address, addrByteCount;
-    static bool     addressState = true;
-
-    switch (status)
-    {
-        case I2C1_SLAVE_TRANSMIT_REQUEST_DETECTED:
-
-            // set up the slave driver buffer transmit pointer
-            I2C1_ReadPointerSet(&EMULATE_EEPROM_Memory[address]);
-            address++;
-
-            break;
-
-        case I2C1_SLAVE_RECEIVE_REQUEST_DETECTED:
-
-            addrByteCount = 0;
-            addressState = true;
-
-            // set up the slave driver buffer receive pointer
-            I2C1_WritePointerSet(&i2c1_slaveWriteData);
-
-            break;
-
-        case I2C1_SLAVE_RECEIVED_DATA_DETECTED:
-
-            if (addressState == true)
-            {
-                // get the address of the memory being written
-                if (addrByteCount == 0)
-                {
-                    address = (i2c1_slaveWriteData << 8) & 0xFF00;
-                    addrByteCount++;
-                }
-                else if (addrByteCount == 1)
-                {
-                    address = address | i2c1_slaveWriteData;
-                    addrByteCount = 0;
-                    addressState = false;
-                }
-            }
-            else // if (addressState == false)
-            {
-                // set the memory with the received data
-                EMULATE_EEPROM_Memory[address] = i2c1_slaveWriteData;
-            }
-
-            break;
-
-        case I2C1_SLAVE_10BIT_RECEIVE_REQUEST_DETECTED:
-
-            // do something here when 10-bit address is detected
-
-            // 10-bit address is detected
-
-            break;
-
-        default:
-            break;
-
-    }
-
-    return true;
-}
-
-
-
-

@@ -1,5 +1,6 @@
 #include "math/fixdec16.h"
-
+#include <stdio.h>
+#include <string.h>
 
 extern uint64_t umul32_32( uint32_t x, uint32_t y );
 
@@ -73,18 +74,16 @@ static inline uint8_t fix16_clz(uint32_t val)
 
 
 /**
- *  Fixed-point inverse square root.
+ * Fixed-point inverse square root.
+ * This implementation is adapted from
+ *		fixed_t fx_isqrtx(fixed_t xval, unsigned frac, fx_rdiv_t *rdiv)
+ * function of http://savannah.nongnu.org/projects/fixmath/ project
  */
 fix16_t fix16_isqrt( fix16_t xval )
 {
     uint32_t est;   /* Estimated value         */
     uint32_t mant;  /* Floating-point mantissa */
     int      expn;  /* Floating-point exponent */
-
-    /* Handle illegal values */
- //   if ( xval <= 0 ) {
-  //      return -1;
-  //  }
 
     /* Convert fixed-point number to floating-point with 32-bit mantissa */
 	int nz = fix16_clz(xval); 
@@ -174,4 +173,28 @@ fix16_t fix16_sqrt(fix16_t inValue)
 #endif
 	
 	return (neg ? -(fix16_t)result : (fix16_t)result);
+}
+
+
+void fix16_to_str( fix16_t value, char *buf ) 
+{
+	uint32_t decimal = value & 0x0000FFFF;
+	int16_t integer = value >> 16;
+	
+	sprintf( buf, "%d", integer );
+	
+	if ( decimal == 0 ) {
+		return;
+	}
+	
+	int pos = strlen( buf );
+	buf[pos++] = '.';
+	
+		//http://codereview.stackexchange.com/questions/109212/fixed-point-number-to-string
+	while ( (decimal>0) && (pos<(MAX_FIX16_STR_SIZE-1)) ) {
+		decimal = __builtin_muluu( decimal, 10 );
+		buf[pos++] = '0' + (decimal >> 16);
+		decimal &= 0x0000FFFF;
+	}
+	buf[pos] = '\0';
 }

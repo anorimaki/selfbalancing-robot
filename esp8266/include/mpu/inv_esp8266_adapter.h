@@ -42,6 +42,8 @@ static inline int reg_int_cb(struct int_param_s* dummy)
 	return -1;
 }
 
+char* to_s( int buf, float num );
+
 #if defined(__cplusplus) 
 }
 #endif

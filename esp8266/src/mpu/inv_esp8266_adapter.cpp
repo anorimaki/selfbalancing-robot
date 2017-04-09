@@ -31,7 +31,8 @@ int esp8266_i2c_write(unsigned char slave_addr, unsigned char reg_addr,
 			TRACE_ERROR_AND_RETURN(-1)
 	}
 
-	Wire.endTransmission(true);
+	if ( Wire.endTransmission(true) != 0 )
+		TRACE_ERROR_AND_RETURN(-1);
 	
 	return 0;
 }
@@ -70,9 +71,17 @@ void esp8266_trace( const char * format, ... )
 {
 	va_list arg;
 	va_start(arg, format);
-	char temp[64];
+	char temp[128];
 	vsnprintf(temp, sizeof(temp), format, arg);
 	va_end(arg);
 
 	Serial.printf(temp);
+}
+
+
+char* to_s( int buf_n, float num )
+{
+	static char buf[3][30];
+	strcpy( buf[buf_n], String(num).c_str() );
+	return buf[buf_n];
 }

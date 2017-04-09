@@ -10,6 +10,17 @@ namespace mpu
 class Angles
 {
 public:
+	Angles( const Accel& a )
+	{
+		float x = a.x();
+		float y = a.y();
+		float z = a.z();
+
+		m_roll = atan2( y, sqrt( x * x + z * z ) );
+		m_pitch = atan2( -x, sqrt( y * y + z * z ) );
+		m_yaw = 0;
+	}
+
 	Angles( const Quaternation& q )
 	{		//See https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 		float ysqr = q.y() * q.y();

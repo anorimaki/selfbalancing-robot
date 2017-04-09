@@ -10,12 +10,13 @@ class Quaternation
 {
 public:
 	Quaternation() {}
+
 	Quaternation( long lw, long lx, long ly, long lz ) {
-		m_w = lw;
-		m_x = lx;
-		m_y = ly;
-		m_z = lz;
-		normalize();
+		init( lw, lx, ly, lz );
+	}
+
+	Quaternation( long* data ) {
+		init( data[0], data[1], data[2], data[3] );
 	}
 
 	float w() const { return m_w; }
@@ -24,6 +25,14 @@ public:
 	float z() const { return m_z; }
 
 private:
+	void init( long lw, long lx, long ly, long lz )	{
+		m_w = lw;
+		m_x = lx;
+		m_y = ly;
+		m_z = lz;
+		normalize();
+	}
+
 	void normalize() {
 		float sum = m_w*m_w + m_x*m_x + m_y*m_y + m_z*m_z;
 		float qlen=sqrt(sum);

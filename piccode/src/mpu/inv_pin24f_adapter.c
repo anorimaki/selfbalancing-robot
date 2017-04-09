@@ -24,10 +24,10 @@ static uint8_t buffer[I2C2_MAX_BUFFER];
 int pic24f_i2c_write(unsigned char slave_addr, unsigned char reg_addr,
                        unsigned char length, unsigned char * data)
 {
-	I2C2_MESSAGE_STATUS status;
+	volatile I2C2_MESSAGE_STATUS status;
 	buffer[0] = reg_addr;
 	memcpy( &buffer[1], data, length );
-	I2C2_MasterWrite( &reg_addr, 1, slave_addr, &status );
+	I2C2_MasterWrite( &buffer, length+1, slave_addr, &status );
 	while( status == I2C2_MESSAGE_PENDING );
 	return ! (status == I2C2_MESSAGE_COMPLETE);
 }
@@ -37,7 +37,7 @@ int pic24f_i2c_write(unsigned char slave_addr, unsigned char reg_addr,
 int pic24f_i2c_read(unsigned char slave_addr, unsigned char reg_addr,
                        unsigned char length, unsigned char * data)
 {
-	I2C2_MESSAGE_STATUS status;
+	volatile I2C2_MESSAGE_STATUS status;
 	I2C2_TRANSACTION_REQUEST_BLOCK readTRB[2];
 	
 	// Build TRB for sending reg_addr

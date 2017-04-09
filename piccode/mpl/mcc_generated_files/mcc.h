@@ -51,9 +51,9 @@
 #include <stdbool.h>
 #include "i2c2.h"
 #include "i2c1.h"
+#include "uart1.h"
 #include "traps.h"
 #include "interrupt_manager.h"
-#include "uart1.h"
 
 #define _XTAL_FREQ  32000000UL
 

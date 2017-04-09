@@ -718,29 +718,7 @@ int mpu_read_reg(unsigned char reg, unsigned char *data)
  */
 int mpu_init(struct int_param_s *int_param)
 {
-    unsigned char data[6];
-
-    /* Reset device. */
-    data[0] = BIT_RESET;
-    if (i2c_write(st.hw->addr, st.reg->pwr_mgmt_1, 1, data))
-        return -1;
-    delay_ms(100);
-
-    /* Wake up chip. */
-    data[0] = 0x00;
-    if (i2c_write(st.hw->addr, st.reg->pwr_mgmt_1, 1, data))
-        return -1;
-
-   st.chip_cfg.accel_half = 0;
-
-#ifdef MPU6500
-    /* MPU6500 shares 4kB of memory between the DMP and the FIFO. Since the
-     * first 3kB are needed by the DMP, we'll use the last 1kB for the FIFO.
-     */
-    data[0] = BIT_FIFO_SIZE_1024 | 0x8;
-    if (i2c_write(st.hw->addr, st.reg->accel_cfg2, 1, data))
-        return -1;
-#endif
+	st.chip_cfg.accel_half = 0;
 
     /* Set to invalid values to ensure no I2C writes are skipped. */
     st.chip_cfg.sensors = 0xFF;
@@ -765,33 +743,50 @@ int mpu_init(struct int_param_s *int_param)
     st.chip_cfg.dmp_loaded = 0;
     st.chip_cfg.dmp_sample_rate = 0;
 
-    if (mpu_set_gyro_fsr(2000))
-        return -1;
-    if (mpu_set_accel_fsr(2))
-        return -1;
-    if (mpu_set_lpf(42))
-        return -1;
-    if (mpu_set_sample_rate(50))
-        return -1;
-    if (mpu_configure_fifo(0))
-        return -1;
+    //mpu_set_gyro_fsr(2000)
+	st.chip_cfg.gyro_fsr = INV_FSR_2000DPS;
 
-#ifndef EMPL_TARGET_STM32F4    
-    if (int_param)
-        reg_int_cb(int_param);
-#endif
+	//mpu_set_accel_fsr(2)
+	st.chip_cfg.accel_fsr = INV_FSR_2G;
+
+    //mpu_set_lpf(42);
+    st.chip_cfg.lpf = INV_FILTER_42HZ;
+	
+	//mpu_set_sample_rate(50)
+	st.chip_cfg.sample_rate = 1000 / (1 + 50);
+	st.chip_cfg.compass_sample_rate = 1000 / (1 + 50);
+	
+	//mpu_configure_fifo(0)
+	st.chip_cfg.fifo_enable = 0;
+	st.chip_cfg.int_enable = 0;
+	
 
 #ifdef AK89xx_SECONDARY
-    setup_compass();
-    if (mpu_set_compass_sample_rate(10))
-        return -1;
+    //setup_compass();
+    //mpu_set_compass_sample_rate(10)
+	//ToDo
 #else
     /* Already disabled by setup_compass. */
     if (mpu_set_bypass(0))
         return -1;
 #endif
 
-    mpu_set_sensors(0);
+    //mpu_set_sensors(0);
+	st.chip_cfg.sensors = 0;
+    st.chip_cfg.lp_accel_mode = 0;
+	
+	//mpu_set_sensors( INV_XYZ_GYRO | INV_XYZ_ACCEL )
+	st.chip_cfg.clk_src = INV_CLK_PLL;
+	st.chip_cfg.sensors = INV_XYZ_GYRO | INV_XYZ_ACCEL ;
+    st.chip_cfg.lp_accel_mode = 0;
+	
+	//dmp_load_motion_driver_firmware()
+	st.chip_cfg.dmp_loaded = 1;
+    st.chip_cfg.dmp_sample_rate = 200;
+	
+	//mpu_set_dmp_state(1)
+	st.chip_cfg.dmp_on = 1;
+	
     return 0;
 }
 
@@ -3288,6 +3283,7 @@ lp_int_restore:
     st.chip_cfg.int_motion_only = 0;
     return 0;
 }
+
 
 /**
  *  @}

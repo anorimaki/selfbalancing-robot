@@ -47,7 +47,7 @@
 
 // CONFIG2
 #pragma config POSCMOD = NONE    // Primary Oscillator Select->Primary oscillator disabled
-#pragma config I2C1SEL = PRI    // I2C1 Pin Location Select->Use default SCL1/SDA1 pins
+#pragma config I2C1SEL = SEC    // I2C1 Pin Location Select->Use alternate SCL1/SDA1 pins
 #pragma config IOL1WAY = ON    // IOLOCK Protection->Once IOLOCK is set, cannot be changed
 #pragma config OSCIOFNC = ON    // Primary Oscillator Output Function->OSC2/CLKO/RC15 functions as port I/O (RC15)
 #pragma config FCKSM = CSDCMD    // Clock Switching and Monitor->Clock switching and Fail-Safe Clock Monitor are disabled
@@ -73,8 +73,8 @@
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    INTERRUPT_Initialize();
     OSCILLATOR_Initialize();
+    INTERRUPT_Initialize();
     I2C1_Initialize();
     I2C2_Initialize();
     UART1_Initialize();

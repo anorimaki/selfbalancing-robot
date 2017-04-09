@@ -1,22 +1,25 @@
 #include "main.h"
 
-#use i2c(SLAVE,Fast,I2C1,MASK=0x00,ADDRESS=0xD0,force_hw)
+#use i2c(SLAVE,Fast,I2C1,MASK=0x00,ADDRESS=0x10,force_hw)
 
+ 
+
+/*
 #byte SSP1CON1 = getenv( "SFR:SSP1CON1" )
 #byte SSP1CON2 = getenv( "SFR:SSP1CON2" )
 #bit CKP = SSP1CON2.4
 #byte SSP1STAT = getenv( "SFR:SSP1STAT" )
 #bit SSPRW = SSP1STAT.2
-
+*/
 
 void init()
 {
-	enable_interrupts( INT_SSP );
+	enable_interrupts( INT_SI2C );
 	enable_interrupts( GLOBAL );
 }
 
 
-#INT_SSP
+#INT_SI2C
 void i2c_isr()
 {
 	int8 addr, data;
@@ -31,7 +34,7 @@ void i2c_isr()
 		i2c_write( 0xAA );
 	}
 	else if( state >= 0x80 ) {
-		if ( SSPRW )
+//		if ( SSPRW )
 			i2c_write( 0xAA );
 	}
 	else if( state > 0 ) {

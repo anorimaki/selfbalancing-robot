@@ -21,8 +21,11 @@ void Application::init()
 	delay( 400 );
 }
 
+
 void Application::loop()
 {
+			//MPU check is here (and not in init method) to avoid errors if Arduino setup() function takes
+			//too many time.
 	if ( m_state == MpuChecking ) {
 		m_state = checkMpu();
 	}

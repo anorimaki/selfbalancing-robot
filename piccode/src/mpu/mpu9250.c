@@ -18,7 +18,7 @@ void mpu9250_init() {
 		TRACE_ERROR_AND_RETURN(EMPTY());
 
 	if ( mpu_set_dmp_state(1) )
-		TRACE_ERROR_AND_RETURN(EMPTY());/
+		TRACE_ERROR_AND_RETURN(EMPTY());
 }
 
 

@@ -175,19 +175,25 @@ fix16_t fix16_sqrt(fix16_t inValue)
 	return (neg ? -(fix16_t)result : (fix16_t)result);
 }
 
-
 void fix16_to_str( fix16_t value, char *buf ) 
 {
+	int pos = 0;
+	if ( value<0 ) {
+		value = -value;
+		buf[0]='-';
+		pos = 1;
+	}
+	
 	uint32_t decimal = value & 0x0000FFFF;
 	int16_t integer = value >> 16;
 	
-	sprintf( buf, "%d", integer );
+	sprintf( &buf[pos], "%d", integer );
 	
 	if ( decimal == 0 ) {
 		return;
 	}
 	
-	int pos = strlen( buf );
+	pos = strlen( buf );
 	buf[pos++] = '.';
 	
 		//http://codereview.stackexchange.com/questions/109212/fixed-point-number-to-string

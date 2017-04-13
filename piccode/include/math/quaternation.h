@@ -12,7 +12,7 @@ typedef struct {
 
 void quat_normalize( Quaternation* q );
 
-fix16_t quat_pitch( Quaternation* q );
+fix16_t quat_to_pitch( Quaternation* q );
 fix16_t quat_roll( Quaternation* q );
 
 #endif	/* QUATERNATION_H */

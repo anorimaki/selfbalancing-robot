@@ -47,7 +47,8 @@ enum Commands {
 
 bool Motors::init()
 {
-	send( MOTORSREG_STATUS, 0 );
+	if ( !send( MOTORSREG_STATUS, 0 ) )
+		return false;
 	delay( 100 );
 	return send( MOTORSREG_STATUS, MOTORSREGBIT_STATUS_ON );
 

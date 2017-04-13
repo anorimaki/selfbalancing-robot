@@ -45,7 +45,7 @@ void quat_normalize( Quaternation* q ) {
 }
 
 
-fix16_t quat_pitch( Quaternation* q ) {
+fix16_t quat_to_pitch( Quaternation* q ) {
 	fix16_t t2 = (fix16_mul( q->w, q->y ) - fix16_mul( q->z, q->x ));
 	t2 <<= 1;
 	t2 = t2 > 0x10000 ? 0x10000 : t2;

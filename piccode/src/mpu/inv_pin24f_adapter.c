@@ -27,7 +27,7 @@ int pic24f_i2c_write(unsigned char slave_addr, unsigned char reg_addr,
 	volatile I2C2_MESSAGE_STATUS status;
 	buffer[0] = reg_addr;
 	memcpy( &buffer[1], data, length );
-	I2C2_MasterWrite( &buffer, length+1, slave_addr, &status );
+	I2C2_MasterWrite( buffer, length+1, slave_addr, &status );
 	while( status == I2C2_MESSAGE_PENDING );
 	return ! (status == I2C2_MESSAGE_COMPLETE);
 }

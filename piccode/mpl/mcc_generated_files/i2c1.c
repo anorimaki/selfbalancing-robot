@@ -121,8 +121,8 @@ void I2C1_Initialize(void)
 {
 
     // initialize the hardware
-    // ACKEN disabled; STREN enabled; GCEN disabled; SMEN disabled; DISSLW enabled; I2CSIDL disabled; ACKDT Sends ACK; SCLREL Holds; RSEN disabled; IPMIEN disabled; A10M 7 Bit; PEN disabled; RCEN disabled; SEN disabled; I2CEN enabled; 
-    I2C1CON = 0x8040;
+    // ACKEN disabled; STREN enabled; GCEN disabled; SMEN disabled; DISSLW disabled; I2CSIDL disabled; ACKDT Sends ACK; SCLREL Holds; RSEN disabled; IPMIEN disabled; A10M 7 Bit; PEN disabled; RCEN disabled; SEN disabled; I2CEN enabled; 
+    I2C1CON = 0x8240;
     // P disabled; S disabled; I2COV disabled; IWCOL disabled; 
     I2C1STAT = 0x0000;
     // I2CADD 16; 

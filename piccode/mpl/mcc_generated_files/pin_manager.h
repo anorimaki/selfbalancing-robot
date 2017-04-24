@@ -202,152 +202,6 @@
 #define IO_RA0_SetDigitalOutput() _TRISA0 = 0
 /**
   @Summary
-    Sets the GPIO pin, RA1, high using LATA1.
-
-  @Description
-    Sets the GPIO pin, RA1, high using LATA1.
-
-  @Preconditions
-    The RA1 must be set to an output.
-
-  @Returns
-    None.
-
-  @Param
-    None.
-
-  @Example
-    <code>
-    // Set RA1 high (1)
-    IO_RA1_SetHigh();
-    </code>
-
-*/
-#define IO_RA1_SetHigh()          _LATA1 = 1
-/**
-  @Summary
-    Sets the GPIO pin, RA1, low using LATA1.
-
-  @Description
-    Sets the GPIO pin, RA1, low using LATA1.
-
-  @Preconditions
-    The RA1 must be set to an output.
-
-  @Returns
-    None.
-
-  @Param
-    None.
-
-  @Example
-    <code>
-    // Set RA1 low (0)
-    IO_RA1_SetLow();
-    </code>
-
-*/
-#define IO_RA1_SetLow()           _LATA1 = 0
-/**
-  @Summary
-    Toggles the GPIO pin, RA1, using LATA1.
-
-  @Description
-    Toggles the GPIO pin, RA1, using LATA1.
-
-  @Preconditions
-    The RA1 must be set to an output.
-
-  @Returns
-    None.
-
-  @Param
-    None.
-
-  @Example
-    <code>
-    // Toggle RA1
-    IO_RA1_Toggle();
-    </code>
-
-*/
-#define IO_RA1_Toggle()           _LATA1 ^= 1
-/**
-  @Summary
-    Reads the value of the GPIO pin, RA1.
-
-  @Description
-    Reads the value of the GPIO pin, RA1.
-
-  @Preconditions
-    None.
-
-  @Returns
-    None.
-
-  @Param
-    None.
-
-  @Example
-    <code>
-    uint16_t portValue;
-
-    // Read RA1
-    postValue = IO_RA1_GetValue();
-    </code>
-
-*/
-#define IO_RA1_GetValue()         _RA1
-/**
-  @Summary
-    Configures the GPIO pin, RA1, as an input.
-
-  @Description
-    Configures the GPIO pin, RA1, as an input.
-
-  @Preconditions
-    None.
-
-  @Returns
-    None.
-
-  @Param
-    None.
-
-  @Example
-    <code>
-    // Sets the RA1 as an input
-    IO_RA1_SetDigitalInput();
-    </code>
-
-*/
-#define IO_RA1_SetDigitalInput()  _TRISA1 = 1
-/**
-  @Summary
-    Configures the GPIO pin, RA1, as an output.
-
-  @Description
-    Configures the GPIO pin, RA1, as an output.
-
-  @Preconditions
-    None.
-
-  @Returns
-    None.
-
-  @Param
-    None.
-
-  @Example
-    <code>
-    // Sets the RA1 as an output
-    IO_RA1_SetDigitalOutput();
-    </code>
-
-*/
-#define IO_RA1_SetDigitalOutput() _TRISA1 = 0
-/**
-  @Summary
     Sets the GPIO pin, RA2, high using LATA2.
 
   @Description
@@ -638,6 +492,152 @@
 
 */
 #define IO_RA3_SetDigitalOutput() _TRISA3 = 0
+/**
+  @Summary
+    Sets the GPIO pin, RA4, high using LATA4.
+
+  @Description
+    Sets the GPIO pin, RA4, high using LATA4.
+
+  @Preconditions
+    The RA4 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RA4 high (1)
+    IO_RA4_SetHigh();
+    </code>
+
+*/
+#define IO_RA4_SetHigh()          _LATA4 = 1
+/**
+  @Summary
+    Sets the GPIO pin, RA4, low using LATA4.
+
+  @Description
+    Sets the GPIO pin, RA4, low using LATA4.
+
+  @Preconditions
+    The RA4 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RA4 low (0)
+    IO_RA4_SetLow();
+    </code>
+
+*/
+#define IO_RA4_SetLow()           _LATA4 = 0
+/**
+  @Summary
+    Toggles the GPIO pin, RA4, using LATA4.
+
+  @Description
+    Toggles the GPIO pin, RA4, using LATA4.
+
+  @Preconditions
+    The RA4 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Toggle RA4
+    IO_RA4_Toggle();
+    </code>
+
+*/
+#define IO_RA4_Toggle()           _LATA4 ^= 1
+/**
+  @Summary
+    Reads the value of the GPIO pin, RA4.
+
+  @Description
+    Reads the value of the GPIO pin, RA4.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    uint16_t portValue;
+
+    // Read RA4
+    postValue = IO_RA4_GetValue();
+    </code>
+
+*/
+#define IO_RA4_GetValue()         _RA4
+/**
+  @Summary
+    Configures the GPIO pin, RA4, as an input.
+
+  @Description
+    Configures the GPIO pin, RA4, as an input.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RA4 as an input
+    IO_RA4_SetDigitalInput();
+    </code>
+
+*/
+#define IO_RA4_SetDigitalInput()  _TRISA4 = 1
+/**
+  @Summary
+    Configures the GPIO pin, RA4, as an output.
+
+  @Description
+    Configures the GPIO pin, RA4, as an output.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RA4 as an output
+    IO_RA4_SetDigitalOutput();
+    </code>
+
+*/
+#define IO_RA4_SetDigitalOutput() _TRISA4 = 0
 
 /**
     Section: Function Prototypes

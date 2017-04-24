@@ -23,7 +23,7 @@ void waitInitialization() {
 // pitch_pid->target: in Q14 format
 static PID* pitch_pid = (PID*)&system_registers[MOTORSREG_PITCH_PID_KP];
 
-static int16_t process_mpu_data()
+int16_t process_mpu_data()
 {
 	MpuData data;
 	MpuStatus status = mpu9250_get_data( &data );
@@ -38,24 +38,17 @@ static int16_t process_mpu_data()
 	char pitch_str[MAX_FIX16_STR_SIZE];
 	fix16_to_str( pitch, pitch_str );
 	
-		//Adapt to PID algorithm.
-		//This limit 'current' input pitch range to ~ [-57º..57º]
+	
+		//Read pitch is limited to [-57.2948º..57.2948º] range (17 lowerts bits)
 		//Important: 'target' pitch range must be shorter! ~ [-40º..40º]??
-	pitch >>= 2;		// Q16 -> Q14
-	if ( pitch > PID_MAX_INPUT )
+	pitch = PID_SCALE_INPUT( pitch, 17 );	//Adapt pitch to PID algorithm
+	if ( pitch > PID_MAX_INPUT )			//Keep pitch in [-57º..57º] range
 		pitch = PID_MAX_INPUT;
 	else if ( pitch < PID_MIN_INPUT )
 		pitch = PID_MIN_INPUT;
 	
 	pitch_pid->current = pitch;
 	int16_t power = pid_compute( pitch_pid ) ;
-
-			//Adapt to PWM resolution of 12 bits
-#if (PID_DATA_BIT_SIZE > 12)	
-	power >>= (PID_DATA_BIT_SIZE-12);
-#else
-	power <<= (12-PID_DATA_BIT_SIZE);
-#endif
 	
 	printf( "Pitch: %s. Power: %d\n", pitch_str, power );
 	
@@ -69,7 +62,7 @@ static void init_pitch_data()
 	pitch_pid->target=0;
 			//Max bits of constants = 15-PID_DATA_BITS to avoid overflows
 	pitch_pid->k_p=127;
-	pitch_pid->k_i=0;
+	pitch_pid->k_i=10;
 	pitch_pid->k_d=0;
 }
 

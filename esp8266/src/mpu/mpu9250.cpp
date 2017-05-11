@@ -9,8 +9,65 @@ namespace mpu
 {
 
 
+/* These next two functions converts the orientation matrix (see
+* gyro_orientation) to a scalar representation for use by the DMP.
+* NOTE: These functions are borrowed from InvenSense's MPL.
+* http://docs.ros.org/hydro/api/ric_mc/html/MPU9150Lib_8cpp_source.html
+*/
+
+static inline unsigned short inv_row_2_scale(const signed char *row)
+{
+	unsigned short b;
+
+	if (row[0] > 0)
+		b = 0;
+	else if (row[0] < 0)
+		b = 4;
+	else if (row[1] > 0)
+		b = 1;
+	else if (row[1] < 0)
+		b = 5;
+	else if (row[2] > 0)
+		b = 2;
+	else if (row[2] < 0)
+		b = 6;
+	else
+		b = 7;      // error
+	return b;
+}
+
+/* The sensors can be mounted onto the board in any orientation. The mounting
+* matrix seen below tells the MPL how to rotate the raw data from thei
+* driver(s).
+* TODO: The following matrices refer to the configuration on an internal test
+* board at Invensense. If needed, please modify the matrices to match the
+* chip-to-body matrix for your particular set up.
+*/
+
+static inline unsigned short inv_orientation_matrix_to_scalar(const signed char *mtx)
+{
+	unsigned short scalar;
+	/*
+		XYZ  010_001_000 Identity Matrix
+		XZY  001_010_000
+		YXZ  010_000_001
+		YZX  000_010_001
+		ZXY  001_000_010
+		ZYX  000_001_010
+	*/
+	scalar = inv_row_2_scale(mtx);
+	scalar |= inv_row_2_scale(mtx + 3) << 3;
+	scalar |= inv_row_2_scale(mtx + 6) << 6;
+	return scalar;
+}
+
+
 bool Mpu9250::init()
 {
+	static signed char orientation_matrix[9] = { 0, -1, 0,
+												1, 0, 0,
+												0, 0, 1};
+
 	struct int_param_s int_param;
 	int err;
 	if ( (err=mpu_init(&int_param)) != 0 ) {
@@ -23,6 +80,8 @@ bool Mpu9250::init()
 
 	if ( dmp_load_motion_driver_firmware() )
 		TRACE_ERROR_AND_RETURN(false);
+
+	dmp_set_orientation( inv_orientation_matrix_to_scalar(orientation_matrix) );
 
 	if ( dmp_enable_feature( DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL |
 						DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO ) )
@@ -92,6 +151,8 @@ bool Mpu9250::getData( Optional<MpuData>& data )
 
 	return true;
 }
+
+
 
 
 }

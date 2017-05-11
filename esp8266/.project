@@ -42,6 +42,11 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/variants/nodemcu</locationURI>
 		</link>
 		<link>
+			<name>libraries/ArduinoJson</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ArduinoJson/5.8.3</locationURI>
+		</link>
+		<link>
 			<name>libraries/ESP8266WebServer</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WebServer</locationURI>

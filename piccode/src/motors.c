@@ -65,8 +65,6 @@ void motors_set_power( int16_t power )
 	if ( mag > MOTORS_MAX_POWER )
 		mag = MOTORS_MAX_POWER;
 	
-	printf( "Power i: %d. o: %d\n", power, mag );
-	
 	OC1_SecondaryValueSet( mag );
 	OC2_SecondaryValueSet( mag );
 }

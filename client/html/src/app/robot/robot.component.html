@@ -1,0 +1,18 @@
+<table *ngIf="pitchState">
+	<tr>
+		<td>Target</td>
+		<td>{{pitchState.current}}</td>
+	</tr>
+	<tr>
+		<td>Current</td>
+		<td>{{pitchState.target}}</td>
+	</tr>
+	<tr>
+		<td>Error</td>
+		<td>{{pitchState.previous_error}}</td>
+	</tr>
+	<tr>
+		<td>Integral error</td>
+		<td>{{pitchState.integral_error}}</td>
+	</tr>
+</table>

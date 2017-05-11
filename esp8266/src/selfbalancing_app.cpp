@@ -1,7 +1,9 @@
 #include "selfbalancing_app.h"
 #include "util/trace.h"
 #include "mpu/angles.h"
-#include "Wire.h"
+#include "i2c/i2c.h"
+#include "wifiproperties.h"
+
 
 namespace selfbalancing
 {
@@ -14,9 +16,25 @@ static const uint8_t MOTORS_SCL = D5;
 static const uint8_t MOTORS_SDA = D6;
 
 
+static void wifiInit()
+{
+	WiFi.begin( wifi::ssid, wifi::password );
+
+	// Wait for connection
+	while ( WiFi.status() != WL_CONNECTED ) {
+		delay ( 500 );
+		Serial.print ( "." );
+	}
+	Serial.print ( "IP address: " );
+	Serial.println ( WiFi.localIP() );
+}
+
+
+
 void Application::init()
 {
-	m_httpServer.init();
+	wifiInit();
+	m_httpServer.init( &m_motors );
 	m_state = initMpu();
 	delay( 400 );
 }
@@ -24,6 +42,7 @@ void Application::init()
 
 void Application::loop()
 {
+#if 1
 			//MPU check is here (and not in init method) to avoid errors if Arduino setup() function takes
 			//too many time.
 	if ( m_state == MpuChecking ) {
@@ -34,7 +53,7 @@ void Application::loop()
 		m_state = initMotors();
 	}
 
-#if 0
+#else
 	Optional<mpu::MpuData> data;
 	if ( !m_mpu9250.getData(data) ) {
 		TRACE_ERROR( "MPU check failed" );
@@ -98,8 +117,8 @@ void Application::showData( const mpu::MpuData& data )
 
 Application::State Application::initMotors()
 {
-	Wire.begin( MOTORS_SDA, MOTORS_SCL );
-	twi_setClock(400000);
+	i2c::init( MOTORS_SDA, MOTORS_SCL );
+
 	if( !m_motors.init() ) {
 		TRACE_ERROR( "Motors initialization failed" );
 		return MotorsError;
@@ -113,8 +132,8 @@ Application::State Application::initMotors()
 
 Application::State Application::initMpu()
 {
-	Wire.begin( MPU_SDA, MPU_SCL );
-	twi_setClock(400000);
+	i2c::init( MPU_SDA, MPU_SCL );
+
 	if ( !m_mpu9250.init() ) {
 		TRACE_ERROR( "MPU initialization failed" );
 		return MpuError;

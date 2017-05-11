@@ -1,4 +1,5 @@
 #include "http/httpserver.h"
+#include "ArduinoJson.h"
 
 
 
@@ -8,10 +9,34 @@ namespace http
 
 
 
-void Server::init()
+void Server::init( motion::Motors* motors )
 {
-	m_impl.on ( "/", std::bind( &Server::handleRoot, this ) );
+	m_motors = motors;
+
+	m_impl.on( "/", std::bind( &Server::handleRoot, this ) );
+	m_impl.on( "/motors/pitch/state", std::bind( &Server::handleMotorsPitch, this ) );
 	m_impl.begin();
+}
+
+
+void Server::handleMotorsPitch() {
+	motion::Motors::Pitch::State pitch;
+	m_motors->pitchState(pitch);
+
+	StaticJsonBuffer<1024> jsonBuffer;
+	JsonObject& root = jsonBuffer.createObject();
+	root["previous_error"] = pitch.previous_error;
+	root["integral_error"] = pitch.integral_error;
+	root["target"] = pitch.target;
+	root["current"] = pitch.current;
+
+					//Send headers
+	m_impl.setContentLength( root.measureLength() );
+	m_impl.send( 200, "application/json" );
+
+					//Send body
+	WiFiClient client = m_impl.client();
+	root.printTo( client );
 }
 
 

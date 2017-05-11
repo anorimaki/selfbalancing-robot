@@ -97,5 +97,15 @@ void PIN_MANAGER_Initialize(void)
 
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
 
+    IEC1bits.CNIE = 1; // Enable CNI interrupt 
 }
 
+/* Interrupt service routine for the CNI interrupt. */
+void __attribute__ (( interrupt, no_auto_psv )) _CNInterrupt ( void )
+{
+    if(IFS1bits.CNIF == 1)
+    {
+        // Clear the flag
+        IFS1bits.CNIF = 0;
+    }
+}

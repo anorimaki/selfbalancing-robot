@@ -2,6 +2,7 @@
 #define INCLUDE_HTTP_HTTPSERVER_H_
 
 #include <ESP8266WebServer.h>
+#include "motion/motors.h"
 
 namespace http
 {
@@ -9,7 +10,7 @@ namespace http
 class Server
 {
 public:
-	void init();
+	void init( motion::Motors* motors );
 
 	ESP8266WebServer& impl() {
 		return m_impl;
@@ -17,10 +18,12 @@ public:
 
 
 private:
+	void handleMotorsPitch();
 	void handleRoot();
 
 private:
 	ESP8266WebServer m_impl;
+	motion::Motors* m_motors;
 };
 
 }

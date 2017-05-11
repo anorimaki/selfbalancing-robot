@@ -18,3 +18,4 @@
 /esp8266/.settings/
 /esp8266/Release/
 /esp8266/include/wifiproperties.h
+node_modules/

@@ -50,7 +50,7 @@ int16_t process_mpu_data()
 	pitch_pid->current = pitch;
 	int16_t power = pid_compute( pitch_pid ) ;
 	
-	printf( "Pitch: %s. Power: %d\n", pitch_str, power );
+//	printf( "Pitch: %s. Power: %d\n", pitch_str, power );
 	
 	return power;
 }
@@ -62,8 +62,8 @@ static void init_pitch_data()
 	pitch_pid->target=0;
 			//Max bits of constants = 15-PID_DATA_BITS to avoid overflows
 	pitch_pid->k_p=127;
-	pitch_pid->k_i=10;
-	pitch_pid->k_d=0;
+	pitch_pid->k_i=50;
+	pitch_pid->k_d=10;
 }
 
 

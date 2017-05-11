@@ -53,6 +53,9 @@
 */
 void INTERRUPT_Initialize (void)
 {
+    //    CNI: CN -  Change Notification Interrupt
+    //    Priority: 1
+        IPC4bits.CNIP = 1;
     //    SICI: SI2C1 - I2C1 Slave Events
     //    Priority: 1
         IPC4bits.SI2C1IP = 1;

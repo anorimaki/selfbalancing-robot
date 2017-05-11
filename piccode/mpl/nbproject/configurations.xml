@@ -36,15 +36,6 @@
         <itemPath>../include/mpu/inv_pic24f_adapter.h</itemPath>
         <itemPath>../include/mpu/mpu9250.h</itemPath>
       </logicalFolder>
-      <logicalFolder name="preprocessor"
-                     displayName="preprocessor"
-                     projectFiles="true">
-        <itemPath>../include/preprocessor/not_equal.h</itemPath>
-        <itemPath>../include/preprocessor/if.h</itemPath>
-        <itemPath>../include/preprocessor/less.h</itemPath>
-        <itemPath>../include/preprocessor/less_equal.h</itemPath>
-        <itemPath>../include/preprocessor/iif.h</itemPath>
-      </logicalFolder>
       <itemPath>../include/config.h</itemPath>
       <itemPath>../include/trace.h</itemPath>
       <itemPath>../include/system.h</itemPath>

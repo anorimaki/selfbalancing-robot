@@ -1,7 +1,7 @@
 #include <Arduino.h>		//define min
 #include "inv_esp8266_adapter.h"
 #include "util/trace.h"
-#include <Wire.h>
+#include "i2c/i2c.h"
 #include <stdio.h>
 
 
@@ -20,21 +20,7 @@ void esp8266_get_ms( unsigned long *count )
 int esp8266_i2c_write(unsigned char slave_addr, unsigned char reg_addr,
                        unsigned char length, unsigned char * data)
 {
-	Wire.beginTransmission(slave_addr);
-
-	if ( Wire.write(reg_addr) != 1 )
-		TRACE_ERROR_AND_RETURN(-1)
-
-	for ( unsigned char i = 0; i < length; i++)
-	{
-		if ( Wire.write(data[i]) != 1 )
-			TRACE_ERROR_AND_RETURN(-1)
-	}
-
-	if ( Wire.endTransmission(true) != 0 )
-		TRACE_ERROR_AND_RETURN(-1);
-	
-	return 0;
+	return i2c::write( slave_addr, reg_addr, data, length ) ? 0 : -1;
 }
 
 
@@ -42,28 +28,7 @@ int esp8266_i2c_write(unsigned char slave_addr, unsigned char reg_addr,
 int esp8266_i2c_read(unsigned char slave_addr, unsigned char reg_addr,
                        unsigned char length, unsigned char * data)
 {
-	Wire.beginTransmission(slave_addr);
-	if ( Wire.write(reg_addr) != 1 )
-		TRACE_ERROR_AND_RETURN(-1)
-
-	Wire.endTransmission(false);
-
-	delayMicroseconds(5);
-
-#if 1
-	int read = twi_readFrom(slave_addr, data, length, true);
-	if ( read != 0 ) {
-		return -1;
-	}
-#else
-	if ( Wire.requestFrom(slave_addr, length) != length )
-		TRACE_ERROR_AND_RETURN(-1)
-
-	for ( unsigned char i = 0; i < length; i++ )
-		data[i] = Wire.read();
-#endif
-	
-	return 0;
+	return i2c::read( slave_addr, reg_addr, data, length ) ? 0 : -1;
 }
 
 

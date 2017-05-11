@@ -2,8 +2,8 @@
 #include "boost/preprocessor/arithmetic/add.hpp"
 #include "boost/preprocessor/arithmetic/sub.hpp"
 
-#define PID_MAX_INTEGRAL_ERROR	(PID_MAX_OUTPUT*8L)
-#define PID_MIN_INTEGRAL_ERROR	(PID_MIN_OUTPUT*8L)
+#define PID_MAX_INTEGRAL_ERROR	(PID_MAX_OUTPUT*14L)
+#define PID_MIN_INTEGRAL_ERROR	(PID_MIN_OUTPUT*14L)
 
 
 void pid_init( PID* pid )

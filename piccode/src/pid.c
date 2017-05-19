@@ -30,7 +30,7 @@ int16_t pid_compute( PID* pid )
 				pid->integral_error + 
 				__builtin_mulss( derivative_error, pid->k_d );
 	
-			//Scale to remove constant factors 
+			//Scale to remove constant factors (-1?)
 			//and adapt input bits to output bits
 	out = SCALE_VALUE( out,
 				BOOST_PP_ADD(PID_INPUT_BIT_SIZE, 

@@ -4,10 +4,13 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="f2" displayName="api" projectFiles="true">
+        <itemPath>../include/api/motors_i2c_api.h</itemPath>
+        <itemPath>../include/api/motors_i2c_model.h</itemPath>
+        <itemPath>../include/api/motors_i2c_reg.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f1" displayName="io" projectFiles="true">
-        <itemPath>../include/io/motors_protocol.h</itemPath>
         <itemPath>../include/io/input_i2c.h</itemPath>
-        <itemPath>../include/io/motors_reg.h</itemPath>
       </logicalFolder>
       <logicalFolder name="math" displayName="math" projectFiles="true">
         <itemPath>../include/math/fixdec16.h</itemPath>
@@ -41,6 +44,7 @@
       <itemPath>../include/system.h</itemPath>
       <itemPath>../include/pid.h</itemPath>
       <itemPath>../include/motors.h</itemPath>
+      <itemPath>../include/pidpitch.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -82,6 +86,7 @@
       <itemPath>../src/system.c</itemPath>
       <itemPath>../src/pid.c</itemPath>
       <itemPath>../src/motors.c</itemPath>
+      <itemPath>../src/pidpitch.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -164,7 +169,7 @@
         <property key="oXC16gcc-sfr-warn" value="false"/>
         <property key="oXC16gcc-smar-io-lvl" value="1"/>
         <property key="oXC16gcc-smart-io-fmt" value=""/>
-        <property key="optimization-level" value="2"/>
+        <property key="optimization-level" value="0"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value=""/>
@@ -284,7 +289,6 @@
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="UART 1" value="true"/>
         <property key="UART 2" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>

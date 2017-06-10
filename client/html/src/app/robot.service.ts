@@ -12,7 +12,7 @@ export class RobotService {
     
     constructor( private http : Http ) { }
     
-    pitchState() : Observable<PitchState> {
-        return this.http.get( this.pitchStateUrl ).map( response => response.json() as PitchState );
+    pitchState() : Observable<PitchState[]> {
+        return this.http.get( this.pitchStateUrl ).map( response => response.json() as PitchState[] );
     }
 }

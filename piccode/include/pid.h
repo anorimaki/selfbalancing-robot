@@ -3,6 +3,8 @@
 #define	PID_H
 
 #include "math/util.h"
+#include "api/motors_i2c_model.h"
+#include "api/motors_i2c_reg.h"
 #include <stdint.h>
 
 #define PID_INPUT_BIT_SIZE      15      //Limited to 15 bits signed integers to 
@@ -21,22 +23,62 @@
 
 #define PID_SCALE_INPUT(in, in_bits) \
             SCALE_VALUE( in, in_bits, PID_INPUT_BIT_SIZE )
-             
 
-typedef struct 
+
+typedef struct {
+	uint8_t max_size;
+    PIDStateEntry* begin;
+    PIDStateEntry* end;
+    PIDStateEntry* read_ptr;
+    PIDStateEntry* write_ptr;
+    uint8_t size;
+} PIDStore;
+
+typedef struct
 {
-    int8_t k_p;
-    int8_t k_d;
-    int8_t k_i;
-    int16_t previous_error; 
-    int32_t integral_error;
-    int16_t target;
-    int16_t current;
+    PIDStore store;
+    PIDSettings settings;
 } PID;
 
-void pid_init( PID* pid );
-int16_t pid_compute( PID* pid );
 
+void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size );
+int16_t pid_compute( PID* pid, int16_t target, int16_t current );
+
+#define byte_ptr(base, address) \
+    (((uint8_t*)base)+address)
+
+
+static inline PIDStateEntry* pid_next_state_entry( PIDStore* pid_store,
+											  PIDStateEntry* current )
+{
+	++current;
+	return (current==pid_store->end) ? pid_store->begin : current;
+}
+
+
+static inline uint8_t pid_i2c_read( PID* pid, uint8_t address )
+{
+    if ( address < sizeof(PIDStateEntry) ) {
+        uint8_t ret = *byte_ptr(pid->store.read_ptr, address);
+        if ( address == (sizeof(PIDStateEntry)-1) ) {
+            --pid->store.size;
+            pid->store.read_ptr = pid_next_state_entry( &pid->store,
+                                                        pid->store.read_ptr );
+         }
+        return ret;
+    }
+
+    // store.size and settings are mappeable from pid
+    return *byte_ptr(&pid->store.size, address-sizeof(PIDStateEntry));
+}
+
+static inline void pid_i2c_write( PID* pid, uint8_t address, uint8_t value )
+{
+                //Only PID settings are writable: skip FIFO and store.size
+    if ( address > sizeof(PIDStateEntry) ) {
+        *byte_ptr(&pid->store.size, address-sizeof(PIDStateEntry)) = value;
+    }
+}
 
 #endif	
 

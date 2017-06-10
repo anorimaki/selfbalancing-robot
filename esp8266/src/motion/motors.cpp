@@ -1,7 +1,7 @@
 #include "motion/motors.h"
-#include "motors_protocol.h"
 #include "util/trace.h"
 #include "i2c/i2c.h"
+#include "motors_i2c_api.h"
 
 namespace motion
 {
@@ -26,9 +26,9 @@ static bool receive( uint8_t reg_address, uint8_t* data, uint8_t length )
 }
 
 template <typename T>
-static bool receive( uint8_t reg_address, T& obj )
+static bool receive( uint8_t reg_address, T* obj )
 {
-	return receive( reg_address, reinterpret_cast<uint8_t*>(&obj), sizeof(T) );
+	return receive( reg_address, reinterpret_cast<uint8_t*>(obj), sizeof(T) );
 }
 
 
@@ -36,6 +36,7 @@ static bool receive( uint8_t reg_address, T& obj )
 
 bool Motors::init()
 {
+twi_setClockStretchLimit( 0xFFF );
 	if ( !send( MOTORSREG_STATUS, 0 ) )
 		return false;
 	delay( 100 );
@@ -43,9 +44,22 @@ bool Motors::init()
 }
 
 
-bool Motors::pitchState( Pitch::State& state  )
+
+bool Motors::pitchState( std::vector<Motors::PitchState>& states  )
 {
-	return receive( MOTORSREG_PITCH_PID_PREV_ERR, state );
+	uint8_t fifoSize;
+	if ( !receive( MOTORSREG_PITCH_FIFO_SIZE, &fifoSize ) )
+		TRACE_ERROR_AND_RETURN(false)
+
+	while( fifoSize > 0 ) {
+		PitchState state;
+		if ( !receive( MOTORSREG_PITCH_FIFO_CURRENT, &state ) )
+			TRACE_ERROR_AND_RETURN(false)
+		states.push_back( state );
+		--fifoSize;
+	}
+
+	return true;
 }
 
 

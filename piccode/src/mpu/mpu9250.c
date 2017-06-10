@@ -37,7 +37,7 @@ MpuStatus mpu9250_get_data( MpuData* data ) {
 	//Normalization: DMP quaternation is yet normalized but in 
 	//	q30 fixed point decimal. This format isn't documented but you can infer
 	//	it from FIFO_CORRUPTION_CHECK code in DMP sources.
-	// -> Convert it to q16 by removing low 14 bits
+	// -> Convert it to q16 by removing lower 14 bits
 	data->quaternation.w = quat[0] >> 14;
 	data->quaternation.x = quat[1] >> 14;
 	data->quaternation.y = quat[2] >> 14;

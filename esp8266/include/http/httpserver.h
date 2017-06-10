@@ -16,10 +16,10 @@ public:
 		return m_impl;
 	}
 
-
 private:
 	void handleMotorsPitch();
 	void handleRoot();
+	void sendError( const char* message );
 
 private:
 	ESP8266WebServer m_impl;

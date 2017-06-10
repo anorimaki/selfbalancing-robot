@@ -4,8 +4,9 @@
 #include "mpu/mpu9250.h"
 #include "system.h"
 #include "io/input_i2c.h"
-#include "io/motors_reg.h"
+#include "api/motors_i2c_reg.h"
 #include "mpu/inv_pic24f_adapter.h"
+#include "pidpitch.h"
 #include "pid.h"
 #include "motors.h"
 #include <stdio.h>
@@ -21,9 +22,8 @@ void waitInitialization() {
 
 // pitch_pid->current: in Q14 format 
 // pitch_pid->target: in Q14 format
-static PID* pitch_pid = (PID*)&system_registers[MOTORSREG_PITCH_PID_KP];
 
-int16_t process_mpu_data()
+int16_t cal_motors_power( int16_t target_pitch )
 {
 	MpuData data;
 	MpuStatus status = mpu9250_get_data( &data );
@@ -33,51 +33,38 @@ int16_t process_mpu_data()
 	if ( status != MPU_OK )
 		return 0xFFFF;
 	
-	fix16_t pitch = quat_to_pitch( &data.quaternation );
-	
-	char pitch_str[MAX_FIX16_STR_SIZE];
-	fix16_to_str( pitch, pitch_str );
-	
-	
-		//Read pitch is limited to [-57.2948º..57.2948º] range (17 lowerts bits)
+	fix16_t current_pitch = quat_to_pitch( &data.quaternation );
+		
+		//Read pitch is limited to 
+		// [-57.2948º..57.2948º] range (17 LSB of Q16 pitch)
 		//Important: 'target' pitch range must be shorter! ~ [-40º..40º]??
-	pitch = PID_SCALE_INPUT( pitch, 17 );	//Adapt pitch to PID algorithm
-	if ( pitch > PID_MAX_INPUT )			//Keep pitch in [-57º..57º] range
-		pitch = PID_MAX_INPUT;
-	else if ( pitch < PID_MIN_INPUT )
-		pitch = PID_MIN_INPUT;
+	current_pitch = PID_SCALE_INPUT( current_pitch, 17 );	//Adapt pitch to PID algorithm
+	if ( current_pitch > PID_MAX_INPUT )			//Keep pitch in [-57º..57º] range
+		current_pitch = PID_MAX_INPUT;
+	else if ( current_pitch < PID_MIN_INPUT )
+		current_pitch = PID_MIN_INPUT;
 	
-	pitch_pid->current = pitch;
-	int16_t power = pid_compute( pitch_pid ) ;
-	
-//	printf( "Pitch: %s. Power: %d\n", pitch_str, power );
-	
+	int16_t power = pid_compute( &pidpitch_data, target_pitch, current_pitch ) ;
+		
 	return power;
 }
 
-
-static void init_pitch_data()
-{
-	pid_init( pitch_pid );
-	pitch_pid->target=0;
-			//Max bits of constants = 15-PID_DATA_BITS to avoid overflows
-	pitch_pid->k_p=127;
-	pitch_pid->k_i=50;
-	pitch_pid->k_d=10;
-}
 
 
 int main(void)
 {
     SYSTEM_Initialize();
 	
+	delay_ms(2);
+	
 	system_init();
 	inputi2c_init();
+	pidpitch_init();
 	motors_init();
 	
-	init_pitch_data();
-	
 	printf( "System initialized\n" );
+	
+	int16_t pitch_target = 0;		//Must be adapted to PID algorithm input
 	
 	while( 1 )
     {
@@ -85,9 +72,12 @@ int main(void)
 			waitInitialization();
 		}
 		
-		int16_t motors_power = process_mpu_data();
-		if ( motors_power != 0xFFFF )
+		int16_t motors_power = cal_motors_power( pitch_target );
+		if ( motors_power != 0xFFFF ) {
 			motors_set_power( motors_power );
+		}
+		
+		__delay_ms(3);
     }
 
     return -1;

@@ -1,7 +1,9 @@
 #ifndef SRC_MOTORCTRL_H_
 #define SRC_MOTORCTRL_H_
 
-#include "pid.h"
+#include "motors_i2c_model.h"
+#include "util/arduino_stl_support.h"
+#include <vector>
 
 namespace motion
 {
@@ -9,12 +11,12 @@ namespace motion
 class Motors
 {
 public:
-	typedef control::PID Pitch;
+	typedef PIDStateEntry PitchState;
 
 public:
 	bool init();
 
-	bool pitchState( Pitch::State& state );
+	bool pitchState( std::vector<PitchState>& state );
 };
 
 }

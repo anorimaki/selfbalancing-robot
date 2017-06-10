@@ -25,35 +25,31 @@ static void wifiInit()
 		delay ( 500 );
 		Serial.print ( "." );
 	}
-	Serial.print ( "IP address: " );
-	Serial.println ( WiFi.localIP() );
+	Serial.print( "IP address: " );
+	Serial.println( WiFi.localIP() );
 }
 
 
 
 void Application::init()
 {
+	initMpu();
+	while( !checkMpu() ) {
+		delay( 100 );
+	}
+
+	initMotors();
+
 	wifiInit();
 	m_httpServer.init( &m_motors );
-	m_state = initMpu();
+
 	delay( 400 );
 }
 
 
 void Application::loop()
 {
-#if 1
-			//MPU check is here (and not in init method) to avoid errors if Arduino setup() function takes
-			//too many time.
-	if ( m_state == MpuChecking ) {
-		m_state = checkMpu();
-	}
-
-	if ( m_state == MotorsInitiallization ) {
-		m_state = initMotors();
-	}
-
-#else
+#if 0
 	Optional<mpu::MpuData> data;
 	if ( !m_mpu9250.getData(data) ) {
 		TRACE_ERROR( "MPU check failed" );
@@ -115,54 +111,49 @@ void Application::showData( const mpu::MpuData& data )
 }
 
 
-Application::State Application::initMotors()
+void Application::initMotors()
 {
 	i2c::init( MOTORS_SDA, MOTORS_SCL );
 
 	if( !m_motors.init() ) {
 		TRACE_ERROR( "Motors initialization failed" );
-		return MotorsError;
+		return;
 	}
 
 	TRACE("Motors initialized");
-
-	return Running;
 }
 
 
-Application::State Application::initMpu()
+void Application::initMpu()
 {
 	i2c::init( MPU_SDA, MPU_SCL );
 
 	if ( !m_mpu9250.init() ) {
 		TRACE_ERROR( "MPU initialization failed" );
-		return MpuError;
+		return;
 	}
 
 	TRACE("MPU initialized");
-
-	return MpuChecking;
 }
 
 
-Application::State Application::checkMpu()
+bool Application::checkMpu()
 {
 	Optional<mpu::MpuData> data;
 	if ( !m_mpu9250.getData(data) ) {
 		TRACE_ERROR( "MPU check failed" );
-		return MpuError;
+		return false;
 	}
 
 	TRACE( "MPU check: %d", !!data );
 
 	if ( !data ) {
-		delay( 100 );
-		return MpuChecking;
+		return false;
 	}
 
 	m_mpu9250.end();
 
-	return MotorsInitiallization;
+	return true;
 }
 
 

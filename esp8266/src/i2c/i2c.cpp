@@ -38,20 +38,29 @@ bool read( unsigned char slave_addr, unsigned char reg_addr,
 		unsigned char* data, unsigned char length )
 
 {
+#if 1
+	int err = twi_writeTo(slave_addr, &reg_addr, 1, false);
+	if ( err != 0 ) {
+		TRACE_ERROR( "I2C write error: %d", err );
+		return false;
+	}
+
+	delayMicroseconds(5);
+
+	err = twi_readFrom(slave_addr, data, length, true);
+	if ( err != 0 ) {
+		TRACE_ERROR( "I2C read error: %d", err );
+		return false;
+	}
+#else
 	Wire.beginTransmission(slave_addr);
 	if ( Wire.write(reg_addr) != 1 )
 		TRACE_ERROR_AND_RETURN(false)
 
 	Wire.endTransmission(false);
 
-	delayMicroseconds(5);
+	delayMicroseconds(20);
 
-#if 1
-	int read = twi_readFrom(slave_addr, data, length, true);
-	if ( read != 0 ) {
-		return false;
-	}
-#else
 	if ( Wire.requestFrom(slave_addr, length) != length )
 		TRACE_ERROR_AND_RETURN(-1)
 

@@ -21,7 +21,7 @@
 								<option id="io.sloeber.compiler.cpp.sketch.option.incpath.739091118" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
-									<listOptionValue builtIn="false" value="../../piccode/include/io"/>
+									<listOptionValue builtIn="false" value="../../piccode/include/api"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include/mpu}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/libraries/ESP8266WebServer}&quot;"/>
@@ -36,7 +36,7 @@
 							<tool id="io.sloeber.tool.compiler.c.341211431" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
 								<option id="io.sloeber.compiler.c.sketch.option.incpath.1681213380" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/core/core}&quot;"/>
-									<listOptionValue builtIn="false" value="../../piccode/include/io"/>
+									<listOptionValue builtIn="false" value="../../piccode/include/api"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include/mpu}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/core/variant}&quot;"/>
@@ -68,17 +68,6 @@
 							<tool id="io.sloeber.tool.size.1836276715" name="Arduino tool Print Size" superClass="io.sloeber.tool.size"/>
 						</toolChain>
 					</folderInfo>
-					<folderInfo id="io.sloeber.core.toolChain.release.1120225156.838163646" name="/" resourcePath="libraries/ArduinoJson/fuzzing">
-						<toolChain id="io.sloeber.core.toolChain.release.484900551" name="Arduino Toolchain( Sloeber edition)" superClass="io.sloeber.core.toolChain.release" unusedChildren="">
-							<tool id="io.sloeber.tool.sketch.compiler.cpp.262645197" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp.1961552886"/>
-							<tool id="io.sloeber.tool.compiler.c.2066527115" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c.341211431"/>
-							<tool id="io.sloeber.tool.sketch.compiler.s.1898305407" name="Arduino Assembler" superClass="io.sloeber.tool.sketch.compiler.s.843858054"/>
-							<tool id="io.sloeber.tool.ar.1528408545" name="Arduino archiver" superClass="io.sloeber.tool.ar.2126179175"/>
-							<tool id="io.sloeber.tool.combine.1247890804" name="Arduino combiner" superClass="io.sloeber.tool.combine.622254578"/>
-							<tool id="io.sloeber.tool.objcopy.eep.1690404847" name="Arduino tool objcopy command" superClass="io.sloeber.tool.objcopy.eep.1444850461"/>
-							<tool id="io.sloeber.tool.size.1429149013" name="Arduino tool Print Size" superClass="io.sloeber.tool.size.1836276715"/>
-						</toolChain>
-					</folderInfo>
 					<sourceEntries>
 						<entry excluding="libraries/ArduinoJson/fuzzing|libraries/?*/**/test*/**|libraries**/._*|libraries/?*/**/third-party/**|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/c*/?*|libraries/?*/d*/?*|libraries/?*/D*/?*" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
@@ -100,4 +89,5 @@
 			<resource resourceType="PROJECT" workspacePath="/selfbalancing_esp8266"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

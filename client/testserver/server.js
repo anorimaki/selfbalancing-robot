@@ -11,6 +11,9 @@ app.use(function(req, res, next) {
 var routes = require('./api/routes/pitchRoutes');
 routes(app);
 
+var pitchController = require('./api/controllers/pitchController');
+pitchController.init();
+
 app.listen(port);
 
 console.log('todo list RESTful API server started on: ' + port);

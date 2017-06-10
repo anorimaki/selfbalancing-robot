@@ -18,6 +18,7 @@ struct PID
 
 	struct State
 	{
+		int32_t index;
 		int16_t previous_error;
 		int32_t integral_error;
 		int16_t target;

@@ -21,11 +21,11 @@
 			</table>
 		</div>
 		<div class="col-xs-15 col-md-9">
-			<rb-char 
-				[dataSource]="pitchStateDataSource"
-				[series]="['current','integral_error']"
+			<rb-char #pitchChar
+				[y]="['current','integral_error']"
 				[x]="'index'">
 			</rb-char>
+			<button (click)="clicked($event)"></button>
 		</div>
 	</div>
 </div>

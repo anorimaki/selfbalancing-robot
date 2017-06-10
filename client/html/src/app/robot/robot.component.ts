@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { RobotService } from '../robot.service';
+import { RbChartComponent } from './chart/chart.component';
 import { PitchState } from "app/pitch-state";
 import { Observable } from 'rxjs/Observable';
-import DataSource from 'devextreme/data/data_source';
-import ArrayStore from 'devextreme/data/array_store';
 import 'rxjs/add/operator/expand';
+import 'rxjs/add/operator/retry';
 import 'rxjs/add/operator/concatMap';
 import 'rxjs/add/observable/timer';
 
@@ -14,21 +14,25 @@ import 'rxjs/add/observable/timer';
     styleUrls: ['./robot.component.css']
 } )
 export class RobotComponent implements OnInit {
-    pitchStateStore: ArrayStore;
-    pitchStateDataSource: DataSource;
-
+    @ViewChild("pitchChar") 
+    private pitchChar: RbChartComponent;
+    
     constructor( private robotService: RobotService ) { }
 
     ngOnInit() {
-        this.pitchStateStore = new ArrayStore([]);
-        this.pitchStateDataSource = new DataSource(this.pitchStateStore);
+        let pollData = this.robotService.pitchState().map( pitches => {
+                return pitches.map( item => {
+                        let scaledPitch = new PitchState( <PitchState>item );
+                        scaledPitch.integral_error /= 5000; 
+                        return scaledPitch;
+                    } );
+            }).
+            retry();
         
-        let pollData = this.robotService.pitchState().map( pitch => {
-                this.pitchStateStore.insert( pitch ).done( (values, keys) => {
-                    this.pitchStateDataSource.load();
-                } ); 
-            })
-        
-        pollData.expand( () => Observable.timer(2000).concatMap( () => pollData ) ).subscribe();
+        pollData.expand( () => Observable.timer(2000).concatMap( () => pollData ) ).subscribe(
+                    pitches => {
+                        this.pitchChar.insert( pitches );
+                    }
+                );
     }
 }

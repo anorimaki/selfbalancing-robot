@@ -1,7 +1,7 @@
 #include "system.h"
-#include "io/motors_reg.h"
+#include "api/motors_i2c_api.h"
 
-uint8_t system_registers[ MOTORS_REGISTERS_SIZE ];
+uint8_t system_registers[ MOTORSREG_SYSTEM_END ];
 
 inline __attribute__((always_inline)) bool system_is_on()
 {

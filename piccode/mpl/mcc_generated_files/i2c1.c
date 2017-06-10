@@ -202,8 +202,9 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _SI2C1Interrupt ( void )
                 else
                 {
                     // it is a read, go to transmit mode 
-
+					dummy = I2C1_RECEIVE_REG;
                     I2C1_StatusCallback(I2C1_SLAVE_TRANSMIT_REQUEST_DETECTED);
+					
 
                     // during this portion, the master is expecting the
                     // slave for a reply. So the returned status of
@@ -284,6 +285,12 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _SI2C1Interrupt ( void )
                     {
                         I2C1_ReceiveProcess();
                         not_busy = I2C1_StatusCallback(I2C1_SLAVE_RECEIVED_DATA_DETECTED);
+						if (not_busy)
+						{
+							// dummy read is needed
+							dummy = I2C1_RECEIVE_REG;
+							I2C1_RECEIVE_OVERFLOW_STATUS_BIT = 0;
+						}
                     }
                     else
                     {

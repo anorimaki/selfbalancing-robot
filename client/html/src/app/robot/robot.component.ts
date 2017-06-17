@@ -29,7 +29,7 @@ export class RobotComponent implements OnInit {
             }).
             retry();
         
-        pollData.expand( () => Observable.timer(2000).concatMap( () => pollData ) ).subscribe(
+        pollData.expand( () => Observable.timer(50).concatMap( () => pollData ) ).subscribe(
                     pitches => {
                         this.pitchChar.insert( pitches );
                     }

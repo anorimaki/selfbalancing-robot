@@ -12,6 +12,7 @@ void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size )
 	pid->store.end = store+store_size;
 	pid->store.read_ptr = pid->store.begin;
 	pid->store.write_ptr = pid->store.begin;
+	pid->store.max_size = store_size;
 	
 	pid->store.write_ptr->index = 0;
 	pid->store.write_ptr->state.current = 0;
@@ -59,6 +60,7 @@ int16_t pid_compute( PID* pid, int16_t target, int16_t current )
 	next_write_ptr->state.integral_error = integral_error;
 	next_write_ptr->state.previous_error = error;
 	pid->store.write_ptr = next_write_ptr;
+	++pid->store.size;
 	
 			//Scale to remove constant factors (-1?)
 			//and adapt input bits to output bits

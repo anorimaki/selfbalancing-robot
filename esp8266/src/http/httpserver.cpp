@@ -35,11 +35,11 @@ void Server::handleMotorsPitch() {
 	JsonArray& array = jsonBuffer.createArray();
 	std::for_each( pitches.begin(), pitches.end(), [&array](const motion::Motors::PitchState& pitch) {
 			JsonObject& entry = array.createNestedObject();
-			entry["index"] = pitch.index;
-			entry["previous_error"] = pitch.state.previous_error;
-			entry["integral_error"] = pitch.state.integral_error;
-			entry["target"] = pitch.state.target;
-			entry["current"] = pitch.state.current;
+			entry["i"] = pitch.index;
+			entry["p_err"] = pitch.state.previous_error;
+			entry["i_err"] = pitch.state.integral_error;
+			entry["tar"] = pitch.state.target;
+			entry["cur"] = pitch.state.current;
 		} );
 
 					//Send headers

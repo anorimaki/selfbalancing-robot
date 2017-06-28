@@ -1,11 +1,9 @@
 import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import { DxChartComponent, DxRangeSelectorComponent } from 'devextreme-angular';
-import DataSource from 'devextreme/data/data_source';
-import DxChart from 'devextreme/viz/chart';
-import ArrayStore from 'devextreme/data/array_store';
+import { AmChartsService } from "@amcharts/amcharts3-angular";
 import { Range } from './range';
 
-type MapComponent = ( e: any ) => any;
+
+type YOption = { label:string, checked: boolean, color: number };
 
 @Component( {
     selector: 'rb-char',
@@ -13,55 +11,66 @@ type MapComponent = ( e: any ) => any;
     styleUrls: ['./chart.component.css']
 } )
 export class RbChartComponent implements OnInit {
-    @ViewChild( "chart" )
-    private dxChart: DxChartComponent;
-
-    @ViewChild( "rangeSelector" )
-    private dxRangeSelector: DxRangeSelectorComponent;
+    private static COLORS: string[] = ["#b5030d", "#05F30d", "#1503Fd"];
 
     @Input() private y: string[];
     @Input() private x: string;
 
-    private range: Range;
+    private yOptions: YOption[];
+    private chart: any;
     private lastItem: any;
     private follow: boolean;
-    private dataStore: ArrayStore;
-    private dataSource: DataSource;
 
-    constructor() {
-        this.follow = false;
-        this.range = new Range( 0, 1 );
-        this.dataStore = new ArrayStore( [] );
-        this.dataSource = new DataSource( {
-            store: this.dataStore
-        } );
-        this.dataSource.paginate( false );
+    constructor(private amCharts: AmChartsService) {
+    }
+
+    ngOnInit(): void {
+        this.yOptions = this.y.map( (label,index) => ({ label: label, checked: true, color:index } as YOption) ) ;
+       
+        this.chart = this.amCharts.makeChart( "chartdiv", {
+            type: "xy",
+            dataProvider: [],
+            graphs: this.getGraphs(),
+            chartCursor: {
+                fullWidth:true,
+                cursorAlpha:0.1
+            },
+            chartScrollbar: {
+                scrollbarHeight: 40,
+                color: "#FFFFFF",
+                autoGridCount: true,
+                graph: "g1"
+            },
+            mouseWheelZoomEnabled:true
+        });
+    }
+    
+    ngOnDestroy(): void {
+        this.amCharts.destroyChart( this.chart );
     }
     
     insert( items : any[] ) : void {
-        if ( items.length == 0 ) {
-            return;
-        }
-        
-        for (let item of items) {
-            this.dataStore.insert( item )
-        }
-        
-        this.lastItem = items[items.length-1];
-        
-        this.dataSource.load().done( () => {
-                let max = this.follow ? this.lastItem[this.x] : this.range.max;
-                this.dxChart.instance.zoomArgument( this.range.min, max );
-                this.dxRangeSelector.instance.setValue( [this.range.min, max] );
-            } );
+        this.chart.dataProvider.push( ...items );
+        this.chart.validateData();
     }
-
-    ngOnInit() {
+    
+    labelSelectionChanged( event ): void {
+        this.yOptions.
+            filter( option => (option.label == event.target.value) )[0].checked = event.target.checked;
+        this.chart.graphs = this.getGraphs();
+        this.chart.validateData();
     }
-
-    onRangeValueChanged( e: any ) {
-        this.range = new Range( e.value[0], e.value[1] );
-        this.follow = ( this.range.max == this.lastItem[this.x] );
-        this.dxChart.instance.zoomArgument( this.range.min, this.range.max );
+    
+    private getGraphs(): any[] {
+        return this.yOptions.
+            filter( option => option.checked ).
+            map( option =>  ({
+                        title: option.label,
+                        xField: this.x,
+                        yField: option.label,
+                        lineThickness: 1,
+                        lineColor: RbChartComponent.COLORS[option.color],
+                        balloonText: "[[category]]<br><b><span style='font-size:12px;'>[[value]]</span></b>"
+                    }) );
     }
 }

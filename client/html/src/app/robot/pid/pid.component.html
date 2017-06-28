@@ -1,0 +1,23 @@
+<form>
+	<md-input-container > 
+		<input mdInput placeholder="Proportional gain" name="proportinal" 
+				[(ngModel)]="newVal.proportional">
+		<md-hint align="end">{{current.proportional}}</md-hint>
+	</md-input-container>
+
+	<md-input-container > 
+		<input mdInput type="number" placeholder="Integral gain" name="integral" 
+				[(ngModel)]="newVal.integral">
+		<md-hint align="end">{{current.integral}}</md-hint>
+	</md-input-container>
+	
+	<md-input-container > 
+		<input mdInput placeholder="Derivative gain" name="derivative" 
+				[(ngModel)]="newVal.derivative">
+		<md-hint align="end">{{current.derivative}}</md-hint>
+	</md-input-container>
+
+	<button md-raised-button [attr.disabled]="(newVal.proportional || newVal.integral || newVal.derivative) ? null : ''">
+		Send new values
+	</button>
+</form>

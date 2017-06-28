@@ -1,31 +1,16 @@
-<div class="container">
-	<div class="row">
-		<div class="col-xs-6 col-md-3">
-			<table *ngIf="pitchState" class="table table-bordered">
-				<tr>
-					<td>Target</td>
-					<td>{{pitchState.current}}</td>
-				</tr>
-				<tr>
-					<td>Current</td>
-					<td>{{pitchState.target}}</td>
-				</tr>
-				<tr>
-					<td>Error</td>
-					<td>{{pitchState.previous_error}}</td>
-				</tr>
-				<tr>
-					<td>Integral error</td>
-					<td>{{pitchState.integral_error}}</td>
-				</tr>
-			</table>
+<div fxLayout='column'>
+	<div>
+		<div *ngIf="errorMessage">{{errorMessage}}</div>
+	<div fxLayout='row'>
+		<div fxFlex="10%">
+			<rb-pid #pitchPid>
+			</rb-pid>
 		</div>
-		<div class="col-xs-15 col-md-9">
+		<div fxFlex="auto">
 			<rb-char #pitchChar
-				[y]="['current','integral_error']"
-				[x]="'index'">
+				[y]="['cur','i_err']"
+				[x]="'i'">
 			</rb-char>
-			<button (click)="clicked($event)"></button>
 		</div>
 	</div>
 </div>

@@ -1,28 +1,19 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
-import { DxChartModule, DxRangeSelectorModule } from 'devextreme-angular';
+import { NgModule, ErrorHandler } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { RobotComponent } from './robot/robot.component';
-import { RobotService } from './robot.service';
-import { RbChartComponent } from './robot/chart/chart.component';
+import { CoreModule } from './core/core.module'
+import { PitchModule } from './pitch/pitch.module';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    RobotComponent,
-    RbChartComponent
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpModule,
-    DxChartModule,
-    DxRangeSelectorModule
-  ],
-  providers: [RobotService],
-  bootstrap: [AppComponent]
-})
+
+@NgModule( {
+    imports: [
+        CoreModule,
+        PitchModule
+    ],
+    declarations: [
+        AppComponent
+    ],
+
+    bootstrap: [AppComponent]
+} )
 export class AppModule { }

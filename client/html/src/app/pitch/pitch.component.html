@@ -1,0 +1,10 @@
+<div fxLayout='row' fxLayoutGap='30px'>
+	<rb-pid #pitchPid fxFlex="10%"
+			(saveRequest)=saveSettings($settings)>
+	</rb-pid>
+	<rb-char #pitchChar fxFlex="auto"
+			[y]="['cur','i_err']"
+			[x]="'i'"
+			(enableChange)=pollingEnable($event)>
+	</rb-char>
+</div>

@@ -13,7 +13,7 @@
 #include <libpic30.h>
 
 
-void waitInitialization() {
+void wait_initialization() {
 	while( !system_is_on() ) {}
 	printf( "System on\n" );
 	
@@ -32,7 +32,7 @@ int16_t cal_motors_power( int16_t target_pitch )
 	}
 	if ( status != MPU_OK )
 		return 0xFFFF;
-	
+
 	fix16_t current_pitch = quat_to_pitch( &data.quaternation );
 		
 		//Read pitch is limited to 
@@ -43,12 +43,11 @@ int16_t cal_motors_power( int16_t target_pitch )
 		current_pitch = PID_MAX_INPUT;
 	else if ( current_pitch < PID_MIN_INPUT )
 		current_pitch = PID_MIN_INPUT;
-	
+
 	int16_t power = pid_compute( &pidpitch_data, target_pitch, current_pitch ) ;
 		
 	return power;
 }
-
 
 
 int main(void)
@@ -69,15 +68,15 @@ int main(void)
 	while( 1 )
     {
 		if ( !system_is_on() ) {
-			waitInitialization();
+			wait_initialization();
 		}
-		
+
 		int16_t motors_power = cal_motors_power( pitch_target );
 		if ( motors_power != 0xFFFF ) {
 			motors_set_power( motors_power );
 		}
-		
-		__delay_ms(3);
+
+		__delay_ms(5);
     }
 
     return -1;

@@ -62,9 +62,9 @@ static inline uint8_t pid_i2c_read( PID* pid, uint8_t address )
         uint8_t ret = *byte_ptr(pid->store.read_ptr, address);
         if ( address == (sizeof(PIDStateEntry)-1) ) {
             --pid->store.size;
-            pid->store.read_ptr = pid_next_state_entry( &pid->store,
+             pid->store.read_ptr = pid_next_state_entry( &pid->store,
                                                         pid->store.read_ptr );
-         }
+        }
         return ret;
     }
 

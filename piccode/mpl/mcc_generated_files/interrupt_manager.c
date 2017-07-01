@@ -57,8 +57,8 @@ void INTERRUPT_Initialize (void)
     //    Priority: 1
         IPC4bits.CNIP = 1;
     //    SICI: SI2C1 - I2C1 Slave Events
-    //    Priority: 1
-        IPC4bits.SI2C1IP = 1;
+    //    Priority: 2
+        IPC4bits.SI2C1IP = 2;
     //    MICI: MI2C2 - I2C2 Master Events
     //    Priority: 1
         IPC12bits.MI2C2IP = 1;

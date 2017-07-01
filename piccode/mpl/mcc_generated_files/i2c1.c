@@ -201,8 +201,9 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _SI2C1Interrupt ( void )
                 }
                 else
                 {
-                    // it is a read, go to transmit mode 
 					dummy = I2C1_RECEIVE_REG;
+					
+                    // it is a read, go to transmit mode 
                     I2C1_StatusCallback(I2C1_SLAVE_TRANSMIT_REQUEST_DETECTED);
 					
 
@@ -216,7 +217,6 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _SI2C1Interrupt ( void )
                     I2C1_TransmitProcess();
                     i2c1_slave_state = S_SLAVE_TRANSMIT_MODE;
                 }
-
             }
 
             else if
@@ -422,8 +422,9 @@ inline void __attribute__ ((always_inline)) I2C1_TransmitProcess(void)
     if (p_i2c1_read_pointer == NULL)
         return;
 
-    I2C1_TRANSMIT_REG = *p_i2c1_read_pointer;
 
+    I2C1_TRANSMIT_REG = *p_i2c1_read_pointer;
+	
     // set the SCL clock to be released
     I2C1_RELEASE_SCL_CLOCK_CONTROL_BIT = 1;
 

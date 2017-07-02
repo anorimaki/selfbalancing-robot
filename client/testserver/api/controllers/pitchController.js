@@ -49,5 +49,7 @@ exports.read_pid = function(req, res) {
 };
 
 exports.write_pid = function(req, res) {
-	pid = req.body
+	pid = req.body;
+	res.end();
+	console.log( "write: " + JSON.stringify(req.body) ); 
 };

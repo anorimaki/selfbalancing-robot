@@ -39,10 +39,11 @@ export class RbChartComponent implements OnInit {
                 limitToGraph: "g0"
             },
             chartScrollbar: {
-                scrollbarHeight: 30,
+                scrollbarHeight: 20,
                 color: "#AAAAAA",
                 autoGridCount: true,
-                graph: "g0"
+                graph: "g0",
+                graphType: "line"
             },
             mouseWheelZoomEnabled:true,
             hideYScrollbar: true

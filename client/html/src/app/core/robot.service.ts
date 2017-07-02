@@ -23,6 +23,6 @@ export class RobotService {
     } 
  
     setPitchPidSettings( settings: PidSettings ): Observable<void> {
-        return this.http.put( RobotService.pitchPidUrl, settings ).map( response => null);
+        return this.http.put( RobotService.pitchPidUrl, settings ).map( response => null );
     }
 }

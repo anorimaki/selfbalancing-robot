@@ -12,13 +12,29 @@
 namespace http
 {
 
+template <typename T>
+static void sendJson( ESP8266WebServer& server, T& content )
+{
+			//Send headers
+	server.setContentLength( content.measureLength() );
+	server.send( 200, "application/json" );
+
+			//Send body
+	WiFiClient client = server.client();
+	io::PrintBuffer<1760> printBuf(&client);
+	content.printTo( printBuf );
+	printBuf.flush();
+}
+
 
 void Server::init( motion::Motors* motors )
 {
 	m_motors = motors;
 
 	m_impl.on( "/", std::bind( &Server::handleRoot, this ) );
-	m_impl.on( "/motors/pitch/state", std::bind( &Server::handleMotorsPitch, this ) );
+	m_impl.on( "/motors/pitch/state", HTTPMethod::HTTP_GET, std::bind( &Server::handleMotorsPitch, this ) );
+	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_GET, std::bind( &Server::handleMotorsPIDSettingsPitch, this ) );
+	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_PUT, std::bind( &Server::handleMotorsSetPIDSettingsPitch, this ) );
 	m_impl.begin();
 	m_impl.client().setNoDelay(1);		//Just for performance
 }
@@ -42,18 +58,42 @@ void Server::handleMotorsPitch() {
 			entry["cur"] = pitch.state.current;
 		} );
 
-					//Send headers
-	m_impl.setContentLength( array.measureLength() );
-	m_impl.send( 200, "application/json" );
-
-					//Send body
-	WiFiClient client = m_impl.client();
-
-	io::PrintBuffer<1760> printBuf(&client);
-	array.printTo( printBuf );
-	printBuf.flush();
+	sendJson( m_impl, array );
 }
 
+
+void Server::handleMotorsPIDSettingsPitch() {
+	motion::Motors::PIDSettings settings;
+	if ( !m_motors->pitchPIDSettins(settings) ) {
+		sendError( "Error reading pitch PID settings" );
+		return;
+	}
+
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject& jsonSetings = jsonBuffer.createObject();
+	jsonSetings["integral"] = settings.k_i;
+	jsonSetings["proportional"] = settings.k_p;
+	jsonSetings["derivative"] = settings.k_d;
+
+	sendJson( m_impl, jsonSetings );
+
+}
+
+
+void Server::handleMotorsSetPIDSettingsPitch() {
+	String body = m_impl.arg("plain");
+	DynamicJsonBuffer jsonBuffer;
+	const JsonObject& root = jsonBuffer.parseObject( body );
+
+	motion::Motors::PIDSettings settings;
+	settings.k_i = root["integral"];
+	settings.k_p = root["proportional"];
+	settings.k_d = root["derivative"];
+	if ( !m_motors->setPitchPIDSettins(settings) ) {
+		sendError( "Error settings pitch PID settings" );
+		return;
+	}
+}
 
 void Server::sendError( const char* message ) {
 	String content = String("<html>\

@@ -3,8 +3,11 @@
 			(saveRequest)=saveSettings($event)>
 	</rb-pid>
 	<rb-char #pitchChar fxFlex="auto"
-			[y]="['cur','i_err']"
-			[x]="'i'"
+			[y]="[  { label: 'pitch', field: 'current'},
+					{ label: 'integral error', field: 'integralError'},
+					{ label: 'power', field: 'result'}
+				]"
+			[x]="'index'"
 			(enableChange)=pollingEnable($event)>
 	</rb-char>
 </div>

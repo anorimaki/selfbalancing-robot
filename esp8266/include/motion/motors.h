@@ -11,12 +11,16 @@ namespace motion
 class Motors
 {
 public:
-	typedef PIDStateEntry PitchState;
+	typedef ::PIDStateEntry PitchState;
+	typedef ::PIDSettings PIDSettings;
 
 public:
 	bool init();
 
 	bool pitchState( std::vector<PitchState>& state );
+
+	bool pitchPIDSettins( PIDSettings& settings );
+	bool setPitchPIDSettins( const PIDSettings& settings );
 };
 
 }

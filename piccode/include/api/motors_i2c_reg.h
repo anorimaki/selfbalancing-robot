@@ -27,7 +27,8 @@ extern "C" {
 
     
 //PIDSettings (R/W)
-#define MOTORSREG_PITCH_PID_KP          (MOTORSREG_PITCH_FIFO_SIZE + sizeof(int8_t))	//16
+#define MOTORSREG_PITCH_PID	         	(MOTORSREG_PITCH_FIFO_SIZE + sizeof(int8_t))	//16
+#define MOTORSREG_PITCH_PID_KP          MOTORSREG_PITCH_PID								//16
 #define MOTORSREG_PITCH_PID_KD          (MOTORSREG_PITCH_PID_KP + sizeof(int8_t))		//17
 #define MOTORSREG_PITCH_PID_KI          (MOTORSREG_PITCH_PID_KD + sizeof(int8_t))  		//18
 

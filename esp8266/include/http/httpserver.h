@@ -18,6 +18,8 @@ public:
 
 private:
 	void handleMotorsPitch();
+	void handleMotorsPIDSettingsPitch();
+	void handleMotorsSetPIDSettingsPitch();
 	void handleRoot();
 	void sendError( const char* message );
 

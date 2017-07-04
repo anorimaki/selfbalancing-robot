@@ -14,7 +14,7 @@ void init( int sda, int scl )
 
 
 bool write( unsigned char slave_addr, unsigned char reg_addr,
-         unsigned char* data, unsigned char length )
+         const unsigned char* data, unsigned char length )
 {
 	Wire.beginTransmission(slave_addr);
 

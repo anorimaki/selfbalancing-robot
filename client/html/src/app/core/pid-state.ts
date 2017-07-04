@@ -1,4 +1,4 @@
-export class PitchState {
+export class PidState {
     private i: number;
     private p_err: number;
     private i_err: number;
@@ -6,8 +6,8 @@ export class PitchState {
     private cur: number;
 
     constructor();
-    constructor(other: PitchState);
-    constructor(other?: PitchState) {
+    constructor(other: PidState);
+    constructor(other?: PidState) {
         this.i = other ? other.i : 0;
         this.p_err = other ? other.p_err : 0;
         this.i_err = other ? other.i_err : 0;
@@ -19,16 +19,12 @@ export class PitchState {
         return this.i;
     }
     
-    get previous_error(): number {
+    get previousError(): number {
         return this.p_err;
     }
     
-    get integral_error(): number {
+    get integralError(): number {
         return this.i_err;
-    }
-    
-    set integral_error(err: number) {
-        this.i_err = err;
     }
     
     get target(): number {

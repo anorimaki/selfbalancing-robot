@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angu
 import { AmChartsService } from "@amcharts/amcharts3-angular";
 import { MdSlideToggleChange } from "@angular/material/material";
 
-type YOption = { label:string, checked: boolean, color: number };
+type Serie = { label: string, field: string, checked: boolean, color: number };
 
 @Component( {
     selector: 'rb-char',
@@ -12,12 +12,11 @@ type YOption = { label:string, checked: boolean, color: number };
 export class RbChartComponent implements OnInit {
     private static COLORS: string[] = ["#b5030d", "#05F30d", "#1503Fd"];
 
-    @Input() private y: string[];
+    @Input() private y: Serie[];
     @Input() private x: string;
     
     @Output() enableChange = new EventEmitter<boolean>(); 
 
-    private yOptions: YOption[];
     private chart: any;
     private lastItem: any;
     @Input() enabled: boolean;
@@ -27,7 +26,12 @@ export class RbChartComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.yOptions = this.y.map( (label,index) => ({ label: label, checked: true, color:index } as YOption) ) ;
+        this.y = this.y.map( (input,i) => ({ 
+                label: input.label,
+                field: input.field, 
+                checked: (input.checked!=null) ? input.checked : true, 
+                color: (input.color!=null) ? input.color : i, 
+            } as Serie) ) ;
        
         this.chart = this.amCharts.makeChart( "chartdiv", {
             type: "xy",
@@ -60,8 +64,8 @@ export class RbChartComponent implements OnInit {
     }
     
     labelSelectionChanged( event ): void {
-        this.yOptions.
-            filter( option => (option.label == event.source.value) )[0].checked = event.checked;
+        this.y.
+            filter( option => (option.field == event.source.value) )[0].checked = event.checked;
         this.chart.graphs = this.getGraphs();
         this.chart.validateData();
     }
@@ -71,13 +75,13 @@ export class RbChartComponent implements OnInit {
     }
     
     private getGraphs(): any[] {
-        return this.yOptions.
+        return this.y.
             filter( option => option.checked ).
             map( (option, index) =>  ({
                         id: "g"+ index, 
                         title: option.label,
                         xField: this.x,
-                        yField: option.label,
+                        yField: option.field,
                         lineThickness: 1,
                         lineColor: RbChartComponent.COLORS[option.color],
                         balloonText: "[[category]]<br><b><span style='font-size:12px;'>[[value]]</span></b>"

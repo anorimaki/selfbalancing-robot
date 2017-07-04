@@ -2,9 +2,9 @@
 	<div id="chartdiv" fxFlex="80%"></div>
 	<div id="ctrldiv" fxFlex="20%" fxLayout='column' >
 		<div id="series" fxLayout='column' fxLayoutAlign="center start" fxFlex="80%">
-			<md-checkbox *ngFor="let yOption of yOptions"
-						   name="yOptions"
-		                   value="{{yOption.label}}"
+			<md-checkbox *ngFor="let yOption of y"
+						   name="{{yOption.field}}"
+		                   value="{{yOption.field}}"
 		                   [ngModel]="yOption.checked"
 		                   (change)="labelSelectionChanged($event)">
 		            {{yOption.label}}

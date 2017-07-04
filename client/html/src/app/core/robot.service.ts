@@ -3,7 +3,7 @@ import { Http } from '@angular/http';
 import { Observable }     from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
-import { PitchState }     from './pitch-state';
+import { PidState }     from './pid-state';
 import { PidSettings }     from './pid-settings';
 import { environment } from 'environments/environment';
 
@@ -14,8 +14,9 @@ export class RobotService {
     
     constructor( private http : Http ) { }
     
-    getPitchState() : Observable<PitchState[]> {
-        return this.http.get( RobotService.pitchStateUrl ).map( response => response.json() as PitchState[] );
+    getPitchState() : Observable<PidState[]> {
+        return this.http.get( RobotService.pitchStateUrl ).map( response => 
+            (<any[]>response.json()).map( item => new PidState(item) ) );
     }
     
     getPitchPidSettings(): Observable<PidSettings> {

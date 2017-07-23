@@ -20,18 +20,20 @@ void wait_initialization() {
 	mpu9250_init();
 }
 
-// pitch_pid->current: in Q14 format 
-// pitch_pid->target: in Q14 format
 
-int16_t cal_motors_power( int16_t target_pitch )
+bool cal_motors_power( int16_t target_pitch, int16_t* power )
 {
 	MpuData data;
 	MpuStatus status = mpu9250_get_data( &data );
-	if ( status == MPU_ERROR ) {
+	if ( status == MPU_OVERUN )
+		printf( "MPU FIFO overflow\n" );
+	else if ( status == MPU_DATA_CORRUPTION )
+		printf( "MPU data corruption\n" );
+	else if ( status == MPU_ERROR )
 		printf( "MPU communication error\n" );
-	}
+	
 	if ( status != MPU_OK )
-		return 0xFFFF;
+		return false;
 
 	fix16_t current_pitch = quat_to_pitch( &data.quaternation );
 		
@@ -43,10 +45,19 @@ int16_t cal_motors_power( int16_t target_pitch )
 		current_pitch = PID_MAX_INPUT;
 	else if ( current_pitch < PID_MIN_INPUT )
 		current_pitch = PID_MIN_INPUT;
+	
+#if 0	
+char bb[MAX_FIX16_STR_SIZE];
+fix16_to_str( current_pitch, bb );
+printf( "p: %lX %lX %lX %lX -- %lu %s\n",
+		data.quaternation.w, data.quaternation.x,
+	   data.quaternation.y, data.quaternation.z,
+		pidpitch_data.store.write_ptr->index, bb );
+#endif
 
-	int16_t power = pid_compute( &pidpitch_data, target_pitch, current_pitch ) ;
+	*power = pid_compute( &pidpitch_data, target_pitch, current_pitch ) ;
 		
-	return power;
+	return true;
 }
 
 
@@ -64,18 +75,25 @@ int main(void)
 	printf( "System initialized\n" );
 	
 	int16_t pitch_target = 0;		//Must be adapted to PID algorithm input
-	
+	int i=0;
 	while( 1 )
     {
 		if ( !system_is_on() ) {
 			wait_initialization();
 		}
 
-		int16_t motors_power = cal_motors_power( pitch_target );
-		if ( motors_power != 0xFFFF ) {
+		int16_t motors_power;
+		if ( cal_motors_power( pitch_target, &motors_power ) ) {
 			motors_set_power( motors_power );
 		}
+		else {
+			i++;
+		}
 
+	//	if ( i % 10 == 0 ) {
+	//		printf( "i: %d\n", i );
+	//	}
+		
 		__delay_ms(5);
     }
 

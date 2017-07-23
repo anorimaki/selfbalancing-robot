@@ -2653,7 +2653,7 @@ int mpu_run_6500_self_test(long *gyro, long *accel, unsigned char debug)
     if (!accel_result)
         result |= 0x02;
 
-#ifdef AK89xx_SECONDARY
+#if 0 && defined(AK89xx_SECONDARY)
     compass_result = compass_self_test();
     if(debug)
     	log_i("Compass Self Test Results: %d\n", compass_result);

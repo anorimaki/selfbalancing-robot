@@ -81,6 +81,9 @@ public:
 	bool init();
 	bool end();
 
+	bool configure();
+	bool calibrate();
+
 	bool getData( Optional<MpuData>& data );
 
 	void test();

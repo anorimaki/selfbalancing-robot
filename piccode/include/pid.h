@@ -24,18 +24,23 @@
 #define PID_SCALE_INPUT(in, in_bits) \
             SCALE_VALUE( in, in_bits, PID_INPUT_BIT_SIZE )
 
-
 typedef struct {
-	uint8_t max_size;
     PIDStateEntry* begin;
     PIDStateEntry* end;
     PIDStateEntry* read_ptr;
     PIDStateEntry* write_ptr;
-    uint8_t size;
+    uint8_t max_size;
+    uint8_t size;       //Important: This is the first field of PID structure
+                        //that is addressed as raw memory from I2C interface
+                        //It must take an odd address to respect PIC24
+                        //aligment.
+                        //PIDSettings.k_p (the next field addressed by I2C)
+                        //is a 16 bit integer so it starts at even address.
+                        //Not very robust strategy for I2C interface but it
+                        //is fast.
 } PIDStore;
 
-typedef struct
-{
+typedef struct {
     PIDStore store;
     PIDSettings settings;
 } PID;
@@ -67,7 +72,6 @@ static inline uint8_t pid_i2c_read( PID* pid, uint8_t address )
         }
         return ret;
     }
-
     // store.size and settings are mappeable from pid
     return *byte_ptr(&pid->store.size, address-sizeof(PIDStateEntry));
 }

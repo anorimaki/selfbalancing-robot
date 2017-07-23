@@ -2795,6 +2795,7 @@ int mpu_write_mem(unsigned short mem_addr, unsigned short length,
 
     if (i2c_write(st.hw->addr, st.reg->bank_sel, 2, tmp))
         return -1;
+
     if (i2c_write(st.hw->addr, st.reg->mem_r_w, length, data))
         return -1;
     return 0;

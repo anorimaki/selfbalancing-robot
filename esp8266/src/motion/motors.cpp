@@ -62,8 +62,6 @@ bool Motors::pitchState( std::vector<Motors::PitchState>& states  )
 	if ( !receive( MOTORSREG_PITCH_FIFO_SIZE, &fifoSize ) )
 		TRACE_ERROR_AND_RETURN(false)
 
-	uint8_t ff=fifoSize;
-
 	while( fifoSize > 0 ) {
 		PitchState state;
 		if ( !receive( MOTORSREG_PITCH_FIFO_CURRENT, &state ) )

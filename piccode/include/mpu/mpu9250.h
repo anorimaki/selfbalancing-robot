@@ -10,7 +10,9 @@ typedef struct  {
 typedef enum {
     MPU_OK,
     MPU_NO_DATA,
-    MPU_ERROR
+    MPU_ERROR,
+    MPU_OVERUN,
+    MPU_DATA_CORRUPTION
 } MpuStatus;
 
 void mpu9250_init();

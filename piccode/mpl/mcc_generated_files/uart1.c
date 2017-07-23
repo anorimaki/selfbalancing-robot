@@ -103,16 +103,6 @@ UART1_STATUS UART1_StatusGet (void)
     return U1STA;
 }
 
-int __attribute__((__section__(".libc.write"))) write(int handle, void *buffer, unsigned int len) {
-    int i;
-    while(U1STAbits.TRMT == 0);  
-    for (i = len; i; --i)
-    {
-        while(U1STAbits.TRMT == 0);
-        U1TXREG = *(char*)buffer++;        
-    }
-    return(len);
-}
 
 /**
   End of File

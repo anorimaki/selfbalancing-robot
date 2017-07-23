@@ -30,14 +30,18 @@ MpuStatus mpu9250_get_data( MpuData* data ) {
 	unsigned long timestamp;
 	unsigned char more = 0xFF;
 
-	if ( dmp_read_fifo( gyro, accel, quat, &timestamp, &sensors, &more ) ) {
-		return (more != 0) ? MPU_ERROR : MPU_NO_DATA;
+	int err = dmp_read_fifo( gyro, accel, quat, &timestamp, &sensors, &more );
+	if ( err != 0 ) {
+		return (more==0) ? MPU_NO_DATA : 
+			(err==-6) ? MPU_OVERUN : 
+			(err==-10) ? MPU_DATA_CORRUPTION : 
+			MPU_ERROR;
 	}
 	
 	//Normalization: DMP quaternation is yet normalized but in 
 	//	q30 fixed point decimal. This format isn't documented but you can infer
 	//	it from FIFO_CORRUPTION_CHECK code in DMP sources.
-	// -> Convert it to q16 by removing lower 14 bits
+	// -> Convert it to q16 by removing lowest 14 bits
 	data->quaternation.w = quat[0] >> 14;
 	data->quaternation.x = quat[1] >> 14;
 	data->quaternation.y = quat[2] >> 14;

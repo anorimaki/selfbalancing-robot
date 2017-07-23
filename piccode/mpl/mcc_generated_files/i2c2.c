@@ -127,6 +127,7 @@ typedef struct
 
 typedef enum
 {
+	S_MASTER_STOP,
     S_MASTER_IDLE,
     S_MASTER_RESTART,
     S_MASTER_SEND_ADDR,
@@ -186,6 +187,7 @@ static uint8_t                       i2c2_trb_count;
 
 static I2C2_TRANSACTION_REQUEST_BLOCK *p_i2c2_trb_current;
 static I2C_TR_QUEUE_ENTRY            *p_i2c2_current = NULL;
+static I2C2_MESSAGE_STATUS			last_op_status;
 
 
 /**
@@ -203,8 +205,10 @@ void I2C2_Initialize(void)
     i2c2_object.i2cErrors = 0;
     
     // initialize the hardware
-    // Baud Rate Generator Value: I2CBRG 37;   
-    I2C2BRG = 0x0025;
+    // Baud Rate Generator Value: I2CBRG 157;   
+//    I2C2BRG = 0x009D;		100KH
+//	I2C2BRG = 0x0025;		400KH
+	I2C2BRG = 0x0050;	
     // ACKEN disabled; STREN disabled; GCEN disabled; SMEN disabled; DISSLW enabled; I2CSIDL disabled; ACKDT Sends ACK; SCLREL Holds; RSEN disabled; IPMIEN disabled; A10M 7 Bit; PEN disabled; RCEN disabled; SEN disabled; I2CEN enabled; 
     I2C2CON = 0x8000;
     // P disabled; S disabled; I2COV disabled; IWCOL disabled; 
@@ -255,6 +259,18 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _MI2C2Interrupt ( void )
     /* Handle the correct i2c state */
     switch(i2c2_state)
     {
+		case S_MASTER_STOP:
+					// make sure the flag pointer is not NULL
+		   if (p_i2c2_current->pTrFlag != NULL)  {
+			   // update the flag with the completion code
+			   *(p_i2c2_current->pTrFlag) = last_op_status;
+		   }
+
+		   // Done, back to idle
+		   i2c2_state = S_MASTER_IDLE;  
+			
+			//No break, continue if threare other blocks
+			
         case S_MASTER_IDLE:    /* In reset state, waiting for data to send */
 
             if(i2c2_object.trStatus.s.empty != true)
@@ -573,16 +589,12 @@ static void I2C2_Stop(I2C2_MESSAGE_STATUS completion_code)
 {
     // then send a stop
     I2C2_STOP_CONDITION_ENABLE_BIT = 1;
-
-    // make sure the flag pointer is not NULL
-    if (p_i2c2_current->pTrFlag != NULL)
-    {
-        // update the flag with the completion code
-        *(p_i2c2_current->pTrFlag) = completion_code;
-    }
+	
+	//
+	last_op_status = completion_code;
 
     // Done, back to idle
-    i2c2_state = S_MASTER_IDLE;
+    i2c2_state = S_MASTER_STOP;
     
 }
 

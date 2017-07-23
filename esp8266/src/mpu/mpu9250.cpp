@@ -64,16 +64,25 @@ static inline unsigned short inv_orientation_matrix_to_scalar(const signed char 
 
 bool Mpu9250::init()
 {
-	static signed char orientation_matrix[9] = { 0, -1, 0,
-												1, 0, 0,
-												0, 0, 1};
-
 	struct int_param_s int_param;
 	int err;
 	if ( (err=mpu_init(&int_param)) != 0 ) {
 		TRACE_ERROR( "MPU init error: %d", err );
 		return false;
 	}
+
+	if ( mpu_set_sensors( INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS ) )
+		TRACE_ERROR_AND_RETURN(false);
+
+	return true;
+}
+
+
+bool Mpu9250::configure()
+{
+	static signed char orientation_matrix[9] = { 0, -1, 0,
+													1, 0, 0,
+													0, 0, 1};
 
 	if ( mpu_set_sensors( INV_XYZ_GYRO | INV_XYZ_ACCEL ) )
 		TRACE_ERROR_AND_RETURN(false);
@@ -87,7 +96,7 @@ bool Mpu9250::init()
 						DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO ) )
 		TRACE_ERROR_AND_RETURN(false);
 
-	if ( dmp_set_fifo_rate(5) )
+	if ( dmp_set_fifo_rate(100) )
 		TRACE_ERROR_AND_RETURN(false);
 
 	if ( mpu_set_dmp_state(1) )
@@ -112,6 +121,39 @@ void Mpu9250::test()
 	long accel[4];
 	int result = mpu_run_6500_self_test( gyro, accel, true );
 	Serial.printf( "result: %X\n", result );
+}
+
+
+bool Mpu9250::calibrate()
+{
+	long gyro[4];
+	long accel[4];
+
+	int result = mpu_run_6500_self_test(gyro, accel, false);
+	if ( (result & 0x3) != 0x3 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+
+	/* Test passed. We can trust the gyro data here, so let's push it down
+	 * to the DMP.
+	 */
+	unsigned char i;
+	for (i = 0; i < 3; i++) {
+		gyro[i] = (long) (gyro[i] * 32.8f); //convert to +-1000dps
+		accel[i] *= 2048.f; //convert to +-16G
+		accel[i] = accel[i] >> 16;
+		gyro[i] = (long) (gyro[i] >> 16);
+	}
+
+	if ( mpu_set_gyro_bias_reg(gyro) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+
+	if ( mpu_set_accel_bias_6500_reg(accel) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+
+	return true;
 }
 
 
@@ -151,8 +193,6 @@ bool Mpu9250::getData( Optional<MpuData>& data )
 
 	return true;
 }
-
-
 
 
 }

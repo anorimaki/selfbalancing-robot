@@ -5,6 +5,8 @@
 #include "wifiproperties.h"
 
 
+#include "motors_i2c_api.h"
+
 namespace selfbalancing
 {
 
@@ -33,6 +35,8 @@ static void wifiInit()
 
 void Application::init()
 {
+	wifiInit();
+
 	initMpu();
 	while( !checkMpu() ) {
 		delay( 100 );
@@ -40,7 +44,6 @@ void Application::init()
 
 	initMotors();
 
-	wifiInit();
 	m_httpServer.init( &m_motors );
 
 	delay( 400 );
@@ -49,17 +52,6 @@ void Application::init()
 
 void Application::loop()
 {
-#if 0
-	Optional<mpu::MpuData> data;
-	if ( !m_mpu9250.getData(data) ) {
-		TRACE_ERROR( "MPU check failed" );
-	}
-
-	if ( data ) {
-		showData( *data );
-	}
-#endif
-
 	m_httpServer.impl().handleClient();
 //	delay( 500 );
 }
@@ -116,6 +108,7 @@ void Application::initMotors()
 	i2c::init( MOTORS_SDA, MOTORS_SCL );
 
 	if( !m_motors.init() ) {
+		while(1)
 		TRACE_ERROR( "Motors initialization failed" );
 		return;
 	}
@@ -130,6 +123,16 @@ void Application::initMpu()
 
 	if ( !m_mpu9250.init() ) {
 		TRACE_ERROR( "MPU initialization failed" );
+		return;
+	}
+
+	if ( !m_mpu9250.calibrate() ) {
+		TRACE_ERROR( "MPU calibration failed" );
+		return;
+	}
+
+	if ( !m_mpu9250.configure() ) {
+		TRACE_ERROR( "MPU configuration failed" );
 		return;
 	}
 

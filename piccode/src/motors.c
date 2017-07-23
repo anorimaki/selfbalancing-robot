@@ -60,7 +60,7 @@ void motors_set_power( int16_t power )
 		m1_backwards();
 	}
 	uint16_t mag = abs( power );
-	mag = SCALE_VALUE( mag, 16, MOTORS_PWM_BITS );
+	mag = SCALE_VALUE( mag, 15, MOTORS_PWM_BITS );
 	mag += MOTORS_MIN_POWER;		//Add minimun power to move motors
 	if ( mag > MOTORS_MAX_POWER )
 		mag = MOTORS_MAX_POWER;

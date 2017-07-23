@@ -486,9 +486,10 @@ static const unsigned short sStartAddress = 0x0400;
 #define DMP_SAMPLE_RATE     (200)
 #define GYRO_SF             (46850825LL * 200 / DMP_SAMPLE_RATE)
 
-//#define FIFO_CORRUPTION_CHECK
+#define FIFO_CORRUPTION_CHECK
 #ifdef FIFO_CORRUPTION_CHECK
-#define QUAT_ERROR_THRESH       (1L<<24)
+//#define QUAT_ERROR_THRESH       (1L<<24)
+#define QUAT_ERROR_THRESH       (1L<<15)
 #define QUAT_MAG_SQ_NORMALIZED  (1L<<28)
 #define QUAT_MAG_SQ_MIN         (QUAT_MAG_SQ_NORMALIZED - QUAT_ERROR_THRESH)
 #define QUAT_MAG_SQ_MAX         (QUAT_MAG_SQ_NORMALIZED + QUAT_ERROR_THRESH)
@@ -1317,17 +1318,19 @@ int dmp_read_fifo(short *gyro, short *accel, long *quat,
         quat_q14[1] = quat[1] >> 16;
         quat_q14[2] = quat[2] >> 16;
         quat_q14[3] = quat[3] >> 16;
-        quat_mag_sq = quat_q14[0] * quat_q14[0] + quat_q14[1] * quat_q14[1] +
-            quat_q14[2] * quat_q14[2] + quat_q14[3] * quat_q14[3];
+        quat_mag_sq = __builtin_mulss( quat_q14[0], quat_q14[0] ) +
+					__builtin_mulss( quat_q14[1], quat_q14[1] ) +
+					__builtin_mulss( quat_q14[2], quat_q14[2] ) + 
+					__builtin_mulss( quat_q14[3], quat_q14[3] );
         if ((quat_mag_sq < QUAT_MAG_SQ_MIN) ||
             (quat_mag_sq > QUAT_MAG_SQ_MAX)) {
             /* Quaternion is outside of the acceptable threshold. */
             mpu_reset_fifo();
             sensors[0] = 0;
-            return -1;
+            return -10;
         }
-        sensors[0] |= INV_WXYZ_QUAT;
 #endif
+        sensors[0] |= INV_WXYZ_QUAT;
     }
 
     if (dmp.feature_mask & DMP_FEATURE_SEND_RAW_ACCEL) {

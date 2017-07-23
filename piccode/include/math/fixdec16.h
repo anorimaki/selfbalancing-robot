@@ -41,6 +41,7 @@ fix16_t fix16_sqrt(fix16_t x);
 
 void fix16_to_str( fix16_t value, char *buf ) ;
 
+
 #endif
 
 

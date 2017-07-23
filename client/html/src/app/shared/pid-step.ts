@@ -8,41 +8,40 @@ export class PidStep {
     static readonly PID_MAX_INTEGRAL_ERROR = PidStep.PID_MAX_OUTPUT*14;
     static readonly PID_MIN_INTEGRAL_ERROR = PidStep.PID_MIN_OUTPUT*14;
     
-    public readonly result: number;
-    public readonly current: number;
-    public readonly target: number;
-    public readonly integralError: number;
-    public readonly index: number;
-
-    constructor( state: PidState, settings: PidSettings ) {
-        this.result = this.calculateResult( state, settings );
-        
+    public index: number;
+    public current: number;
+    public target: number;
+    public output: number;
+    public integralOutput: number;
+    public derivativeOutput: number;
+    public proportionalOutput: number;
+    
+   constructor( state: PidState, settings: PidSettings ) {
         this.current = state.current; 
-        this.integralError = state.integralError;
         this.target = state.target;
         this.index = state.index;
+        
+        this.calculateOutputs( state, settings );
     }
         
-    private calculateResult( state: PidState, settings: PidSettings ): number {
+    private calculateOutputs( state: PidState, settings: PidSettings ): void {
         let error = state.current - state.target;
+        
+        this.integralOutput = state.integralError + (error * settings.integral);
+        if ( this.integralOutput > PidStep.PID_MAX_INTEGRAL_ERROR )
+            this.integralOutput = PidStep.PID_MAX_INTEGRAL_ERROR;
+        if ( this.integralOutput < PidStep.PID_MIN_INTEGRAL_ERROR )
+            this.integralOutput = PidStep.PID_MIN_INTEGRAL_ERROR;
+       
         let derivative_error = error - state.previousError;
-        let integralError = state.integralError + 
-                            error * settings.integral;
+        this.derivativeOutput = (settings.derivative * derivative_error);
         
-        if ( integralError > PidStep.PID_MAX_INTEGRAL_ERROR )
-            integralError = PidStep.PID_MAX_INTEGRAL_ERROR;
-        if ( integralError < PidStep.PID_MIN_INTEGRAL_ERROR )
-            integralError = PidStep.PID_MIN_INTEGRAL_ERROR;
+        this.proportionalOutput = (settings.proportional * error);
         
-        let result = (settings.derivative * derivative_error) +
-                        (settings.proportional * error) +
-                        integralError;
-        
-        if ( result > PidStep.PID_MAX_OUTPUT )
-            result = PidStep.PID_MAX_OUTPUT;
-        if ( result < PidStep.PID_MIN_OUTPUT )
-            result = PidStep.PID_MIN_OUTPUT;
-        
-        return result;
+        this.output = this.integralOutput + this.proportionalOutput + this.proportionalOutput ;
+        if ( this.output > PidStep.PID_MAX_OUTPUT )
+            this.output = PidStep.PID_MAX_OUTPUT;
+        if ( this.output < PidStep.PID_MIN_OUTPUT )
+            this.output = PidStep.PID_MIN_OUTPUT;
     }
 }

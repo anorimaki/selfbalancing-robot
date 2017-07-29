@@ -5,8 +5,8 @@ export class PidStep {
                 //Take this values from motor controller code
     static readonly PID_MAX_OUTPUT = 0x7FFF;
     static readonly PID_MIN_OUTPUT = -PidStep.PID_MAX_OUTPUT;
-    static readonly PID_MAX_INTEGRAL_ERROR = PidStep.PID_MAX_OUTPUT*14;
-    static readonly PID_MIN_INTEGRAL_ERROR = PidStep.PID_MIN_OUTPUT*14;
+    static readonly PID_MAX_INTEGRAL_ERROR = 0x7FFF;
+    static readonly PID_MIN_INTEGRAL_ERROR = -PidStep.PID_MAX_OUTPUT;
     
     public index: number;
     public current: number;
@@ -25,20 +25,24 @@ export class PidStep {
     }
         
     private calculateOutputs( state: PidState, settings: PidSettings ): void {
-        let error = state.current - state.target;
+        let error = state.target - state.current;
         
-        this.integralOutput = state.integralError + (error * settings.integral);
-        if ( this.integralOutput > PidStep.PID_MAX_INTEGRAL_ERROR )
-            this.integralOutput = PidStep.PID_MAX_INTEGRAL_ERROR;
-        if ( this.integralOutput < PidStep.PID_MIN_INTEGRAL_ERROR )
-            this.integralOutput = PidStep.PID_MIN_INTEGRAL_ERROR;
+        let integralError = state.integralError + error;
+        if ( integralError > PidStep.PID_MAX_INTEGRAL_ERROR )
+            integralError = PidStep.PID_MAX_INTEGRAL_ERROR;
+        if ( integralError < PidStep.PID_MIN_INTEGRAL_ERROR )
+            integralError = PidStep.PID_MIN_INTEGRAL_ERROR;
+        this.integralOutput = settings.integral * integralError;
        
-        let derivative_error = error - state.previousError;
-        this.derivativeOutput = (settings.derivative * derivative_error);
+        let derivativeError = error - state.previousError;
+        this.derivativeOutput = settings.derivative * derivativeError;
         
-        this.proportionalOutput = (settings.proportional * error);
+        this.proportionalOutput = settings.proportional * error;
         
         this.output = this.integralOutput + this.proportionalOutput + this.proportionalOutput ;
+        
+        this.output = this.output >> 6;     //Scale value as algorithm in PIC
+        
         if ( this.output > PidStep.PID_MAX_OUTPUT )
             this.output = PidStep.PID_MAX_OUTPUT;
         if ( this.output < PidStep.PID_MIN_OUTPUT )

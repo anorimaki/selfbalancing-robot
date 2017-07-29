@@ -35,12 +35,13 @@ bool cal_motors_power( int16_t target_pitch, int16_t* power )
 	if ( status != MPU_OK )
 		return false;
 
+	//Pitch in RADs and Q16 format
 	fix16_t current_pitch = quat_to_pitch( &data.quaternation );
 		
 		//Read pitch is limited to 
-		// [-57.2948º..57.2948º] range (17 LSB of Q16 pitch)
+		// [-57.2948º..57.2948º] range (16 LSB of Q16 pitch plus sign)
 		//Important: 'target' pitch range must be shorter! ~ [-40º..40º]??
-	current_pitch = PID_SCALE_INPUT( current_pitch, 17 );	//Adapt pitch to PID algorithm
+	current_pitch = PID_SCALE_INPUT( current_pitch, 15 );	//Adapt pitch to PID algorithm
 	if ( current_pitch > PID_MAX_INPUT )			//Keep pitch in [-57º..57º] range
 		current_pitch = PID_MAX_INPUT;
 	else if ( current_pitch < PID_MIN_INPUT )
@@ -90,11 +91,14 @@ int main(void)
 			i++;
 		}
 
-	//	if ( i % 10 == 0 ) {
-	//		printf( "i: %d\n", i );
-	//	}
+		int16_t l = motors_left_speed();
+		int16_t r= motors_right_speed();
+		++i;
+		if ( i % 10 == 0 ) {
+			printf( "l: %d, r: %d\n", l, r );
+		}
 		
-		__delay_ms(5);
+		__delay_ms(4);
     }
 
     return -1;

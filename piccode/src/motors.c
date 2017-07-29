@@ -10,6 +10,8 @@
 #define MOTORS_MAX_POWER	((1<<MOTORS_PWM_BITS)-1)
 #define MOTORS_MIN_POWER	0x864		//Min power to move motors
 
+int16_t _motors_left_speed;
+int16_t _motors_right_speed;
 
 static inline void m0_fordward()
 {
@@ -47,6 +49,8 @@ static inline void motors_stop()
 void motors_init()
 {
 	motors_stop();
+	_motors_right_speed = 0;
+	_motors_left_speed = 0;
 }
 
 void motors_set_power( int16_t power )
@@ -67,4 +71,20 @@ void motors_set_power( int16_t power )
 	
 	OC1_SecondaryValueSet( mag );
 	OC2_SecondaryValueSet( mag );
+}
+
+
+int16_t motors_right_speed()
+{
+	int16_t ret = _motors_right_speed;
+	_motors_right_speed = 0;
+	return ret;
+}
+
+
+int16_t motors_left_speed()
+{
+	int16_t ret = _motors_left_speed;
+	_motors_left_speed = 0;
+	return ret;
 }

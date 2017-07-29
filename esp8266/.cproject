@@ -33,7 +33,7 @@
 								</option>
 								<inputType id="io.sloeber.compiler.cpp.sketch.input.620679245" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
 							</tool>
-							<tool id="io.sloeber.tool.compiler.c.341211431" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
+							<tool commandLinePattern="${A.RECIPE.C.O.PATTERN.1} ${FLAGS} -D__IN_ECLIPSE__=1 ${INPUTS} ${A.RECIPE.C.O.PATTERN.2} ${OUTPUT} ${A.RECIPE.C.O.PATTERN.3} ${JANTJE.EXTRA.COMPILE} ${JANTJE.EXTRA.C.COMPILE}" id="io.sloeber.tool.compiler.c.341211431" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
 								<option id="io.sloeber.compiler.c.sketch.option.incpath.1681213380" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/selfbalancing_esp8266/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="../../piccode/include/api"/>

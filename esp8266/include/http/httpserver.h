@@ -21,6 +21,8 @@ private:
 	void handleMotorsPIDSettingsPitch();
 	void handleMotorsSetPIDSettingsPitch();
 	void handleRoot();
+	void handleOptionsRequest();
+	void handleNotFound();
 	void sendError( const char* message );
 
 private:

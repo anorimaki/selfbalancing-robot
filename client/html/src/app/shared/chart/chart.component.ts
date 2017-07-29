@@ -10,7 +10,7 @@ type Serie = { label: string, field: string, checked: boolean, color: number, ty
     styleUrls: ['./chart.component.css']
 } )
 export class RbChartComponent implements OnInit {
-    private static readonly MAX_ENTIES = 2000; 
+    private static readonly MAX_ENTIES = 1000; 
     private static readonly COLORS: string[] = ["#b5030d", "#05F3Fd", "#1503Fd", "#F30300", "#00FF00"];
 
     @Input() private y: Serie[];
@@ -38,13 +38,16 @@ export class RbChartComponent implements OnInit {
         let charConfig = {
                 type: "xy",
                 dataProvider: [],
+                processTimeout: 100,
                 legend: {
-                    useGraphSettings: true
+                    useGraphSettings: true,
+                    divId: "chartlegend",
+                    maxColumns: 1,
+                    align: "center"
                 },
                 chartCursor: {
                     cursorAlpha:0.3,
                     cursorPosition: "mouse"
-                //    limitToGraph: "g0"
                 },
                 chartScrollbar: {},
                 mouseWheelZoomEnabled:true,
@@ -67,7 +70,7 @@ export class RbChartComponent implements OnInit {
             this.chart.dataProvider.splice( 0, itemsToRemove );
         }
         this.chart.dataProvider.push( ...items );
-        if ( this.chart.graphs[0].xAxis != null ) {
+        if ( (items.length > 0) && (this.chart.graphs[0].xAxis != null) ) {
             this.amCharts.updateChart( this.chart, () => {
                 this.chart.graphs[0].xAxis.strictMinMax = true;
                 this.chart.graphs[0].xAxis.minimum=this.chart.dataProvider[0].index;

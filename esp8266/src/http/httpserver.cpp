@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 
+
 namespace http
 {
 
@@ -27,6 +28,16 @@ static void sendJson( ESP8266WebServer& server, T& content )
 }
 
 
+#define ACCESS_CONTROL_REQUEST_HEADERS "Access-Control-Request-Headers"
+#define ACCESS_CONTROL_REQUEST_METHOD "Access-Control-Request-Method"
+#define ACCESS_CONTROL_ALLOW_HEADERS "Access-Control-Allow-Headers"
+#define ACCESS_CONTROL_ALLOW_METHODS "Access-Control-Allow-Methods"
+
+
+static const char* headersToCollect[] = {
+		ACCESS_CONTROL_REQUEST_HEADERS, ACCESS_CONTROL_REQUEST_METHOD
+};
+
 void Server::init( motion::Motors* motors )
 {
 	m_motors = motors;
@@ -35,6 +46,14 @@ void Server::init( motion::Motors* motors )
 	m_impl.on( "/motors/pitch/state", HTTPMethod::HTTP_GET, std::bind( &Server::handleMotorsPitch, this ) );
 	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_GET, std::bind( &Server::handleMotorsPIDSettingsPitch, this ) );
 	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_PUT, std::bind( &Server::handleMotorsSetPIDSettingsPitch, this ) );
+	m_impl.onNotFound([this](){
+		if ( m_impl.method() == HTTP_OPTIONS ) {
+			handleOptionsRequest();
+			return;
+		}
+		handleNotFound();
+	});
+	m_impl.collectHeaders( headersToCollect, sizeof(headersToCollect)/sizeof(const char*) );
 	m_impl.begin();
 	m_impl.client().setNoDelay(1);		//Just for performance
 }
@@ -93,6 +112,10 @@ void Server::handleMotorsSetPIDSettingsPitch() {
 		sendError( "Error settings pitch PID settings" );
 		return;
 	}
+
+	//Send No content
+	m_impl.setContentLength( 0 );
+	m_impl.send( 204, NULL );
 }
 
 void Server::sendError( const char* message ) {
@@ -135,6 +158,24 @@ void Server::handleRoot() {
 	m_impl.send ( 200, "text/html", temp );
 }
 
+
+void Server::handleNotFound() {
+	m_impl.send( 404, "text/html", "<h1>Resource not found</h1>" );
+}
+
+
+void Server::handleOptionsRequest() {
+	String requestHeader = m_impl.header(ACCESS_CONTROL_REQUEST_HEADERS);
+
+	if ( requestHeader.length() > 0 ) {
+		m_impl.sendHeader( ACCESS_CONTROL_ALLOW_HEADERS, requestHeader );
+	}
+
+	requestHeader = m_impl.header(ACCESS_CONTROL_REQUEST_METHOD);
+	m_impl.sendHeader( ACCESS_CONTROL_ALLOW_METHODS, (requestHeader.length()>0) ? requestHeader : "GET, POST, PUT, OPTIONS" );
+
+	m_impl.send( 200, "text/plain", "" );
+}
 
 
 }

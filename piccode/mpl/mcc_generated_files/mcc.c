@@ -13,12 +13,11 @@
   @Description:
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
-        Product Revision  :  MPLAB(c) Code Configurator - pic24-dspic-pic32mm : v1.25
+        Product Revision  :  MPLAB(c) Code Configurator - pic24-dspic-pic32mm : v1.35
         Device            :  PIC24FJ32GA002
-        Driver Version    :  1.02
     The generated drivers are tested against the following:
-        Compiler          :  XC16 1.26
-        MPLAB             :  MPLAB X 3.45
+        Compiler          :  XC16 1.31
+        MPLAB             :  MPLAB X 3.60
 */
 
 /*
@@ -73,14 +72,15 @@
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    INTERRUPT_Initialize();
     OSCILLATOR_Initialize();
+    INTERRUPT_Initialize();
     I2C1_Initialize();
     UART1_Initialize();
     OC1_Initialize();
     OC2_Initialize();
-    I2C2_Initialize();
     TMR2_Initialize();
+    I2C2_Initialize();
+    EXT_INT_Initialize();
 }
 
 void OSCILLATOR_Initialize(void)
@@ -91,8 +91,6 @@ void OSCILLATOR_Initialize(void)
     CLKDIV = 0x3000;
     // TUN Center frequency; 
     OSCTUN = 0x0000;
-    // WDTO disabled; TRAPR disabled; SWDTEN disabled; EXTR disabled; POR disabled; SLEEP disabled; BOR disabled; IDLE disabled; IOPUWR disabled; VREGS disabled; CM disabled; SWR disabled; 
-    RCON = 0x0000;
 }
 
 /**

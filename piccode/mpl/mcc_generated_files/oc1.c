@@ -14,12 +14,11 @@
   @Description
     This source file provides APIs for driver for OC1.
     Generation Information :
-        Product Revision  :  MPLAB(c) Code Configurator - pic24-dspic-pic32mm : v1.25
+        Product Revision  :  MPLAB(c) Code Configurator - pic24-dspic-pic32mm : v1.35
         Device            :  PIC24FJ32GA002
-        Driver Version    :  0.5
     The generated drivers are tested against the following:
-        Compiler          :  XC16 1.26
-        MPLAB 	          :  MPLAB X 3.45
+        Compiler          :  XC16 1.31
+        MPLAB 	          :  MPLAB X 3.60
 */
 
 /*

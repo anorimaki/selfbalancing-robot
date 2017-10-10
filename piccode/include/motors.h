@@ -12,9 +12,12 @@ extern int16_t _motors_right_speed;
 void motors_init();
 void motors_set_power( int16_t power );
 
+int16_t motors_right_speed();
+int16_t motors_left_speed();
+
 static inline void motors_left_qencoder_interrupt()
 {
-	if ( IO_RB10_GetValue() )
+	if ( IO_RB7_GetValue() )
 		_motors_left_speed++;
 	else
 		_motors_left_speed--;
@@ -23,7 +26,7 @@ static inline void motors_left_qencoder_interrupt()
 
 static inline void motors_right_qencoder_interrupt()
 {
-	if ( IO_RB12_GetValue() )
+	if ( IO_RB13_GetValue() )
 		_motors_right_speed++;
 	else
 		_motors_right_speed--;

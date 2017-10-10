@@ -95,7 +95,6 @@ void Server::handleMotorsPIDSettingsPitch() {
 	jsonSetings["derivative"] = settings.k_d;
 
 	sendJson( m_impl, jsonSetings );
-
 }
 
 

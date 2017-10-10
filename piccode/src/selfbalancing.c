@@ -91,10 +91,11 @@ int main(void)
 			i++;
 		}
 
-		int16_t l = motors_left_speed();
-		int16_t r= motors_right_speed();
+		
 		++i;
 		if ( i % 10 == 0 ) {
+			int16_t l = motors_left_speed();
+			int16_t r= motors_right_speed();
 			printf( "l: %d, r: %d\n", l, r );
 		}
 		

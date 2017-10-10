@@ -14,8 +14,8 @@ namespace selfbalancing
 static const uint8_t MPU_SCL = D1;
 static const uint8_t MPU_SDA = D2;
 
-static const uint8_t MOTORS_SCL = D5;
-static const uint8_t MOTORS_SDA = D6;
+static const uint8_t MOTORS_SCL = D6;
+static const uint8_t MOTORS_SDA = D7;
 
 
 static void wifiInit()
@@ -35,14 +35,22 @@ static void wifiInit()
 
 void Application::init()
 {
+	pinMode(16, OUTPUT);
+	pinMode(14, OUTPUT);
+
 	wifiInit();
 
-	initMpu();
+	if ( !initMpu() ) {
+		digitalWrite(14, LOW);
+	}
+
 	while( !checkMpu() ) {
 		delay( 100 );
 	}
 
-	initMotors();
+	if ( !initMotors() ) {
+	//	digitalWrite(15, LOW);
+	}
 
 	m_httpServer.init( &m_motors );
 
@@ -52,8 +60,25 @@ void Application::init()
 
 void Application::loop()
 {
-	m_httpServer.impl().handleClient();
-//	delay( 500 );
+	static int i= 0;
+
+	++i;
+	if ( i > 6 ) {
+		i = 0;
+	}
+	if (  i > 3 ) {
+		digitalWrite(16, LOW);
+		digitalWrite(14, LOW);
+	}
+	else {
+		digitalWrite(16, HIGH);
+		digitalWrite(14, HIGH);
+	}
+
+	Serial.printf( "%d\n", i );
+
+//	m_httpServer.impl().handleClient();
+	delay( 500 );
 }
 
 
@@ -103,40 +128,44 @@ void Application::showData( const mpu::MpuData& data )
 }
 
 
-void Application::initMotors()
+bool Application::initMotors()
 {
 	i2c::init( MOTORS_SDA, MOTORS_SCL );
 
 	if( !m_motors.init() ) {
 		while(1)
 		TRACE_ERROR( "Motors initialization failed" );
-		return;
+		return false;
 	}
 
 	TRACE("Motors initialized");
+
+	return true;
 }
 
 
-void Application::initMpu()
+bool Application::initMpu()
 {
 	i2c::init( MPU_SDA, MPU_SCL );
 
 	if ( !m_mpu9250.init() ) {
 		TRACE_ERROR( "MPU initialization failed" );
-		return;
+		return false;
 	}
 
 	if ( !m_mpu9250.calibrate() ) {
 		TRACE_ERROR( "MPU calibration failed" );
-		return;
+		return false;
 	}
 
 	if ( !m_mpu9250.configure() ) {
 		TRACE_ERROR( "MPU configuration failed" );
-		return;
+		return false;
 	}
 
 	TRACE("MPU initialized");
+
+	return true;
 }
 
 

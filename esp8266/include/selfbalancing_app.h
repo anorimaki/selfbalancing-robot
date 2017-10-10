@@ -29,8 +29,8 @@ public:
 
 
 private:
-	void initMotors();
-	void initMpu();
+	bool initMotors();
+	bool initMpu();
 	bool checkMpu();
 
 	void showData( const mpu::MpuData& data );

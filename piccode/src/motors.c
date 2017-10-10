@@ -13,36 +13,37 @@
 int16_t _motors_left_speed;
 int16_t _motors_right_speed;
 
+
 static inline void m0_fordward()
 {
-	IO_RA0_SetHigh();
-	IO_RA4_SetLow();
+	IO_RB11_SetHigh();
+	IO_RB12_SetLow();
 }
 
 static inline void m0_backwards()
 {
-	IO_RA0_SetLow();
-	IO_RA4_SetHigh();
+	IO_RB11_SetLow();
+	IO_RB12_SetHigh();
 }
 
 static inline void m1_fordward()
 {
-	IO_RA2_SetHigh();
-	IO_RA3_SetLow();
+	IO_RA3_SetHigh();
+	IO_RA4_SetLow();
 }
 
 static inline void m1_backwards()
 {
-	IO_RA2_SetLow();
-	IO_RA3_SetHigh();
+	IO_RA3_SetLow();
+	IO_RA4_SetHigh();
 }
 
 static inline void motors_stop()
 {
-	IO_RA0_SetLow();
-	IO_RA4_SetLow();
-	IO_RA2_SetLow();
+	IO_RB11_SetLow();
+	IO_RB12_SetLow();
 	IO_RA3_SetLow();
+	IO_RA4_SetLow();
 }
 
 

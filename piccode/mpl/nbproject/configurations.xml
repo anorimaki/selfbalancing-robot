@@ -657,11 +657,6 @@
                   value=""/>
         <property key="warningmessagebreakoptions.warningmessages" value="holdstate"/>
       </Simulator>
-      <VSMViewerPlatformTool>
-        <property key="design.file" value="../../schematics/selfbalancing.pdsprj"/>
-        <property key="target.ip.address" value="localhost"/>
-        <property key="target.ip.port" value="8001"/>
-      </VSMViewerPlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>

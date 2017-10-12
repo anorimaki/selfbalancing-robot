@@ -1,6 +1,0 @@
-[submodule "schematics.kicad/selfbalancingrobot/schlib"]
-	path = schematics.kicad/selfbalancingrobot/schlib
-	url = git@github.com:cpavlina/kicad-schlib
-[submodule "schematics.kicad/selfbalancingrobot/pcblib"]
-	path = schematics.kicad/selfbalancingrobot/pcblib
-	url = git@github.com:cpavlina/kicad-pcblib

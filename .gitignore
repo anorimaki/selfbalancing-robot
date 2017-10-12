@@ -1,9 +1,9 @@
 /thirdparty/
 /no_git/
+
 /esp-12f_adaptrer/*.workspace
 /esp-12f_adaptrer/*.pdsbak
-/schematics/*.workspace
-/schematics/*.pdsbak
+
 /piccode/*.ccspjt
 /piccode/src/*.err
 /piccode/src/*.o
@@ -15,8 +15,12 @@
 !**/mpl/mcc_generated_files/
 **/mpl/nbproject/*
 !**/mpl/nbproject/*.xml
+
 /esp8266/.settings/
 /esp8266/Release/
 /esp8266/include/wifiproperties.h
+
 node_modules/
-/schematics.kicad/
+
+*.kicad_pcb-bak
+*.bak

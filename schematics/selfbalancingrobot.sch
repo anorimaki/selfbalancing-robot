@@ -1,117 +1,14 @@
 EESchema Schematic File Version 2
-LIBS:AMS
-LIBS:AOS
-LIBS:Abracon
-LIBS:ActiveSemi
-LIBS:Altera
-LIBS:AnalogDevices
-LIBS:Atmel
-LIBS:Bosch
-LIBS:DiodesInc
-LIBS:FTDI
-LIBS:Fairchild
-LIBS:Infineon
-LIBS:Intersil
-LIBS:Lattice
-LIBS:LinearTech
-LIBS:Littelfuse
-LIBS:MACOM
-LIBS:Macrofab
-LIBS:Microchip
-LIBS:Micron
-LIBS:Murata
-LIBS:NXP
-LIBS:OceanOptics
-LIBS:Recom
-LIBS:Richtek
-LIBS:ST
-LIBS:TexasInstruments
-LIBS:Vishay
-LIBS:Winbond
-LIBS:Xilinx
-LIBS:_electromech
-LIBS:_linear
-LIBS:_logic
-LIBS:_passive
-LIBS:_semi
-LIBS:conn-100mil
-LIBS:conn-2mm
-LIBS:conn-amphenol
-LIBS:conn-assmann
-LIBS:conn-cui
-LIBS:conn-fci
-LIBS:conn-jae
-LIBS:conn-linx
-LIBS:conn-molex
-LIBS:conn-special-headers
-LIBS:conn-tagconnect
-LIBS:conn-te
-LIBS:conn-test
-LIBS:display
-LIBS:electomech-misc
-LIBS:logic-4000
-LIBS:logic-7400-new
-LIBS:logic-7400
-LIBS:maxim
-LIBS:mechanical
-LIBS:onsemi
-LIBS:pasv-BelFuse
-LIBS:pasv-BiTech
-LIBS:pasv-Bourns
-LIBS:pasv-Murata
-LIBS:pasv-TDK
-LIBS:pasv-cap
-LIBS:pasv-ind
-LIBS:pasv-res
-LIBS:pasv-xtal
-LIBS:pcb
-LIBS:power
-LIBS:semi-diode-DiodesInc
-LIBS:semi-diode-MCC
-LIBS:semi-diode-NXP
-LIBS:semi-diode-OnSemi
-LIBS:semi-diode-ST
-LIBS:semi-diode-Semtech
-LIBS:semi-diode-Toshiba
-LIBS:semi-diode-generic
-LIBS:semi-opto-generic
-LIBS:semi-opto-liteon
-LIBS:semi-thyristor-generic
-LIBS:semi-trans-AOS
-LIBS:semi-trans-DiodesInc
-LIBS:semi-trans-EPC
-LIBS:semi-trans-Fairchild
-LIBS:semi-trans-IRF
-LIBS:semi-trans-IXYS
-LIBS:semi-trans-Infineon
-LIBS:semi-trans-NXP
-LIBS:semi-trans-OnSemi
-LIBS:semi-trans-Panasonic
-LIBS:semi-trans-ST
-LIBS:semi-trans-TI
-LIBS:semi-trans-Toshiba
-LIBS:semi-trans-Vishay
-LIBS:semi-trans-generic
-LIBS:silabs
-LIBS:skyworks
-LIBS:st_ic
-LIBS:supertex
-LIBS:symbol
-LIBS:u-blox
-LIBS:ESP8266
-LIBS:HBridge
-LIBS:mpu-9250
-LIBS:connectors
-LIBS:selfbalancingrobot-cache
+LIBS:selfbalancingrobot
 EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
-Rev ""
-Comp ""
+Title "SelfBalancing Robot"
+Date "2017-10-12"
+Rev "1.0"
+Comp "A. & G. Corp."
 Comment1 ""
 Comment2 ""
 Comment3 ""

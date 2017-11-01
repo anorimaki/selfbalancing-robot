@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { AmChartsService } from "@amcharts/amcharts3-angular";
-import { MdSlideToggleChange } from "@angular/material/material";
+import { MatSlideToggleChange } from "@angular/material/material";
 
 type Serie = { label: string, field: string, checked: boolean, color: number, type: number };
 
@@ -10,7 +10,7 @@ type Serie = { label: string, field: string, checked: boolean, color: number, ty
     styleUrls: ['./chart.component.css']
 } )
 export class RbChartComponent implements OnInit {
-    private static readonly MAX_ENTIES = 1000; 
+    private static readonly MAX_ENTIES = 900; 
     private static readonly COLORS: string[] = ["#b5030d", "#05F3Fd", "#1503Fd", "#F30300", "#00FF00"];
 
     @Input() private y: Serie[];
@@ -19,7 +19,6 @@ export class RbChartComponent implements OnInit {
     @Output() enableChange = new EventEmitter<boolean>(); 
 
     private chart: any;
-    private lastItem: any;
     @Input() enabled: boolean;
 
     constructor(private amCharts: AmChartsService) {
@@ -76,9 +75,9 @@ export class RbChartComponent implements OnInit {
                 this.chart.graphs[0].xAxis.minimum=this.chart.dataProvider[0].index;
                 this.chart.graphs[0].xAxis.maximum=this.chart.dataProvider[0].index + RbChartComponent.MAX_ENTIES;
                 this.chart.validateNow();
-            } );
+            }); 
         }
-        this.chart.validateData();
+        //this.chart.validateData();
     }
     
     labelSelectionChanged( event ): void {
@@ -87,7 +86,7 @@ export class RbChartComponent implements OnInit {
         this.chart.validateData();
     }
     
-    private enableChanged( event: MdSlideToggleChange ): void {
+    private enableChanged( event: MatSlideToggleChange ): void {
         this.enableChange.emit( event.checked );
     }
     

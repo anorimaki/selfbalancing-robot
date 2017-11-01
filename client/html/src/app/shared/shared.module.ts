@@ -6,11 +6,11 @@ import { HttpModule } from '@angular/http';
 import { FlexLayoutModule } from "@angular/flex-layout";
 
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MdInputModule } from '@angular/material';
-import { MdButtonModule } from '@angular/material';
-import { MdCheckboxModule } from '@angular/material';
-import { MdSnackBarModule } from '@angular/material';
-import {MdSlideToggleModule} from '@angular/material';
+import { MatInputModule } from '@angular/material';
+import { MatButtonModule } from '@angular/material';
+import { MatCheckboxModule } from '@angular/material';
+import { MatSnackBarModule } from '@angular/material';
+import { MatSlideToggleModule } from '@angular/material';
 
 import { AmChartsModule } from "@amcharts/amcharts3-angular";
 
@@ -27,11 +27,11 @@ import { PidComponent } from './pid/pid.component';
         FlexLayoutModule,
         AmChartsModule,
         NoopAnimationsModule,
-        MdInputModule,
-        MdButtonModule,
-        MdCheckboxModule,
-        MdSnackBarModule,
-        MdSlideToggleModule
+        MatInputModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatSnackBarModule,
+        MatSlideToggleModule
     ],
     declarations: [
         RbChartComponent,
@@ -42,11 +42,11 @@ import { PidComponent } from './pid/pid.component';
         FormsModule,
         HttpModule,
         FlexLayoutModule,
-        MdInputModule,
-        MdButtonModule,
-        MdCheckboxModule,
-        MdSnackBarModule,
-        MdSlideToggleModule,
+        MatInputModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatSnackBarModule,
+        MatSlideToggleModule,
 
         RbChartComponent,
         PidComponent

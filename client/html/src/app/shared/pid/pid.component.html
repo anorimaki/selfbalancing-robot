@@ -1,23 +1,23 @@
 <form>
-	<md-input-container > 
-		<input mdInput placeholder="Proportional gain" name="proportinal" 
+	<mat-form-field > 
+		<input matInput placeholder="Proportional gain" name="proportinal" 
 				[(ngModel)]="newVal.proportional">
-		<md-hint align="end">{{current.proportional}}</md-hint>
-	</md-input-container>
+		<mat-hint align="end">{{current.proportional}}</mat-hint>
+	</mat-form-field>
 
-	<md-input-container > 
-		<input mdInput type="number" placeholder="Integral gain" name="integral" 
+	<mat-form-field > 
+		<input matInput type="number" placeholder="Integral gain" name="integral" 
 				[(ngModel)]="newVal.integral">
-		<md-hint align="end">{{current.integral}}</md-hint>
-	</md-input-container>
+		<mat-hint align="end">{{current.integral}}</mat-hint>
+	</mat-form-field>
 	
-	<md-input-container > 
-		<input mdInput placeholder="Derivative gain" name="derivative" 
+	<mat-form-field > 
+		<input matInput placeholder="Derivative gain" name="derivative" 
 				[(ngModel)]="newVal.derivative">
-		<md-hint align="end">{{current.derivative}}</md-hint>
-	</md-input-container>
+		<mat-hint align="end">{{current.derivative}}</mat-hint>
+	</mat-form-field>
 
-	<button md-raised-button [attr.disabled]="sendingAvailable() ? null : ''" (click)="save()">
+	<button mat-raised-button [attr.disabled]="sendingAvailable() ? null : ''" (click)="save()">
 		Send new values
 	</button>
 </form>

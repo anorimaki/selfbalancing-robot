@@ -48,7 +48,7 @@ void Application::init()
 
 	m_display.systemInitialized();
 
-	delay( 100 );
+	delay( 1000 );
 }
 
 

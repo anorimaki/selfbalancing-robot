@@ -6,6 +6,7 @@ import 'rxjs/add/operator/retry';
 import 'rxjs/add/operator/concatMap';
 import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/timer';
+import 'rxjs/add/operator/catch';
 
 import { RobotService } from 'app/core/robot.service';
 import { PidState } from "app/core/pid-state";
@@ -72,7 +73,7 @@ export class RbPitchComponent implements OnInit {
                     this.pitchChar.enabled ? 
                         Observable.timer(200).concatMap( () => this.pollData ) :
                         Observable.empty<PidStep[]>() ).
-                subscribe( pitches => {
+                subscribe( pitches  => {
                     this.pitchChar.insert( pitches );
                 });
     }

@@ -7,7 +7,7 @@ static selfbalancing::Application app;
 
 void setup()
 {
-	delay( 1000 );
+	delay( 100 );
 
 	Serial.begin(115200);
 

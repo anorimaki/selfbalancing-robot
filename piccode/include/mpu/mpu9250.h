@@ -2,6 +2,7 @@
 #define	MPU9250_H
 
 #include "math/quaternation.h"
+#include <stdbool.h>
 
 typedef struct  {
     Quaternation quaternation;
@@ -15,7 +16,7 @@ typedef enum {
     MPU_DATA_CORRUPTION
 } MpuStatus;
 
-void mpu9250_init();
+bool mpu9250_init();
 
 MpuStatus mpu9250_get_data( MpuData* data );
 

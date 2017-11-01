@@ -17,7 +17,7 @@ int16_t motors_left_speed();
 
 static inline void motors_left_qencoder_interrupt()
 {
-	if ( IO_RB7_GetValue() )
+	if ( motors_left_qenc1_GetValue() )
 		_motors_left_speed++;
 	else
 		_motors_left_speed--;
@@ -26,7 +26,7 @@ static inline void motors_left_qencoder_interrupt()
 
 static inline void motors_right_qencoder_interrupt()
 {
-	if ( IO_RB13_GetValue() )
+	if ( motors_right_qenc1_GetValue() )
 		_motors_right_speed++;
 	else
 		_motors_right_speed--;

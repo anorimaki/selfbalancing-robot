@@ -40,7 +40,7 @@
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _INT1Interrupt(void)
 {
     //***User Area Begin->code: INT1 - External Interrupt 1***
-	motors_left_qencoder_interrupt();
+	motors_right_qencoder_interrupt();
     //***User Area End->code: INT1 - External Interrupt 1***
     EX_INT1_InterruptFlagClear();
 }
@@ -50,7 +50,7 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _INT1Interrupt(void)
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _INT2Interrupt(void)
 {
     //***User Area Begin->code: INT2 - External Interrupt 2***
-	motors_right_qencoder_interrupt();
+	motors_left_qencoder_interrupt();
     //***User Area End->code: INT2 - External Interrupt 2***
     EX_INT2_InterruptFlagClear();
 }

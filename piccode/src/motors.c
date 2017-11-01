@@ -14,36 +14,36 @@ int16_t _motors_left_speed;
 int16_t _motors_right_speed;
 
 
-static inline void m0_fordward()
+static inline void motors_left_fordward()
 {
-	IO_RB11_SetHigh();
-	IO_RB12_SetLow();
+	motors_left_dir0_SetHigh();
+	motors_left_dir1_SetLow();
 }
 
-static inline void m0_backwards()
+static inline void motors_left_backwards()
 {
-	IO_RB11_SetLow();
-	IO_RB12_SetHigh();
+	motors_left_dir0_SetLow();
+	motors_left_dir1_SetHigh();
 }
 
-static inline void m1_fordward()
+static inline void motors_right_fordward()
 {
-	IO_RA3_SetHigh();
-	IO_RA4_SetLow();
+	motors_right_dir0_SetHigh();
+	motors_right_dir1_SetLow();
 }
 
-static inline void m1_backwards()
+static inline void motors_right_backwards()
 {
-	IO_RA3_SetLow();
-	IO_RA4_SetHigh();
+	motors_right_dir0_SetLow();
+	motors_right_dir1_SetHigh();
 }
 
 static inline void motors_stop()
 {
-	IO_RB11_SetLow();
-	IO_RB12_SetLow();
-	IO_RA3_SetLow();
-	IO_RA4_SetLow();
+	motors_left_dir0_SetLow();
+	motors_left_dir1_SetLow();
+	motors_right_dir0_SetLow();
+	motors_right_dir1_SetLow();
 }
 
 
@@ -57,12 +57,12 @@ void motors_init()
 void motors_set_power( int16_t power )
 {
 	if ( power > 0 ) {
-		m0_fordward();
-		m1_fordward();
+		motors_left_fordward();
+		motors_right_fordward();
 	}
 	else {
-		m0_backwards();
-		m1_backwards();
+		motors_left_backwards();
+		motors_right_backwards();
 	}
 	uint16_t mag = abs( power );
 	mag = SCALE_VALUE( mag, 15, MOTORS_PWM_BITS );

@@ -49,13 +49,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "tmr2.h"
+#include "tmr4.h"
+#include "interrupt_manager.h"
+#include "traps.h"
 #include "uart1.h"
 #include "i2c2.h"
 #include "i2c1.h"
-#include "oc2.h"
-#include "interrupt_manager.h"
-#include "traps.h"
 #include "ext_int.h"
+#include "oc2.h"
 #include "oc1.h"
 
 #define _XTAL_FREQ  32000000UL

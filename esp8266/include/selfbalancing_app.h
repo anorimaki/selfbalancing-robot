@@ -4,6 +4,7 @@
 #include "mpu/mpu9250.h"
 #include "http/httpserver.h"
 #include "motion/motors.h"
+#include "io/display.h"
 
 namespace selfbalancing
 {
@@ -31,6 +32,7 @@ public:
 private:
 	bool initMotors();
 	bool initMpu();
+	bool initWifi();
 	bool checkMpu();
 
 	void showData( const mpu::MpuData& data );
@@ -41,6 +43,7 @@ private:
 	mpu::Mpu9250 m_mpu9250;
 	http::Server m_httpServer;
 	motion::Motors m_motors;
+	io::Display m_display;
 };
 
 

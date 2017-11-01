@@ -55,6 +55,152 @@
 */
 /**
   @Summary
+    Sets the GPIO pin, RA0, high using LATA0.
+
+  @Description
+    Sets the GPIO pin, RA0, high using LATA0.
+
+  @Preconditions
+    The RA0 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RA0 high (1)
+    led0_SetHigh();
+    </code>
+
+*/
+#define led0_SetHigh()          _LATA0 = 1
+/**
+  @Summary
+    Sets the GPIO pin, RA0, low using LATA0.
+
+  @Description
+    Sets the GPIO pin, RA0, low using LATA0.
+
+  @Preconditions
+    The RA0 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RA0 low (0)
+    led0_SetLow();
+    </code>
+
+*/
+#define led0_SetLow()           _LATA0 = 0
+/**
+  @Summary
+    Toggles the GPIO pin, RA0, using LATA0.
+
+  @Description
+    Toggles the GPIO pin, RA0, using LATA0.
+
+  @Preconditions
+    The RA0 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Toggle RA0
+    led0_Toggle();
+    </code>
+
+*/
+#define led0_Toggle()           _LATA0 ^= 1
+/**
+  @Summary
+    Reads the value of the GPIO pin, RA0.
+
+  @Description
+    Reads the value of the GPIO pin, RA0.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    uint16_t portValue;
+
+    // Read RA0
+    postValue = led0_GetValue();
+    </code>
+
+*/
+#define led0_GetValue()         _RA0
+/**
+  @Summary
+    Configures the GPIO pin, RA0, as an input.
+
+  @Description
+    Configures the GPIO pin, RA0, as an input.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RA0 as an input
+    led0_SetDigitalInput();
+    </code>
+
+*/
+#define led0_SetDigitalInput()  _TRISA0 = 1
+/**
+  @Summary
+    Configures the GPIO pin, RA0, as an output.
+
+  @Description
+    Configures the GPIO pin, RA0, as an output.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RA0 as an output
+    led0_SetDigitalOutput();
+    </code>
+
+*/
+#define led0_SetDigitalOutput() _TRISA0 = 0
+/**
+  @Summary
     Sets the GPIO pin, RA3, high using LATA3.
 
   @Description
@@ -72,11 +218,11 @@
   @Example
     <code>
     // Set RA3 high (1)
-    IO_RA3_SetHigh();
+    motors_right_dir0_SetHigh();
     </code>
 
 */
-#define IO_RA3_SetHigh()          _LATA3 = 1
+#define motors_right_dir0_SetHigh()          _LATA3 = 1
 /**
   @Summary
     Sets the GPIO pin, RA3, low using LATA3.
@@ -96,11 +242,11 @@
   @Example
     <code>
     // Set RA3 low (0)
-    IO_RA3_SetLow();
+    motors_right_dir0_SetLow();
     </code>
 
 */
-#define IO_RA3_SetLow()           _LATA3 = 0
+#define motors_right_dir0_SetLow()           _LATA3 = 0
 /**
   @Summary
     Toggles the GPIO pin, RA3, using LATA3.
@@ -120,11 +266,11 @@
   @Example
     <code>
     // Toggle RA3
-    IO_RA3_Toggle();
+    motors_right_dir0_Toggle();
     </code>
 
 */
-#define IO_RA3_Toggle()           _LATA3 ^= 1
+#define motors_right_dir0_Toggle()           _LATA3 ^= 1
 /**
   @Summary
     Reads the value of the GPIO pin, RA3.
@@ -146,11 +292,11 @@
     uint16_t portValue;
 
     // Read RA3
-    postValue = IO_RA3_GetValue();
+    postValue = motors_right_dir0_GetValue();
     </code>
 
 */
-#define IO_RA3_GetValue()         _RA3
+#define motors_right_dir0_GetValue()         _RA3
 /**
   @Summary
     Configures the GPIO pin, RA3, as an input.
@@ -170,11 +316,11 @@
   @Example
     <code>
     // Sets the RA3 as an input
-    IO_RA3_SetDigitalInput();
+    motors_right_dir0_SetDigitalInput();
     </code>
 
 */
-#define IO_RA3_SetDigitalInput()  _TRISA3 = 1
+#define motors_right_dir0_SetDigitalInput()  _TRISA3 = 1
 /**
   @Summary
     Configures the GPIO pin, RA3, as an output.
@@ -194,11 +340,11 @@
   @Example
     <code>
     // Sets the RA3 as an output
-    IO_RA3_SetDigitalOutput();
+    motors_right_dir0_SetDigitalOutput();
     </code>
 
 */
-#define IO_RA3_SetDigitalOutput() _TRISA3 = 0
+#define motors_right_dir0_SetDigitalOutput() _TRISA3 = 0
 /**
   @Summary
     Sets the GPIO pin, RA4, high using LATA4.
@@ -218,11 +364,11 @@
   @Example
     <code>
     // Set RA4 high (1)
-    IO_RA4_SetHigh();
+    motors_right_dir1_SetHigh();
     </code>
 
 */
-#define IO_RA4_SetHigh()          _LATA4 = 1
+#define motors_right_dir1_SetHigh()          _LATA4 = 1
 /**
   @Summary
     Sets the GPIO pin, RA4, low using LATA4.
@@ -242,11 +388,11 @@
   @Example
     <code>
     // Set RA4 low (0)
-    IO_RA4_SetLow();
+    motors_right_dir1_SetLow();
     </code>
 
 */
-#define IO_RA4_SetLow()           _LATA4 = 0
+#define motors_right_dir1_SetLow()           _LATA4 = 0
 /**
   @Summary
     Toggles the GPIO pin, RA4, using LATA4.
@@ -266,11 +412,11 @@
   @Example
     <code>
     // Toggle RA4
-    IO_RA4_Toggle();
+    motors_right_dir1_Toggle();
     </code>
 
 */
-#define IO_RA4_Toggle()           _LATA4 ^= 1
+#define motors_right_dir1_Toggle()           _LATA4 ^= 1
 /**
   @Summary
     Reads the value of the GPIO pin, RA4.
@@ -292,11 +438,11 @@
     uint16_t portValue;
 
     // Read RA4
-    postValue = IO_RA4_GetValue();
+    postValue = motors_right_dir1_GetValue();
     </code>
 
 */
-#define IO_RA4_GetValue()         _RA4
+#define motors_right_dir1_GetValue()         _RA4
 /**
   @Summary
     Configures the GPIO pin, RA4, as an input.
@@ -316,11 +462,11 @@
   @Example
     <code>
     // Sets the RA4 as an input
-    IO_RA4_SetDigitalInput();
+    motors_right_dir1_SetDigitalInput();
     </code>
 
 */
-#define IO_RA4_SetDigitalInput()  _TRISA4 = 1
+#define motors_right_dir1_SetDigitalInput()  _TRISA4 = 1
 /**
   @Summary
     Configures the GPIO pin, RA4, as an output.
@@ -340,11 +486,11 @@
   @Example
     <code>
     // Sets the RA4 as an output
-    IO_RA4_SetDigitalOutput();
+    motors_right_dir1_SetDigitalOutput();
     </code>
 
 */
-#define IO_RA4_SetDigitalOutput() _TRISA4 = 0
+#define motors_right_dir1_SetDigitalOutput() _TRISA4 = 0
 /**
   @Summary
     Sets the GPIO pin, RB11, high using LATB11.
@@ -364,11 +510,11 @@
   @Example
     <code>
     // Set RB11 high (1)
-    IO_RB11_SetHigh();
+    motors_left_dir0_SetHigh();
     </code>
 
 */
-#define IO_RB11_SetHigh()          _LATB11 = 1
+#define motors_left_dir0_SetHigh()          _LATB11 = 1
 /**
   @Summary
     Sets the GPIO pin, RB11, low using LATB11.
@@ -388,11 +534,11 @@
   @Example
     <code>
     // Set RB11 low (0)
-    IO_RB11_SetLow();
+    motors_left_dir0_SetLow();
     </code>
 
 */
-#define IO_RB11_SetLow()           _LATB11 = 0
+#define motors_left_dir0_SetLow()           _LATB11 = 0
 /**
   @Summary
     Toggles the GPIO pin, RB11, using LATB11.
@@ -412,11 +558,11 @@
   @Example
     <code>
     // Toggle RB11
-    IO_RB11_Toggle();
+    motors_left_dir0_Toggle();
     </code>
 
 */
-#define IO_RB11_Toggle()           _LATB11 ^= 1
+#define motors_left_dir0_Toggle()           _LATB11 ^= 1
 /**
   @Summary
     Reads the value of the GPIO pin, RB11.
@@ -438,11 +584,11 @@
     uint16_t portValue;
 
     // Read RB11
-    postValue = IO_RB11_GetValue();
+    postValue = motors_left_dir0_GetValue();
     </code>
 
 */
-#define IO_RB11_GetValue()         _RB11
+#define motors_left_dir0_GetValue()         _RB11
 /**
   @Summary
     Configures the GPIO pin, RB11, as an input.
@@ -462,11 +608,11 @@
   @Example
     <code>
     // Sets the RB11 as an input
-    IO_RB11_SetDigitalInput();
+    motors_left_dir0_SetDigitalInput();
     </code>
 
 */
-#define IO_RB11_SetDigitalInput()  _TRISB11 = 1
+#define motors_left_dir0_SetDigitalInput()  _TRISB11 = 1
 /**
   @Summary
     Configures the GPIO pin, RB11, as an output.
@@ -486,11 +632,11 @@
   @Example
     <code>
     // Sets the RB11 as an output
-    IO_RB11_SetDigitalOutput();
+    motors_left_dir0_SetDigitalOutput();
     </code>
 
 */
-#define IO_RB11_SetDigitalOutput() _TRISB11 = 0
+#define motors_left_dir0_SetDigitalOutput() _TRISB11 = 0
 /**
   @Summary
     Sets the GPIO pin, RB12, high using LATB12.
@@ -510,11 +656,11 @@
   @Example
     <code>
     // Set RB12 high (1)
-    IO_RB12_SetHigh();
+    motors_left_dir1_SetHigh();
     </code>
 
 */
-#define IO_RB12_SetHigh()          _LATB12 = 1
+#define motors_left_dir1_SetHigh()          _LATB12 = 1
 /**
   @Summary
     Sets the GPIO pin, RB12, low using LATB12.
@@ -534,11 +680,11 @@
   @Example
     <code>
     // Set RB12 low (0)
-    IO_RB12_SetLow();
+    motors_left_dir1_SetLow();
     </code>
 
 */
-#define IO_RB12_SetLow()           _LATB12 = 0
+#define motors_left_dir1_SetLow()           _LATB12 = 0
 /**
   @Summary
     Toggles the GPIO pin, RB12, using LATB12.
@@ -558,11 +704,11 @@
   @Example
     <code>
     // Toggle RB12
-    IO_RB12_Toggle();
+    motors_left_dir1_Toggle();
     </code>
 
 */
-#define IO_RB12_Toggle()           _LATB12 ^= 1
+#define motors_left_dir1_Toggle()           _LATB12 ^= 1
 /**
   @Summary
     Reads the value of the GPIO pin, RB12.
@@ -584,11 +730,11 @@
     uint16_t portValue;
 
     // Read RB12
-    postValue = IO_RB12_GetValue();
+    postValue = motors_left_dir1_GetValue();
     </code>
 
 */
-#define IO_RB12_GetValue()         _RB12
+#define motors_left_dir1_GetValue()         _RB12
 /**
   @Summary
     Configures the GPIO pin, RB12, as an input.
@@ -608,11 +754,11 @@
   @Example
     <code>
     // Sets the RB12 as an input
-    IO_RB12_SetDigitalInput();
+    motors_left_dir1_SetDigitalInput();
     </code>
 
 */
-#define IO_RB12_SetDigitalInput()  _TRISB12 = 1
+#define motors_left_dir1_SetDigitalInput()  _TRISB12 = 1
 /**
   @Summary
     Configures the GPIO pin, RB12, as an output.
@@ -632,11 +778,11 @@
   @Example
     <code>
     // Sets the RB12 as an output
-    IO_RB12_SetDigitalOutput();
+    motors_left_dir1_SetDigitalOutput();
     </code>
 
 */
-#define IO_RB12_SetDigitalOutput() _TRISB12 = 0
+#define motors_left_dir1_SetDigitalOutput() _TRISB12 = 0
 /**
   @Summary
     Sets the GPIO pin, RB13, high using LATB13.
@@ -656,11 +802,11 @@
   @Example
     <code>
     // Set RB13 high (1)
-    IO_RB13_SetHigh();
+    motors_left_qenc1_SetHigh();
     </code>
 
 */
-#define IO_RB13_SetHigh()          _LATB13 = 1
+#define motors_left_qenc1_SetHigh()          _LATB13 = 1
 /**
   @Summary
     Sets the GPIO pin, RB13, low using LATB13.
@@ -680,11 +826,11 @@
   @Example
     <code>
     // Set RB13 low (0)
-    IO_RB13_SetLow();
+    motors_left_qenc1_SetLow();
     </code>
 
 */
-#define IO_RB13_SetLow()           _LATB13 = 0
+#define motors_left_qenc1_SetLow()           _LATB13 = 0
 /**
   @Summary
     Toggles the GPIO pin, RB13, using LATB13.
@@ -704,11 +850,11 @@
   @Example
     <code>
     // Toggle RB13
-    IO_RB13_Toggle();
+    motors_left_qenc1_Toggle();
     </code>
 
 */
-#define IO_RB13_Toggle()           _LATB13 ^= 1
+#define motors_left_qenc1_Toggle()           _LATB13 ^= 1
 /**
   @Summary
     Reads the value of the GPIO pin, RB13.
@@ -730,11 +876,11 @@
     uint16_t portValue;
 
     // Read RB13
-    postValue = IO_RB13_GetValue();
+    postValue = motors_left_qenc1_GetValue();
     </code>
 
 */
-#define IO_RB13_GetValue()         _RB13
+#define motors_left_qenc1_GetValue()         _RB13
 /**
   @Summary
     Configures the GPIO pin, RB13, as an input.
@@ -754,11 +900,11 @@
   @Example
     <code>
     // Sets the RB13 as an input
-    IO_RB13_SetDigitalInput();
+    motors_left_qenc1_SetDigitalInput();
     </code>
 
 */
-#define IO_RB13_SetDigitalInput()  _TRISB13 = 1
+#define motors_left_qenc1_SetDigitalInput()  _TRISB13 = 1
 /**
   @Summary
     Configures the GPIO pin, RB13, as an output.
@@ -778,11 +924,303 @@
   @Example
     <code>
     // Sets the RB13 as an output
-    IO_RB13_SetDigitalOutput();
+    motors_left_qenc1_SetDigitalOutput();
     </code>
 
 */
-#define IO_RB13_SetDigitalOutput() _TRISB13 = 0
+#define motors_left_qenc1_SetDigitalOutput() _TRISB13 = 0
+/**
+  @Summary
+    Sets the GPIO pin, RB14, high using LATB14.
+
+  @Description
+    Sets the GPIO pin, RB14, high using LATB14.
+
+  @Preconditions
+    The RB14 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB14 high (1)
+    motors_left_qenc0_SetHigh();
+    </code>
+
+*/
+#define motors_left_qenc0_SetHigh()          _LATB14 = 1
+/**
+  @Summary
+    Sets the GPIO pin, RB14, low using LATB14.
+
+  @Description
+    Sets the GPIO pin, RB14, low using LATB14.
+
+  @Preconditions
+    The RB14 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB14 low (0)
+    motors_left_qenc0_SetLow();
+    </code>
+
+*/
+#define motors_left_qenc0_SetLow()           _LATB14 = 0
+/**
+  @Summary
+    Toggles the GPIO pin, RB14, using LATB14.
+
+  @Description
+    Toggles the GPIO pin, RB14, using LATB14.
+
+  @Preconditions
+    The RB14 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Toggle RB14
+    motors_left_qenc0_Toggle();
+    </code>
+
+*/
+#define motors_left_qenc0_Toggle()           _LATB14 ^= 1
+/**
+  @Summary
+    Reads the value of the GPIO pin, RB14.
+
+  @Description
+    Reads the value of the GPIO pin, RB14.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    uint16_t portValue;
+
+    // Read RB14
+    postValue = motors_left_qenc0_GetValue();
+    </code>
+
+*/
+#define motors_left_qenc0_GetValue()         _RB14
+/**
+  @Summary
+    Configures the GPIO pin, RB14, as an input.
+
+  @Description
+    Configures the GPIO pin, RB14, as an input.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB14 as an input
+    motors_left_qenc0_SetDigitalInput();
+    </code>
+
+*/
+#define motors_left_qenc0_SetDigitalInput()  _TRISB14 = 1
+/**
+  @Summary
+    Configures the GPIO pin, RB14, as an output.
+
+  @Description
+    Configures the GPIO pin, RB14, as an output.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB14 as an output
+    motors_left_qenc0_SetDigitalOutput();
+    </code>
+
+*/
+#define motors_left_qenc0_SetDigitalOutput() _TRISB14 = 0
+/**
+  @Summary
+    Sets the GPIO pin, RB15, high using LATB15.
+
+  @Description
+    Sets the GPIO pin, RB15, high using LATB15.
+
+  @Preconditions
+    The RB15 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB15 high (1)
+    led1_SetHigh();
+    </code>
+
+*/
+#define led1_SetHigh()          _LATB15 = 1
+/**
+  @Summary
+    Sets the GPIO pin, RB15, low using LATB15.
+
+  @Description
+    Sets the GPIO pin, RB15, low using LATB15.
+
+  @Preconditions
+    The RB15 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB15 low (0)
+    led1_SetLow();
+    </code>
+
+*/
+#define led1_SetLow()           _LATB15 = 0
+/**
+  @Summary
+    Toggles the GPIO pin, RB15, using LATB15.
+
+  @Description
+    Toggles the GPIO pin, RB15, using LATB15.
+
+  @Preconditions
+    The RB15 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Toggle RB15
+    led1_Toggle();
+    </code>
+
+*/
+#define led1_Toggle()           _LATB15 ^= 1
+/**
+  @Summary
+    Reads the value of the GPIO pin, RB15.
+
+  @Description
+    Reads the value of the GPIO pin, RB15.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    uint16_t portValue;
+
+    // Read RB15
+    postValue = led1_GetValue();
+    </code>
+
+*/
+#define led1_GetValue()         _RB15
+/**
+  @Summary
+    Configures the GPIO pin, RB15, as an input.
+
+  @Description
+    Configures the GPIO pin, RB15, as an input.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB15 as an input
+    led1_SetDigitalInput();
+    </code>
+
+*/
+#define led1_SetDigitalInput()  _TRISB15 = 1
+/**
+  @Summary
+    Configures the GPIO pin, RB15, as an output.
+
+  @Description
+    Configures the GPIO pin, RB15, as an output.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB15 as an output
+    led1_SetDigitalOutput();
+    </code>
+
+*/
+#define led1_SetDigitalOutput() _TRISB15 = 0
 /**
   @Summary
     Sets the GPIO pin, RB7, high using LATB7.
@@ -802,11 +1240,11 @@
   @Example
     <code>
     // Set RB7 high (1)
-    IO_RB7_SetHigh();
+    motors_right_qenc1_SetHigh();
     </code>
 
 */
-#define IO_RB7_SetHigh()          _LATB7 = 1
+#define motors_right_qenc1_SetHigh()          _LATB7 = 1
 /**
   @Summary
     Sets the GPIO pin, RB7, low using LATB7.
@@ -826,11 +1264,11 @@
   @Example
     <code>
     // Set RB7 low (0)
-    IO_RB7_SetLow();
+    motors_right_qenc1_SetLow();
     </code>
 
 */
-#define IO_RB7_SetLow()           _LATB7 = 0
+#define motors_right_qenc1_SetLow()           _LATB7 = 0
 /**
   @Summary
     Toggles the GPIO pin, RB7, using LATB7.
@@ -850,11 +1288,11 @@
   @Example
     <code>
     // Toggle RB7
-    IO_RB7_Toggle();
+    motors_right_qenc1_Toggle();
     </code>
 
 */
-#define IO_RB7_Toggle()           _LATB7 ^= 1
+#define motors_right_qenc1_Toggle()           _LATB7 ^= 1
 /**
   @Summary
     Reads the value of the GPIO pin, RB7.
@@ -876,11 +1314,11 @@
     uint16_t portValue;
 
     // Read RB7
-    postValue = IO_RB7_GetValue();
+    postValue = motors_right_qenc1_GetValue();
     </code>
 
 */
-#define IO_RB7_GetValue()         _RB7
+#define motors_right_qenc1_GetValue()         _RB7
 /**
   @Summary
     Configures the GPIO pin, RB7, as an input.
@@ -900,11 +1338,11 @@
   @Example
     <code>
     // Sets the RB7 as an input
-    IO_RB7_SetDigitalInput();
+    motors_right_qenc1_SetDigitalInput();
     </code>
 
 */
-#define IO_RB7_SetDigitalInput()  _TRISB7 = 1
+#define motors_right_qenc1_SetDigitalInput()  _TRISB7 = 1
 /**
   @Summary
     Configures the GPIO pin, RB7, as an output.
@@ -924,11 +1362,11 @@
   @Example
     <code>
     // Sets the RB7 as an output
-    IO_RB7_SetDigitalOutput();
+    motors_right_qenc1_SetDigitalOutput();
     </code>
 
 */
-#define IO_RB7_SetDigitalOutput() _TRISB7 = 0
+#define motors_right_qenc1_SetDigitalOutput() _TRISB7 = 0
 
 /**
     Section: Function Prototypes

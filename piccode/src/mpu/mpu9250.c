@@ -6,19 +6,21 @@
 
 //DMP firmaware was previously loaded and sensors has been selected.
 // No need to load firmware and configure sensors here.
-void mpu9250_init() {
+ bool mpu9250_init() {
 	struct int_param_s int_param;
 	if ( mpu_init(&int_param) )
-		TRACE_ERROR_AND_RETURN(EMPTY());
+		TRACE_ERROR_AND_RETURN(false);
 
 	if ( dmp_enable_feature( DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL ) )
-		TRACE_ERROR_AND_RETURN(EMPTY());
+		TRACE_ERROR_AND_RETURN(false);
 
 	if ( dmp_set_fifo_rate(100) )
-		TRACE_ERROR_AND_RETURN(EMPTY());
+		TRACE_ERROR_AND_RETURN(false);
 
 	if ( mpu_set_dmp_state(1) )
-		TRACE_ERROR_AND_RETURN(EMPTY());
+		TRACE_ERROR_AND_RETURN(false);
+	
+	return true;
 }
 
 

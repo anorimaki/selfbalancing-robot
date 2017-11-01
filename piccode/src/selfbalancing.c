@@ -4,6 +4,7 @@
 #include "mpu/mpu9250.h"
 #include "system.h"
 #include "io/input_i2c.h"
+#include "io/display.h"
 #include "api/motors_i2c_reg.h"
 #include "mpu/inv_pic24f_adapter.h"
 #include "pidpitch.h"
@@ -13,25 +14,11 @@
 #include <libpic30.h>
 
 
-void wait_initialization() {
-	while( !system_is_on() ) {}
-	printf( "System on\n" );
-	
-	mpu9250_init();
-}
-
-
 bool cal_motors_power( int16_t target_pitch, int16_t* power )
 {
 	MpuData data;
 	MpuStatus status = mpu9250_get_data( &data );
-	if ( status == MPU_OVERUN )
-		printf( "MPU FIFO overflow\n" );
-	else if ( status == MPU_DATA_CORRUPTION )
-		printf( "MPU data corruption\n" );
-	else if ( status == MPU_ERROR )
-		printf( "MPU communication error\n" );
-	
+	display_mpu_result( status );
 	if ( status != MPU_OK )
 		return false;
 
@@ -66,21 +53,30 @@ int main(void)
 {
     SYSTEM_Initialize();
 	
-	delay_ms(2);
+	display_system_initialization();
+	
+	__delay_ms(2);
 	
 	system_init();
 	inputi2c_init();
 	pidpitch_init();
 	motors_init();
 	
-	printf( "System initialized\n" );
+	display_system_ready();
 	
 	int16_t pitch_target = 0;		//Must be adapted to PID algorithm input
 	int i=0;
 	while( 1 )
     {
 		if ( !system_is_on() ) {
-			wait_initialization();
+			display_system_wait();
+			while( !system_is_on() ) {}
+			display_system_ready();
+			
+			if ( !mpu9250_init() ) {
+				display_mpu_init_error();
+				return -1;
+			}
 		}
 
 		int16_t motors_power;
@@ -90,16 +86,8 @@ int main(void)
 		else {
 			i++;
 		}
-
 		
-		++i;
-		if ( i % 10 == 0 ) {
-			int16_t l = motors_left_speed();
-			int16_t r= motors_right_speed();
-			printf( "l: %d, r: %d\n", l, r );
-		}
-		
-		__delay_ms(4);
+		__delay_ms(3);
     }
 
     return -1;

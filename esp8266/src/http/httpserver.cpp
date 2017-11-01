@@ -38,24 +38,41 @@ static const char* headersToCollect[] = {
 		ACCESS_CONTROL_REQUEST_HEADERS, ACCESS_CONTROL_REQUEST_METHOD
 };
 
-void Server::init( motion::Motors* motors )
+void Server::init( motion::Motors* motors, io::Display* display )
 {
 	m_motors = motors;
+	m_display = display;
 
 	m_impl.on( "/", std::bind( &Server::handleRoot, this ) );
-	m_impl.on( "/motors/pitch/state", HTTPMethod::HTTP_GET, std::bind( &Server::handleMotorsPitch, this ) );
-	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_GET, std::bind( &Server::handleMotorsPIDSettingsPitch, this ) );
-	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_PUT, std::bind( &Server::handleMotorsSetPIDSettingsPitch, this ) );
+
+	m_impl.on( "/motors/pitch/state", HTTPMethod::HTTP_GET,
+				std::bind( &Server::handleRequest, this, &Server::handleMotorsPitch ) );
+
+	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_GET,
+				std::bind( &Server::handleRequest, this, &Server::handleMotorsPIDSettingsPitch ) );
+
+	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_PUT,
+				std::bind( &Server::handleRequest, this, &Server::handleMotorsSetPIDSettingsPitch ) );
+
 	m_impl.onNotFound([this](){
-		if ( m_impl.method() == HTTP_OPTIONS ) {
-			handleOptionsRequest();
-			return;
-		}
-		handleNotFound();
-	});
+			if ( m_impl.method() == HTTP_OPTIONS ) {
+				handleOptionsRequest();
+				return;
+			}
+			handleRequest( &Server::handleNotFound );
+		});
+
 	m_impl.collectHeaders( headersToCollect, sizeof(headersToCollect)/sizeof(const char*) );
 	m_impl.begin();
 	m_impl.client().setNoDelay(1);		//Just for performance
+}
+
+
+void Server::handleRequest( void (Server::*handler)() )
+{
+	m_display->httpRequestBegin();
+	(this->*handler)();
+	m_display->httpRequestEnd();
 }
 
 

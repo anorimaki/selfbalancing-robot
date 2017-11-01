@@ -10,7 +10,7 @@ namespace http
 class Server
 {
 public:
-	void init( motion::Motors* motors );
+	void init( motion::Motors* motors, io::Display* display );
 
 	ESP8266WebServer& impl() {
 		return m_impl;
@@ -25,9 +25,12 @@ private:
 	void handleNotFound();
 	void sendError( const char* message );
 
+	void handleRequest( void (Server::*handler)() );
+
 private:
 	ESP8266WebServer m_impl;
 	motion::Motors* m_motors;
+	io::Display* m_display;
 };
 
 }

@@ -3,9 +3,8 @@
 #include "mpu/angles.h"
 #include "i2c/i2c.h"
 #include "wifiproperties.h"
-
-
 #include "motors_i2c_api.h"
+
 
 namespace selfbalancing
 {
@@ -18,67 +17,45 @@ static const uint8_t MOTORS_SCL = D6;
 static const uint8_t MOTORS_SDA = D7;
 
 
-static void wifiInit()
-{
-	WiFi.begin( wifi::ssid, wifi::password );
-
-	// Wait for connection
-	while ( WiFi.status() != WL_CONNECTED ) {
-		delay ( 500 );
-		Serial.print ( "." );
-	}
-	Serial.print( "IP address: " );
-	Serial.println( WiFi.localIP() );
-}
 
 
 
 void Application::init()
 {
-	pinMode(16, OUTPUT);
-	pinMode(14, OUTPUT);
+	m_display.systemInitialization();
+	delay( 100 );
 
-	wifiInit();
+	if ( !initWifi() ) {
+		m_display.wifiInitError( 3000 );
+	}
 
 	if ( !initMpu() ) {
-		digitalWrite(14, LOW);
+		m_display.mpuInitError();
+		return;
 	}
 
 	while( !checkMpu() ) {
+		m_display.initializingMpu();
 		delay( 100 );
 	}
 
 	if ( !initMotors() ) {
-	//	digitalWrite(15, LOW);
+		m_display.motorsInitError();
+		return;
 	}
 
-	m_httpServer.init( &m_motors );
+	m_httpServer.init( &m_motors, &m_display );
 
-	delay( 400 );
+	m_display.systemInitialized();
+
+	delay( 100 );
 }
 
 
 void Application::loop()
 {
-	static int i= 0;
-
-	++i;
-	if ( i > 6 ) {
-		i = 0;
-	}
-	if (  i > 3 ) {
-		digitalWrite(16, LOW);
-		digitalWrite(14, LOW);
-	}
-	else {
-		digitalWrite(16, HIGH);
-		digitalWrite(14, HIGH);
-	}
-
-	Serial.printf( "%d\n", i );
-
-//	m_httpServer.impl().handleClient();
-	delay( 500 );
+	m_httpServer.impl().handleClient();
+	m_display.update();
 }
 
 
@@ -128,12 +105,33 @@ void Application::showData( const mpu::MpuData& data )
 }
 
 
+bool Application::initWifi()
+{
+	WiFi.begin( wifi::ssid, wifi::password );
+
+	uint8_t status = WiFi.status();
+	while ( status == WL_DISCONNECTED ) {
+		delay ( 1000 );
+		m_display.initializingWifi();
+		status = WiFi.status();
+	}
+
+	if ( status != WL_CONNECTED ) {
+		TRACE_ERROR( "WIFI error %d", status );
+		return false;
+	}
+
+	Serial.print( "\nIP address: " );
+	Serial.println( WiFi.localIP() );
+	return true;
+}
+
+
 bool Application::initMotors()
 {
 	i2c::init( MOTORS_SDA, MOTORS_SCL );
 
-	if( !m_motors.init() ) {
-		while(1)
+	if( !m_motors.init( &m_display ) ) {
 		TRACE_ERROR( "Motors initialization failed" );
 		return false;
 	}

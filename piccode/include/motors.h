@@ -10,7 +10,7 @@ extern int16_t _motors_right_speed;
 
 
 void motors_init();
-void motors_set_power( int16_t power );
+void motors_set_power( int16_t power, int8_t steering );
 
 int16_t motors_right_speed();
 int16_t motors_left_speed();

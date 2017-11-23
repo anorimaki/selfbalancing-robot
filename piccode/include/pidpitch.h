@@ -1,5 +1,5 @@
-#ifndef PIDPITCHSTORE_H
-#define	PIDPITCHSTORE_H
+#ifndef PIDPITCH_H
+#define	PIDPITCH_H
 
 #include <stdint.h>
 #include "pid.h"
@@ -14,5 +14,5 @@ void pidpitch_init();
 #define pidpitch_i2c_write(address, data) \
     pid_i2c_write( &pidpitch_data, address, data )
 
-#endif	/* PIDPITCHSTORE_H */
+#endif	/* PIDPITCH_H */
 

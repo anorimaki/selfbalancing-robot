@@ -10,14 +10,18 @@ export class PidSettings {
     }
     
     merge( o: PidSettings ): void {
-        if (this.proportional==null) {
+        if (o.proportional) {
             this.proportional = o.proportional;
         }
-        if (this.derivative==null) {
+        if (o.derivative) {
             this.derivative = o.derivative;
         }
-        if (this.integral==null) {
+        if (o.integral) {
             this.integral = o.integral;
         }
-    }
+	}
+	
+	static fromJson( json: any ): PidSettings {
+		return new PidSettings( json.proportional, json.derivative, json.integral );
+	}
 }

@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { AmChartsService } from "@amcharts/amcharts3-angular";
+import { Component, OnInit, OnDestroy, ViewChild, 
+		Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { AmChartsService, AmChart } from "@amcharts/amcharts3-angular";
 import { MatSlideToggleChange } from "@angular/material/material";
 
 type Serie = { label: string, field: string, checked: boolean, color: number, type: number };
@@ -9,7 +10,7 @@ type Serie = { label: string, field: string, checked: boolean, color: number, ty
     templateUrl: './chart.component.html',
     styleUrls: ['./chart.component.css']
 } )
-export class RbChartComponent implements OnInit {
+export class RbChartComponent implements  OnDestroy {
     private static readonly MAX_ENTIES = 900; 
     private static readonly COLORS: string[] = ["#b5030d", "#05F3Fd", "#1503Fd", "#F30300", "#00FF00"];
 
@@ -18,14 +19,15 @@ export class RbChartComponent implements OnInit {
     
     @Output() enableChange = new EventEmitter<boolean>(); 
 
-    private chart: any;
+    private chart: AmChart;
     @Input() enabled: boolean;
 
-    constructor(private amCharts: AmChartsService) {
+	constructor( private amCharts: AmChartsService,
+				private ref: ChangeDetectorRef ) {
         this.enabled = true;
     }
 
-    ngOnInit(): void {
+    ngAfterViewInit(): void {
         this.y = this.y.map( (input,i) => ({ 
                 label: input.label,
                 field: input.field, 
@@ -38,13 +40,13 @@ export class RbChartComponent implements OnInit {
                 type: "xy",
                 dataProvider: [],
                 processTimeout: 100,
-                legend: {
+             /*   legend: {
                     useGraphSettings: true,
                     divId: "chartlegend",
                     maxColumns: 1,
                     align: "center"
                 },
-                chartCursor: {
+              */  chartCursor: {
                     cursorAlpha:0.3,
                     cursorPosition: "mouse"
                 },
@@ -56,14 +58,20 @@ export class RbChartComponent implements OnInit {
         this.configSeries( charConfig );
         
         this.chart = this.amCharts.makeChart( "chartdiv", charConfig );
-        this.chart.validateNow(true);
+		this.chart.validateNow(true);
+		this.ref.detectChanges();
     }
     
     ngOnDestroy(): void {
-        this.amCharts.destroyChart( this.chart );
+		if (this.chart) {
+			this.amCharts.destroyChart( this.chart );
+		}
     }
     
     insert( items : any[] ) : void {
+		if ( items.length > RbChartComponent.MAX_ENTIES ) {
+			items.splice( 0, items.length-RbChartComponent.MAX_ENTIES );
+		}
         let itemsToRemove = (this.chart.dataProvider.length + items.length) - RbChartComponent.MAX_ENTIES;
         if ( itemsToRemove > 0 ) {
             this.chart.dataProvider.splice( 0, itemsToRemove );
@@ -77,7 +85,7 @@ export class RbChartComponent implements OnInit {
                 this.chart.validateNow();
             }); 
         }
-        //this.chart.validateData();
+        this.chart.validateData();
     }
     
     labelSelectionChanged( event ): void {

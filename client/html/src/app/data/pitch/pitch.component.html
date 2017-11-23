@@ -1,0 +1,24 @@
+<rb-char #pitchChar 
+	[y]="[{ 
+			label: 'Pitch', 
+			field: 'current',
+			type: 1 },
+		{ 
+			label: 'Proportional output', 
+			field: 'proportionalOutput',
+			type: 2 },
+		{ 
+			label: 'Derivative output', 
+			field: 'derivativeOutput',
+			type: 2 },
+		{ 
+			label: 'Integral output', 
+			field: 'integralOutput',
+			type: 2 },
+		{ 
+			label: 'Output', 
+			field: 'output',
+			type: 2 }]"
+	[x]="'index'"
+	(enableChange)=pollingEnable($event)>
+</rb-char>

@@ -94,7 +94,7 @@ void Display::motorsInitError()
 
 void Display::wifiInitError( int duration_ms )
 {
-	int loops = duration_ms/WIFI_INIT_ERROR_PERIOD;
+	int loops = (duration_ms/WIFI_INIT_ERROR_PERIOD)+1;
 	uint8_t val = LOW;
 	for( int i=0; i<loops; ++i ) {
 		digitalWrite(LED0_PIN, val);

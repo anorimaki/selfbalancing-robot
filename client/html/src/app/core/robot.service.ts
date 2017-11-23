@@ -20,7 +20,8 @@ export class RobotService {
     }
     
     getPitchPidSettings(): Observable<PidSettings> {
-        return this.http.get( RobotService.pitchPidUrl ).map( response => response.json() as PidSettings );
+		return this.http.get( RobotService.pitchPidUrl ).
+					map( response => PidSettings.fromJson( response.json() ) );
     } 
  
     setPitchPidSettings( settings: PidSettings ): Observable<void> {

@@ -12,6 +12,6 @@ import { RbPitchComponent } from './pitch.component';
     ],
     exports: [
        RbPitchComponent
-   ]
+	]
 } )
 export class PitchModule { }

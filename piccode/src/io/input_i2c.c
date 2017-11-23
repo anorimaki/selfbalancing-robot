@@ -2,6 +2,7 @@
 #include "api/motors_i2c_api.h"
 #include "system.h"
 #include "pidpitch.h"
+#include "pidspeed.h"
 #include "i2c1.h"
 
 #define INVALID_REGISTER_ADDRESS 0xFF
@@ -15,10 +16,11 @@ static void i2cslave_set_send_buffer( uint8_t register_address )
 		send_buffer = system_registers[register_address];
 	else if ( register_address < MOTORSREG_PITCH_PID_END )
 		send_buffer = pidpitch_i2c_read(register_address-MOTORSREG_SYSTEM_END);
+	else if ( register_address < MOTORSREG_SPEED_PID_END )
+		send_buffer = pidpitch_i2c_read(register_address-MOTORSREG_PITCH_PID_END);
 	else {
 		printf( "send: %x\n", register_address );
 	}
-//	printf( "read: %X: %X\n", register_address, send_buffer );
 }
 
 
@@ -28,10 +30,11 @@ static void i2cslave_write( uint8_t register_address, uint8_t data )
 		system_registers[register_address] = data;
 	else if ( register_address < MOTORSREG_PITCH_PID_END )
 		pidpitch_i2c_write( register_address-MOTORSREG_SYSTEM_END, data );
+	else if ( register_address < MOTORSREG_SPEED_PID_END )
+		pidpitch_i2c_write( register_address-MOTORSREG_PITCH_PID_END, data );
 	else {
 		printf( "rec: %x\n", register_address );
 	}
-//	printf( "write: %X: %X\n", register_address, data );
 }
 
 

@@ -1,0 +1,15 @@
+.sidenav {
+	border-right-style: solid;
+	border-right-width: 1px;
+	border-right-color: grey;
+	width: 160px;
+	height: 100%;
+}
+
+.root {
+	height: 100%;
+}
+
+.content {
+	width: 100%;
+}

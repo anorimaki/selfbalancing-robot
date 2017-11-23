@@ -8,7 +8,8 @@
 
 #define MOTORS_PWM_BITS		12
 #define MOTORS_MAX_POWER	((1<<MOTORS_PWM_BITS)-1)
-#define MOTORS_MIN_POWER	0x864		//Min power to move motors
+#define MOTORS_LEFT_MIN_POWER	0x864		//Min power to move motors
+#define MOTORS_RIGHT_MIN_POWER	0x864		//Min power to move motors
 
 int16_t _motors_left_speed;
 int16_t _motors_right_speed;
@@ -54,24 +55,59 @@ void motors_init()
 	_motors_left_speed = 0;
 }
 
-void motors_set_power( int16_t power )
+
+/*
+ * Power input magnitude is a 15 bits unsigned integer. Output must be scaled
+ * in [minPower .. 2^MOTORS_PWM_BITS-1] range.
+ * 
+ * Correct scale function is: 
+ *		minPower + (abs(power)*(MOTORS_MAX_POWER-minPower) / ((2^15)-1))
+ * But this function approximates div by (2^15)-1 with this formula to
+ * avoid divisions:
+ *			1/2^n + 1/2^2n + 1/2^3n + ... = 1/(2^n-1)
+ * See https://stackoverflow.com/questions/33063691/how-does-this-approximation-of-division-using-bit-shift-operations-work* 
+ * In this case, only make sense an aprox. with one term because second term is 
+ * always 0 (mult of 12x15 bits gives 27 bits that would be shifted 30 bits)
+ * So:
+ *		minPower + (abs(power)*(MOTORS_MAX_POWER-minPower) / (2^15)) + 1
+ * 
+ * Note: Defined as macro instead of a function in order to do some
+ * calculations at compile time.
+ */
+#define power_to_pwm(power, minPower) \
+	(minPower + 1 + \
+		(__builtin_muluu( abs(power), MOTORS_MAX_POWER-minPower) >> 15))
+
+static inline void motors_set_left_power( int16_t power ) 
 {
 	if ( power > 0 ) {
 		motors_left_fordward();
-		motors_right_fordward();
 	}
 	else {
 		motors_left_backwards();
+	}
+
+	OC2_SecondaryValueSet( power_to_pwm(power, MOTORS_LEFT_MIN_POWER) );
+}
+
+
+static inline void motors_set_right_power( int16_t power ) 
+{
+	if ( power > 0 ) {
+		motors_right_fordward();
+	}
+	else {
 		motors_right_backwards();
 	}
-	uint16_t mag = abs( power );
-	mag = SCALE_VALUE( mag, 15, MOTORS_PWM_BITS );
-	mag += MOTORS_MIN_POWER;		//Add minimun power to move motors
-	if ( mag > MOTORS_MAX_POWER )
-		mag = MOTORS_MAX_POWER;
-	
-	OC1_SecondaryValueSet( mag );
-	OC2_SecondaryValueSet( mag );
+	OC1_SecondaryValueSet( power_to_pwm(power, MOTORS_RIGHT_MIN_POWER) );
+}
+
+
+void motors_set_power( int16_t power, int8_t steering )
+{
+	steering >>= 1;		//Half of desired steering to each motor.
+	motors_set_left_power( power + steering );
+	motors_set_right_power( power - steering );
 }
 
 

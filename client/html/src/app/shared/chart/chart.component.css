@@ -1,3 +1,7 @@
+#root {
+	margin: 30px;
+}
+
 #chartdiv {
 	height:400px;
 	margin-right: 30px;

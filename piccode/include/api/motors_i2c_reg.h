@@ -36,7 +36,7 @@ extern "C" {
 /*
  *  PID speed registers
  */
-#define MOTORSREG_SPEED_PID_BEGIN       MOTORSREG_SYSTEM_END			//1
+#define MOTORSREG_SPEED_PID_BEGIN       MOTORSREG_PITCH_PID_END			//1
     
 //PIDFifo (R)
 #define MOTORSREG_SPEED_FIFO_CURRENT    (MOTORSREG_SPEED_PID_BEGIN)		//1

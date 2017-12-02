@@ -1,6 +1,6 @@
 <div fxLayout='column' fxLayoutAlign="end start" fxLayoutGap='20px'>
 	<mat-form-field > 
-		<input matInput placeholder="Proportional gain" name="proportinal" 
+		<input matInput type="number" placeholder="Proportional gain" name="proportinal" 
 				[(ngModel)]="newVal.proportional">
 		<mat-hint align="end">Current value: {{current.proportional}}</mat-hint>
 	</mat-form-field>
@@ -12,7 +12,7 @@
 	</mat-form-field>
 	
 	<mat-form-field > 
-		<input matInput placeholder="Derivative gain" name="derivative" 
+		<input matInput type="number" placeholder="Derivative gain" name="derivative" 
 				[(ngModel)]="newVal.derivative">
 		<mat-hint align="end">Current value: {{current.derivative}}</mat-hint>
 	</mat-form-field>

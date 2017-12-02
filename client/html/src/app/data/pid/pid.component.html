@@ -1,0 +1,26 @@
+<rb-char #chart 
+	[x]="'index'"
+	[y]="[{ 
+		label: this.variableName, 
+		field: 'current',
+		type: 0 
+	}, { 
+		label: 'Proportional output', 
+		field: 'proportionalOutput',
+		type: 1 
+	}, { 
+		label: 'Derivative output', 
+		field: 'derivativeOutput',
+		type: 1
+	}, { 
+		label: 'Integral output', 
+		field: 'integralOutput',
+		type: 1
+	}, { 
+		label: 'Output', 
+		field: 'output',
+		type: 2 
+	}]"
+	(enable)="onEnable()"
+	(disable)="onDisable()">
+</rb-char>

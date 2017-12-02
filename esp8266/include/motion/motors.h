@@ -9,6 +9,32 @@
 namespace motion
 {
 
+
+class PidEngine {
+public:
+	typedef ::PIDStateEntry PitchState;
+	typedef ::PIDSettings PIDSettings;
+
+public:
+	PidEngine( io::Display* display, uint8_t settingsReg, uint8_t fifoSizeReg, uint8_t fifoCurrentReg ):
+					m_display( display ),
+					m_settingsReg( settingsReg ),
+					m_fifoSizeReg( fifoSizeReg ),
+					m_fifoCurrentReg( fifoCurrentReg ) {}
+
+	bool state( std::vector<PitchState>& state );
+
+	bool settins( PIDSettings& settings );
+	bool setSettins( const PIDSettings& settings );
+
+private:
+	io::Display* m_display;
+	const uint8_t m_settingsReg;
+	const uint8_t m_fifoSizeReg;
+	const uint8_t m_fifoCurrentReg;
+};
+
+
 class Motors
 {
 public:
@@ -18,13 +44,12 @@ public:
 public:
 	bool init( io::Display* display );
 
-	bool pitchState( std::vector<PitchState>& state );
-
-	bool pitchPIDSettins( PIDSettings& settings );
-	bool setPitchPIDSettins( const PIDSettings& settings );
+	PidEngine& speed() { return *m_speed; }
+	PidEngine& pitch() { return *m_pitch; }
 
 private:
-	io::Display* m_display;
+	PidEngine* m_speed;
+	PidEngine* m_pitch;
 };
 
 }

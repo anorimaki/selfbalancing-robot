@@ -1,4 +1,4 @@
-import { Component, Input, Output, ApplicationRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { PidSettings } from "app/core/pid-settings";
 import { Observable } from "rxjs/Observable";
 
@@ -30,8 +30,8 @@ export class RbPidComponent {
 	}
 
 	applyAvailable(): boolean {
-		return (this.newVal.proportional != null) ||
-			(this.newVal.integral != null) ||
-			(this.newVal.derivative != null);
+		return (this.newVal.proportional != undefined) ||
+			(this.newVal.integral != undefined) ||
+			(this.newVal.derivative != undefined);
 	}
 }

@@ -13,11 +13,9 @@ app.use(function(req, res, next) {
 
 app.use( bodyParser.json() );
 
-var routes = require('./api/routes/pitchRoutes');
-routes(app);
-
-var pitchController = require('./api/controllers/pitchController');
-pitchController.init();
+var pidRoutes = require('./api/routes/pidRoutes');
+pidRoutes(app, 'pitch');
+pidRoutes(app, 'speed');
 
 app.listen(port);
 

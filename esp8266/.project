@@ -44,7 +44,7 @@
 		<link>
 			<name>libraries/ArduinoJson</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ArduinoJson/5.8.3</locationURI>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ArduinoJson/5.11.2</locationURI>
 		</link>
 		<link>
 			<name>libraries/ESP8266WebServer</name>

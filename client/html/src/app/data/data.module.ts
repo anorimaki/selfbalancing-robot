@@ -7,6 +7,7 @@ import { RbDataComponent } from './data.component';
 import { GeneralDataComponent } from './general/general.component';
 import { PitchDataComponent } from './pitch/pitch.component';
 import { SpeedDataComponent } from './speed/speed.component';
+import { PidDataComponent } from './pid/pid.component';
 import { DataService } from './data.service';
 
 const routes: Routes = [{
@@ -29,7 +30,8 @@ const routes: Routes = [{
 		RbDataComponent,
 		GeneralDataComponent,
 		PitchDataComponent,
-		SpeedDataComponent
+		SpeedDataComponent,
+		PidDataComponent
 	],
 	exports: [
 		RbDataComponent,
@@ -39,3 +41,4 @@ const routes: Routes = [{
     ]
 })
 export class DataModule { }
+

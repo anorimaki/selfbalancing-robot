@@ -1,24 +1,3 @@
-<rb-char #pitchChar 
-	[y]="[{ 
-			label: 'Pitch', 
-			field: 'current',
-			type: 0 },
-		{ 
-			label: 'Proportional output', 
-			field: 'proportionalOutput',
-			type: 1 },
-		{ 
-			label: 'Derivative output', 
-			field: 'derivativeOutput',
-			type: 1 },
-		{ 
-			label: 'Integral output', 
-			field: 'integralOutput',
-			type: 1 },
-		{ 
-			label: 'Output', 
-			field: 'output',
-			type: 2 }]"
-	[x]="'index'"
-	(enableChange)=pollingEnable($event)>
-</rb-char>
+<rb-pid-data #pidView
+	[variableName]="'Pitch'">
+</rb-pid-data>

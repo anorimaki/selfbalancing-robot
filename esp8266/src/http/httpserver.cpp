@@ -4,14 +4,30 @@
 #include "ArduinoJson.h"
 #include "StreamString.h"
 #include "util/arduino_stl_support.h"
+#include "motors_i2c_model.h"
 #include <vector>
 #include <algorithm>
+#include <functional>
 #include <stdio.h>
+
+
+
+int snprintf( char * s, size_t n, const char * format, ... );
 
 
 
 namespace http
 {
+
+#define ACCESS_CONTROL_REQUEST_HEADERS "Access-Control-Request-Headers"
+#define ACCESS_CONTROL_REQUEST_METHOD "Access-Control-Request-Method"
+#define ACCESS_CONTROL_ALLOW_HEADERS "Access-Control-Allow-Headers"
+#define ACCESS_CONTROL_ALLOW_METHODS "Access-Control-Allow-Methods"
+
+static const char* headersToCollect[] = {
+		ACCESS_CONTROL_REQUEST_HEADERS, ACCESS_CONTROL_REQUEST_METHOD
+};
+
 
 template <typename T>
 static void sendJson( ESP8266WebServer& server, T& content )
@@ -28,113 +44,7 @@ static void sendJson( ESP8266WebServer& server, T& content )
 }
 
 
-#define ACCESS_CONTROL_REQUEST_HEADERS "Access-Control-Request-Headers"
-#define ACCESS_CONTROL_REQUEST_METHOD "Access-Control-Request-Method"
-#define ACCESS_CONTROL_ALLOW_HEADERS "Access-Control-Allow-Headers"
-#define ACCESS_CONTROL_ALLOW_METHODS "Access-Control-Allow-Methods"
-
-
-static const char* headersToCollect[] = {
-		ACCESS_CONTROL_REQUEST_HEADERS, ACCESS_CONTROL_REQUEST_METHOD
-};
-
-void Server::init( motion::Motors* motors, io::Display* display )
-{
-	m_motors = motors;
-	m_display = display;
-
-	m_impl.on( "/", std::bind( &Server::handleRoot, this ) );
-
-	m_impl.on( "/motors/pitch/state", HTTPMethod::HTTP_GET,
-				std::bind( &Server::handleRequest, this, &Server::handleMotorsPitch ) );
-
-	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_GET,
-				std::bind( &Server::handleRequest, this, &Server::handleMotorsPIDSettingsPitch ) );
-
-	m_impl.on( "/motors/pitch/pid", HTTPMethod::HTTP_PUT,
-				std::bind( &Server::handleRequest, this, &Server::handleMotorsSetPIDSettingsPitch ) );
-
-	m_impl.onNotFound([this](){
-			if ( m_impl.method() == HTTP_OPTIONS ) {
-				handleOptionsRequest();
-				return;
-			}
-			handleRequest( &Server::handleNotFound );
-		});
-
-	m_impl.collectHeaders( headersToCollect, sizeof(headersToCollect)/sizeof(const char*) );
-	m_impl.begin();
-	m_impl.client().setNoDelay(1);		//Just for performance
-}
-
-
-void Server::handleRequest( void (Server::*handler)() )
-{
-	m_display->httpRequestBegin();
-	(this->*handler)();
-	m_display->httpRequestEnd();
-}
-
-
-void Server::handleMotorsPitch() {
-	std::vector<motion::Motors::PitchState> pitches;
-	if ( !m_motors->pitchState(pitches) ) {
-		sendError( "Error reading pitch states" );
-		return;
-	}
-
-	DynamicJsonBuffer jsonBuffer;
-	JsonArray& array = jsonBuffer.createArray();
-	std::for_each( pitches.begin(), pitches.end(), [&array](const motion::Motors::PitchState& pitch) {
-			JsonObject& entry = array.createNestedObject();
-			entry["i"] = pitch.index;
-			entry["p_err"] = pitch.state.previous_error;
-			entry["i_err"] = pitch.state.integral_error;
-			entry["tar"] = pitch.state.target;
-			entry["cur"] = pitch.state.current;
-		} );
-
-	sendJson( m_impl, array );
-}
-
-
-void Server::handleMotorsPIDSettingsPitch() {
-	motion::Motors::PIDSettings settings;
-	if ( !m_motors->pitchPIDSettins(settings) ) {
-		sendError( "Error reading pitch PID settings" );
-		return;
-	}
-
-	DynamicJsonBuffer jsonBuffer;
-	JsonObject& jsonSetings = jsonBuffer.createObject();
-	jsonSetings["integral"] = settings.k_i;
-	jsonSetings["proportional"] = settings.k_p;
-	jsonSetings["derivative"] = settings.k_d;
-
-	sendJson( m_impl, jsonSetings );
-}
-
-
-void Server::handleMotorsSetPIDSettingsPitch() {
-	String body = m_impl.arg("plain");
-	DynamicJsonBuffer jsonBuffer;
-	const JsonObject& root = jsonBuffer.parseObject( body );
-
-	motion::Motors::PIDSettings settings;
-	settings.k_i = root["integral"];
-	settings.k_p = root["proportional"];
-	settings.k_d = root["derivative"];
-	if ( !m_motors->setPitchPIDSettins(settings) ) {
-		sendError( "Error settings pitch PID settings" );
-		return;
-	}
-
-	//Send No content
-	m_impl.setContentLength( 0 );
-	m_impl.send( 204, NULL );
-}
-
-void Server::sendError( const char* message ) {
+static void sendError( ESP8266WebServer& impl, const char* message ) {
 	String content = String("<html>\
 			  <head>\
 			    <title>ESP8266 error</title>\
@@ -146,8 +56,125 @@ void Server::sendError( const char* message ) {
 			    <h1>") + message + "</h1>\
 			  </body>\
 			</html>";
-	m_impl.send( 500, "text/html", content );
+	impl.send( 500, "text/html", content );
 }
+
+typedef std::function<void()> HandlerFunction;
+
+static void handleRequest( io::Display* display, HandlerFunction handler )
+{
+	display->httpRequestBegin();
+	handler();
+	display->httpRequestEnd();
+}
+
+
+/************************************************************************/
+// PidService
+/************************************************************************/
+PidService::PidService( ESP8266WebServer* impl, const std::string& path,
+						motion::PidEngine* pidEngine, io::Display* display ):
+						m_impl(impl), m_pidEngine(pidEngine), m_display( display ) {
+	std::string statePath = path + "/state";
+	std::string settingsPath = path + "/settings";
+
+	HandlerFunction stateFn = std::bind( &PidService::handleState, this );
+	m_impl->on( statePath.c_str(), HTTPMethod::HTTP_GET, std::bind( &handleRequest, m_display, stateFn ) );
+
+	HandlerFunction settingsFn = std::bind( &PidService::handleSettings, this );
+	m_impl->on( settingsPath.c_str(), HTTPMethod::HTTP_GET, std::bind( &handleRequest, m_display, settingsFn ) );
+
+	HandlerFunction setSettingsFn = std::bind( &PidService::handleSetSettings, this );
+	m_impl->on( settingsPath.c_str(), HTTPMethod::HTTP_PUT, std::bind( &handleRequest, m_display, setSettingsFn ) );
+}
+
+
+void PidService::handleState() {
+	std::vector<::PIDStateEntry> states;
+	if ( !m_pidEngine->state(states) ) {
+		sendError( *m_impl, "Error reading PID states" );
+		return;
+	}
+
+	DynamicJsonBuffer jsonBuffer;
+	JsonArray& array = jsonBuffer.createArray();
+	std::for_each( states.begin(), states.end(), [&array](const ::PIDStateEntry& state) {
+			JsonObject& entry = array.createNestedObject();
+			entry["i"] = state.index;
+			entry["p_err"] = state.state.previous_error;
+			entry["i_err"] = state.state.integral_error;
+			entry["tar"] = state.state.target;
+			entry["cur"] = state.state.current;
+		} );
+
+	sendJson( *m_impl, array );
+}
+
+
+void PidService::handleSettings() {
+	::PIDSettings settings;
+	if ( !m_pidEngine->settins(settings) ) {
+		sendError( *m_impl, "Error reading PID settings" );
+		return;
+	}
+
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject& jsonSetings = jsonBuffer.createObject();
+	jsonSetings["integral"] = settings.k_i;
+	jsonSetings["proportional"] = settings.k_p;
+	jsonSetings["derivative"] = settings.k_d;
+
+	sendJson( *m_impl, jsonSetings );
+}
+
+
+void PidService::handleSetSettings() {
+	String body = m_impl->arg("plain");
+	DynamicJsonBuffer jsonBuffer;
+	const JsonObject& root = jsonBuffer.parseObject( body );
+
+	motion::Motors::PIDSettings settings;
+	settings.k_i = root["integral"];
+	settings.k_p = root["proportional"];
+	settings.k_d = root["derivative"];
+	if ( !m_pidEngine->setSettins(settings) ) {
+		sendError( *m_impl, "Error settings pitch PID settings" );
+		return;
+	}
+
+	//Send No content
+	m_impl->setContentLength( 0 );
+	m_impl->send( 204, NULL );
+}
+
+
+
+/************************************************************************/
+// Server
+/************************************************************************/
+void Server::init( motion::Motors* motors, io::Display* display )
+{
+	m_motors = motors;
+	m_display = display;
+
+	m_impl.on( "/", std::bind( &Server::handleRoot, this ) );
+
+	m_pitchService = new PidService( &m_impl, "/pitch", &m_motors->pitch(), m_display );
+	m_speedService = new PidService( &m_impl, "/speed", &m_motors->speed(), m_display );
+
+	m_impl.onNotFound([this](){
+			if ( m_impl.method() == HTTP_OPTIONS ) {
+				handleOptionsRequest();
+				return;
+			}
+			handleRequest( m_display, std::bind( &Server::handleNotFound, this ) );
+		});
+
+	m_impl.collectHeaders( headersToCollect, sizeof(headersToCollect)/sizeof(const char*) );
+	m_impl.begin();
+	m_impl.client().setNoDelay(1);		//Just for performance
+}
+
 
 
 void Server::handleRoot() {

@@ -17,7 +17,7 @@ static void i2cslave_set_send_buffer( uint8_t register_address )
 	else if ( register_address < MOTORSREG_PITCH_PID_END )
 		send_buffer = pidpitch_i2c_read(register_address-MOTORSREG_SYSTEM_END);
 	else if ( register_address < MOTORSREG_SPEED_PID_END )
-		send_buffer = pidpitch_i2c_read(register_address-MOTORSREG_PITCH_PID_END);
+		send_buffer = pidspeed_i2c_read(register_address-MOTORSREG_PITCH_PID_END);
 	else {
 		printf( "send: %x\n", register_address );
 	}
@@ -31,7 +31,7 @@ static void i2cslave_write( uint8_t register_address, uint8_t data )
 	else if ( register_address < MOTORSREG_PITCH_PID_END )
 		pidpitch_i2c_write( register_address-MOTORSREG_SYSTEM_END, data );
 	else if ( register_address < MOTORSREG_SPEED_PID_END )
-		pidpitch_i2c_write( register_address-MOTORSREG_PITCH_PID_END, data );
+		pidspeed_i2c_write( register_address-MOTORSREG_PITCH_PID_END, data );
 	else {
 		printf( "rec: %x\n", register_address );
 	}

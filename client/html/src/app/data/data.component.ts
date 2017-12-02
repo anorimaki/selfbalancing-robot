@@ -1,6 +1,4 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-
-
 import { NotificationService } from "app/core/notification.service";
 import { DataService } from "./data.service";
 

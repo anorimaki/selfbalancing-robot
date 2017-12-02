@@ -66,6 +66,7 @@ int main(void)
 	system_init();
 	inputi2c_init();
 	pidpitch_init();
+	pidspeed_init();
 	motors_init();
 	
 	display_system_ready();
@@ -73,6 +74,7 @@ int main(void)
 	int16_t pitch_target = 0;		//Must be adapted to PID algorithm input
 	int16_t speed_target = 0;
 	int8_t to_speed_control = SPEED_CONTROL_PERIOD;
+	
 	while( 1 )
     {
 		if ( !system_is_on() ) {
@@ -91,10 +93,9 @@ int main(void)
 		int16_t motors_power;
 		if ( cal_motors_power( pitch_target, &motors_power ) ) {
 			motors_set_power( motors_power, 0 );
-			--to_speed_control;
 		}
 		
-		if ( to_speed_control == 0 ) {
+		if ( --to_speed_control == 0 ) {
 			pitch_target = cal_pitch_target( speed_target );
 			to_speed_control = SPEED_CONTROL_PERIOD;
 		}

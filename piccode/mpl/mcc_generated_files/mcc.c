@@ -76,11 +76,11 @@ void SYSTEM_Initialize(void)
     OSCILLATOR_Initialize();
     I2C1_Initialize();
     UART1_Initialize();
-    TMR4_Initialize();
     OC1_Initialize();
+    TMR4_Initialize();
     OC2_Initialize();
-    TMR2_Initialize();
     I2C2_Initialize();
+    TMR2_Initialize();
     EXT_INT_Initialize();
 }
 

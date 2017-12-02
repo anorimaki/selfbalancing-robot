@@ -1,34 +1,57 @@
 import { Component, OnInit, OnDestroy, ViewChild, 
-		Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+		Input, Output, EventEmitter, ChangeDetectorRef,
+		ChangeDetectionStrategy } from '@angular/core';
 import { MatSlideToggleChange } from "@angular/material/material";
 declare var CanvasJS: any;
 
-type Serie = { label: string, field: string, checked: boolean, color: number, type: number };
+export interface RbChartSerie { 
+	label: string;
+	field: string;
+	checked?: boolean;
+	color?: number; 
+	type: number;
+};
 
 @Component( {
     selector: 'rb-char',
     templateUrl: './chart.component.html',
-    styleUrls: ['./chart.component.css']
+	styleUrls: ['./chart.component.css']
 } )
 export class RbChartComponent implements  OnDestroy {
     private static readonly MAX_ENTIES = 900; 
     private static readonly COLORS: string[] = ["#b5030d", "#05F3Fd", "#1503Fd", "#F30300", "#00FF00"];
 
-    @Input() private y: Serie[];
-    @Input() private x: string;
+	@Input() 
+	private y: RbChartSerie[];
+
+	@Input() 
+	private x: string;
+
+	@Input() 
+	private enabled: boolean;
     
-    @Output() enableChange = new EventEmitter<boolean>(); 
+	@Output("enable") 
+	private enableEvent = new EventEmitter<void>(); 
+
+	@Output("disable") 
+	private disableEvent = new EventEmitter<void>(); 
 
 	private chart: any;
 	private chartOptions: any;
 	private seriesData: any[][];
-    @Input() enabled: boolean;
 
 	constructor() {
         this.enabled = true;
     }
 
-    ngOnInit(): void {
+ /*   init( x: string, y: RbChartSerie[] ): void {
+		this.cdr.markForCheck();
+
+		this.x = x;
+		this.y = y;
+	} */
+
+	ngOnInit(): void {
 		this.seriesData = [];
 		this.y.forEach( (serie, index) => {
 			this.seriesData.push([]);
@@ -104,7 +127,12 @@ export class RbChartComponent implements  OnDestroy {
 	//	this.buildChar();
 	}
     
-    private enableChanged( event: MatSlideToggleChange ): void {
-        this.enableChange.emit( event.checked );
+    private onEnableChanged( event: MatSlideToggleChange ): void {
+		if ( event.checked ) {
+			this.enableEvent.emit();
+		}
+		else {
+			this.disableEvent.emit();
+		}
     }
 }

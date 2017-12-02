@@ -7,6 +7,24 @@
 namespace http
 {
 
+
+class PidService
+{
+public:
+	PidService( ESP8266WebServer* impl, const std::string& path,
+				motion::PidEngine* pidEngine, io::Display* display );
+
+	void handleState();
+	void handleSettings();
+	void handleSetSettings();
+
+private:
+	ESP8266WebServer* m_impl;
+	motion::PidEngine* m_pidEngine;
+	io::Display* m_display;
+};
+
+
 class Server
 {
 public:
@@ -17,20 +35,16 @@ public:
 	}
 
 private:
-	void handleMotorsPitch();
-	void handleMotorsPIDSettingsPitch();
-	void handleMotorsSetPIDSettingsPitch();
 	void handleRoot();
 	void handleOptionsRequest();
 	void handleNotFound();
-	void sendError( const char* message );
-
-	void handleRequest( void (Server::*handler)() );
 
 private:
 	ESP8266WebServer m_impl;
 	motion::Motors* m_motors;
 	io::Display* m_display;
+	PidService* m_speedService;
+	PidService* m_pitchService;
 };
 
 }

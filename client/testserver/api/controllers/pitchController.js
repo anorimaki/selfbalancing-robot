@@ -44,12 +44,3 @@ var pid = {
 	derivative: 2
 }
 
-exports.read_pid = function(req, res) {
-	res.json( pid );
-};
-
-exports.write_pid = function(req, res) {
-	pid = req.body;
-	res.end();
-	console.log( "write: " + JSON.stringify(req.body) ); 
-};

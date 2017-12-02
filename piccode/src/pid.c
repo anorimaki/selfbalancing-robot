@@ -46,7 +46,7 @@ int16_t pid_compute( PID* pid, int16_t target, int16_t current )
 	current_entry->state.current = current;
 	current_entry->state.target = target;
 	++pid->store.size;
-				
+	
 	//Update read_ptr if needed
 	//Must be done before new enrty (next writable entry) is added 
 	if ( pid->store.size == pid->store.max_size ) {

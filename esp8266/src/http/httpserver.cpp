@@ -152,7 +152,7 @@ void PidService::handleSetSettings() {
 /************************************************************************/
 // Server
 /************************************************************************/
-void Server::init( motion::Motors* motors, io::Display* display )
+Server::Server( motion::Motors* motors, io::Display* display )
 {
 	m_motors = motors;
 	m_display = display;

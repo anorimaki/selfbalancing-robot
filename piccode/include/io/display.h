@@ -5,9 +5,9 @@
 
 
 void display_system_initialization();
-void display_system_ready();
-void display_system_wait();
-void display_mpu_init_error();
+void display_system_running();
+void display_system_paused();
+void display_mpu_error();
 void display_mpu_result( MpuStatus status );
 
 

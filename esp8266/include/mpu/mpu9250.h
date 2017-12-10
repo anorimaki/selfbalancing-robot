@@ -81,8 +81,11 @@ public:
 	bool init();
 	bool end();
 
+	bool enableDmp(bool enbale);
+
 	bool configure();
 	bool calibrate();
+	bool storedCalibration() ;
 
 	bool getData( Optional<MpuData>& data );
 

@@ -124,11 +124,51 @@ void Mpu9250::test()
 }
 
 
+bool Mpu9250::enableDmp( bool enable ) {
+	if ( mpu_set_dmp_state(enable) )
+		TRACE_ERROR_AND_RETURN(false);
+	return true;
+}
+
+
+bool Mpu9250::storedCalibration() {
+	static const long gyro[3] = {-27, 6, 19};
+	static const long accel[3] = {21, 75, 79};
+
+	if ( mpu_set_gyro_bias_reg(gyro) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+
+	if ( mpu_set_accel_bias_6500_reg(accel) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+
+	return true;
+}
+
+
 bool Mpu9250::calibrate()
 {
-	long gyro[4];
-	long accel[4];
+	long gyro[3];
+	long accel[3];
+	if ( mpu_read_6500_gyro_bias( gyro ) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+	if ( mpu_read_6500_accel_bias( accel ) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+	TRACE( "Old gyro calibration data: %ld %ld %ld", gyro[0], gyro[1], gyro[2] );
+	TRACE( "Old accel calibration data: %ld %ld %ld", accel[0], accel[1], accel[2] );
 
+	//Reset gyro offset to 0 before new offset calculation
+	//accel reset isn't needed because mpu_set_accel_bias_6500_reg
+	// takes its arguments as a differential offset.
+	gyro[0] = gyro[1] = gyro[2] = 0;
+	if ( mpu_set_gyro_bias_reg(gyro) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+
+	// calculate accel and gyro offsets
 	int result = mpu_run_6500_self_test(gyro, accel, false);
 	if ( (result & 0x3) != 0x3 ) {
 		TRACE_ERROR_AND_RETURN(false);
@@ -152,6 +192,9 @@ bool Mpu9250::calibrate()
 	if ( mpu_set_accel_bias_6500_reg(accel) != 0 ) {
 		TRACE_ERROR_AND_RETURN(false);
 	}
+
+	TRACE( "New gyro calibration data: %ld %ld %ld", gyro[0], gyro[1], gyro[2] );
+	TRACE( "New accel calibration data: %ld %ld %ld", accel[0], accel[1], accel[2] );
 
 	return true;
 }

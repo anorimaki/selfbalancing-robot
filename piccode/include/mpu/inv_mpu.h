@@ -21,6 +21,8 @@
 #ifndef _INV_MPU_H_
 #define _INV_MPU_H_
 
+#include <stdint.h>
+
 #define INV_X_GYRO      (0x40)
 #define INV_Y_GYRO      (0x20)
 #define INV_Z_GYRO      (0x10)
@@ -98,9 +100,10 @@ int mpu_configure_fifo(unsigned char sensors);
 int mpu_get_power_state(unsigned char *power_on);
 int mpu_set_sensors(unsigned char sensors);
 
-int mpu_read_6500_accel_bias(long *accel_bias);
-int mpu_set_gyro_bias_reg(long * gyro_bias);
-int mpu_set_accel_bias_6500_reg(const long *accel_bias);
+int mpu_read_6500_gyro_bias(int16_t *gyro_bias);
+int mpu_read_6500_accel_bias(int16_t *accel_bias);
+int mpu_set_gyro_bias_reg(int16_t * gyro_bias);
+int mpu_set_accel_bias_6500_reg(const int16_t *accel_bias);
 int mpu_read_6050_accel_bias(long *accel_bias);
 int mpu_set_accel_bias_6050_reg(const long *accel_bias);
 

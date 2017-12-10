@@ -28,7 +28,7 @@ private:
 class Server
 {
 public:
-	void init( motion::Motors* motors, io::Display* display );
+	Server( motion::Motors* motors, io::Display* display );
 
 	ESP8266WebServer& impl() {
 		return m_impl;

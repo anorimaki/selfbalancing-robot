@@ -88,18 +88,51 @@ bool PidEngine::setSettins( const PIDSettings& settings )
 /************************************************************************/
 // Motors
 /************************************************************************/
-bool Motors::init( io::Display* display )
+void Motors::init( io::Display* display )
 {
+	m_display = display;
 	m_speed = new PidEngine( display, MOTORSREG_SPEED_PID, MOTORSREG_SPEED_FIFO_SIZE, MOTORSREG_SPEED_FIFO_CURRENT );
 	m_pitch = new PidEngine( display, MOTORSREG_PITCH_PID, MOTORSREG_PITCH_FIFO_SIZE, MOTORSREG_PITCH_FIFO_CURRENT );
 
 //twi_setClockStretchLimit( 0xFFF );
-	if ( !send( MOTORSREG_STATUS, 0 ) )
-		MOTORS_ERROR(display);
-	delay( 100 );
-	if ( !send( MOTORSREG_STATUS, MOTORSREGBIT_STATUS_ON ) ) {
-		MOTORS_ERROR(display);
+}
+
+
+bool Motors::isRunning()
+{
+	uint8_t status;
+	if ( !receive( MOTORSREG_STATUS, &status ) ) {
+		MOTORS_ERROR(m_display);
+		return false;
 	}
+	return status & MOTORSREGBIT_STATUS_RUNNING;
+}
+
+
+bool Motors::pause()
+{
+	if ( !send( MOTORSREG_STATUS, MOTORSREGBIT_STATUS_PAUSE_REQUEST ) ) {
+		MOTORS_ERROR(m_display);
+	}
+
+	do {
+		delay( 100 );
+	} while( isRunning() );
+
+	return true;
+}
+
+
+bool Motors::resume()
+{
+	if ( !send( MOTORSREG_STATUS, MOTORSREGBIT_STATUS_RUN_REQUEST ) ) {
+		MOTORS_ERROR(m_display);
+	}
+
+	do {
+		delay( 100 );
+	} while( !isRunning() );
+
 	return true;
 }
 

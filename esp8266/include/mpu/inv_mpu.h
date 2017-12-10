@@ -103,6 +103,7 @@ int mpu_get_power_state(unsigned char *power_on);
 int mpu_set_sensors(unsigned char sensors);
 
 int mpu_read_6500_accel_bias(long *accel_bias);
+int mpu_read_6500_gyro_bias(long *gyro_bias);
 int mpu_set_gyro_bias_reg(long * gyro_bias);
 int mpu_set_accel_bias_6500_reg(const long *accel_bias);
 int mpu_read_6050_accel_bias(long *accel_bias);

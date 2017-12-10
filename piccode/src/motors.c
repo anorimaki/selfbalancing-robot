@@ -75,7 +75,8 @@ void motors_init()
  * calculations at compile time.
  */
 #define power_to_pwm(power, minPower) \
-	(minPower + 1 + \
+	(power == 0) ? 0 :	\
+	(minPower + 1 +		\
 		(__builtin_muluu( abs(power), MOTORS_MAX_POWER-minPower) >> 15))
 
 static inline void motors_set_left_power( int16_t power ) 
@@ -86,8 +87,9 @@ static inline void motors_set_left_power( int16_t power )
 	else {
 		motors_left_backwards();
 	}
-
-	OC2_SecondaryValueSet( power_to_pwm(power, MOTORS_LEFT_MIN_POWER) );
+	
+	uint16_t pwm = power_to_pwm(power, MOTORS_LEFT_MIN_POWER);
+	OC2_SecondaryValueSet( pwm );
 }
 
 

@@ -17,7 +17,7 @@
  *                  MPU9150 (or MPU6050 w/ AK8975 on the auxiliary bus)
  *                  MPU9250 (or MPU6500 w/ AK8963 on the auxiliary bus)
  */
-#include "../mpu/inv_mpu.h"
+#include "mpu/inv_mpu.h"
 
 #include <stdio.h>
 #include <stdint.h>

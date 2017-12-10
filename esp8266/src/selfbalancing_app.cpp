@@ -9,7 +9,6 @@
 namespace selfbalancing
 {
 
-
 static const uint8_t MPU_SCL = D1;
 static const uint8_t MPU_SDA = D2;
 
@@ -17,44 +16,73 @@ static const uint8_t MOTORS_SCL = D6;
 static const uint8_t MOTORS_SDA = D7;
 
 
-
-
-
 void Application::init()
 {
+	TRACE("");
+
 	m_display.systemInitialization();
-	delay( 100 );
+	delay( 500 );
+
+	initMotors();
+
+	if ( !m_motors.isRunning() ) {
+		if( !mpuInitialization() ) {
+			return;
+		}
+
+		if ( !m_motors.resume() ) {
+			TRACE_ERROR( "Motors start failed" );
+			m_display.motorsInitError();
+			return;
+		}
+
+		TRACE("Motors initialized");
+	}
 
 	if ( !initWifi() ) {
-		m_display.wifiInitError( 3000 );
+		m_display.wifiInitError( 2000 );
 	}
-
-	if ( !initMpu() ) {
-		m_display.mpuInitError();
-		return;
+	else {
+		m_httpServer = new http::Server( &m_motors, &m_display );
 	}
-
-	while( !checkMpu() ) {
-		m_display.initializingMpu();
-		delay( 100 );
-	}
-
-	if ( !initMotors() ) {
-		m_display.motorsInitError();
-		return;
-	}
-
-	m_httpServer.init( &m_motors, &m_display );
 
 	m_display.systemInitialized();
 
-	delay( 1000 );
+	delay( 500 );
+}
+
+
+static const unsigned long debounceDelay = 500; //In ms
+
+static bool calibrationPressed() {
+	static unsigned long lastStateChange = 0;
+	static int oldState = -1;
+	int currentState = digitalRead(0);
+
+	if ( (oldState != currentState) && (millis()>(lastStateChange+debounceDelay)) ) {
+		oldState = currentState;
+		return !currentState;
+	}
+	return false;
 }
 
 
 void Application::loop()
 {
-	m_httpServer.impl().handleClient();
+	if ( calibrationPressed() ) {
+		m_motors.pause();
+
+		i2c::init( MPU_SDA, MPU_SCL );			//Change I2C channel
+		m_mpu9250.calibrate();
+
+		i2c::init( MOTORS_SDA, MOTORS_SCL );	//Recover I2C channel
+		m_motors.resume();
+	}
+
+	if ( m_httpServer ) {
+		m_httpServer->impl().handleClient();
+	}
+
 	m_display.update();
 }
 
@@ -121,22 +149,42 @@ bool Application::initWifi()
 		return false;
 	}
 
-	Serial.print( "\nIP address: " );
+	Serial.print( "IP address: " );
 	Serial.println( WiFi.localIP() );
 	return true;
 }
 
 
-bool Application::initMotors()
+void Application::initMotors()
 {
 	i2c::init( MOTORS_SDA, MOTORS_SCL );
+	m_motors.init( &m_display );
+}
 
-	if( !m_motors.init( &m_display ) ) {
-		TRACE_ERROR( "Motors initialization failed" );
+
+bool Application::mpuInitialization()
+{
+	i2c::init( MPU_SDA, MPU_SCL );
+
+	if ( !initMpu() ) {
+		m_display.mpuInitError();
+		return false;;
+	}
+
+	while( !checkMpu() ) {
+		m_display.initializingMpu();
+		delay( 100 );
+	}
+
+	if ( !m_mpu9250.end() ) {
+		TRACE_ERROR( "MPU end failed" );
+		m_display.mpuInitError();
 		return false;
 	}
 
-	TRACE("Motors initialized");
+	TRACE("MPU initialized");
+
+	i2c::init( MOTORS_SDA, MOTORS_SCL );	//Recover I2C channel
 
 	return true;
 }
@@ -144,14 +192,12 @@ bool Application::initMotors()
 
 bool Application::initMpu()
 {
-	i2c::init( MPU_SDA, MPU_SCL );
-
 	if ( !m_mpu9250.init() ) {
 		TRACE_ERROR( "MPU initialization failed" );
 		return false;
 	}
 
-	if ( !m_mpu9250.calibrate() ) {
+	if ( !m_mpu9250.storedCalibration() ) {
 		TRACE_ERROR( "MPU calibration failed" );
 		return false;
 	}
@@ -160,8 +206,6 @@ bool Application::initMpu()
 		TRACE_ERROR( "MPU configuration failed" );
 		return false;
 	}
-
-	TRACE("MPU initialized");
 
 	return true;
 }
@@ -177,13 +221,7 @@ bool Application::checkMpu()
 
 	TRACE( "MPU check: %d", !!data );
 
-	if ( !data ) {
-		return false;
-	}
-
-	m_mpu9250.end();
-
-	return true;
+	return !!data;
 }
 
 

@@ -42,7 +42,11 @@ public:
 	typedef ::PIDSettings PIDSettings;
 
 public:
-	bool init( io::Display* display );
+	void init( io::Display* display );
+
+	bool isRunning();
+	bool pause();
+	bool resume();
 
 	PidEngine& speed() { return *m_speed; }
 	PidEngine& pitch() { return *m_pitch; }
@@ -50,6 +54,7 @@ public:
 private:
 	PidEngine* m_speed;
 	PidEngine* m_pitch;
+	io::Display* m_display;
 };
 
 }

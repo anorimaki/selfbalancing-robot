@@ -25,28 +25,6 @@ export class PidDataComponent {
 	}
 
 	init( data: Observable<PidStep[]> ): void {
-	/*	this.chart.init( 'index', [{ 
-				label: this.variableName, 
-				field: 'current',
-				type: 0 
-			}, { 
-				label: 'Proportional output', 
-				field: 'proportionalOutput',
-				type: 1 
-			}, { 
-				label: 'Derivative output', 
-				field: 'derivativeOutput',
-				type: 1 
-			}, { 
-				label: 'Integral output', 
-				field: 'integralOutput',
-				type: 1 
-			}, { 
-				label: 'Output', 
-				field: 'output',
-				type: 2 
-			}]); */
-
 		this.dataSubscription = data.subscribe( state  => {
 			this.chart.insert( state );
 		});

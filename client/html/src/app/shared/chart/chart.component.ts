@@ -44,13 +44,6 @@ export class RbChartComponent implements  OnDestroy {
         this.enabled = true;
     }
 
- /*   init( x: string, y: RbChartSerie[] ): void {
-		this.cdr.markForCheck();
-
-		this.x = x;
-		this.y = y;
-	} */
-
 	ngOnInit(): void {
 		this.seriesData = [];
 		this.y.forEach( (serie, index) => {
@@ -102,29 +95,27 @@ export class RbChartComponent implements  OnDestroy {
 				dataPoints: this.seriesData[index],
 				color: RbChartComponent.COLORS[index]
 			});
-			axisY[serie.type] = {};
+			axisY[serie.type] = {
+				title: axisY[serie.type] ? (axisY[serie.type].title + ', ' + serie.label) : serie.label,
+				titleFontWeight: "bold"
+			};
 		});
 		
 		this.chartOptions = {
-			/*legend: {
-				horizontalAlign: "right", // "center" , "right"
-				verticalAlign: "center",  // "top" , "bottom"
-				fontSize: 15,
-				itemclick: this.kk
-			},*/
 			zoomEnabled: true,
 			axisY: axisY,
+			axisX: {
+				suffix: " s",
+		  	},  
 			data: charData
 		};
 
 		this.chart = new CanvasJS.Chart("chartdiv", this.chartOptions);
 	}
 
-
     private labelSelectionChanged = ( index, event ) => {
 		this.chartOptions.data[index].visible = event.checked;
 		this.chart.render();
-	//	this.buildChar();
 	}
     
     private onEnableChanged( event: MatSlideToggleChange ): void {

@@ -64,8 +64,8 @@ void INTERRUPT_Initialize (void)
     //    MICI: MI2C2 - I2C2 Master Events
     //    Priority: 1
         IPC12bits.MI2C2IP = 1;
-    //    TI: T4 - Timer4
+    //    TI: T3 - Timer3
     //    Priority: 1
-        IPC6bits.T4IP = 1;
+        IPC2bits.T3IP = 1;
 
 }

@@ -1,5 +1,5 @@
 #include "io/display.h"
-#include "tmr4.h"
+#include "tmr3.h"
 #include "pin_manager.h"
 
 /*
@@ -16,17 +16,17 @@ static void (*display_callback)() = 0;
 inline void display_timer_on( int16_t period, void (*callback)() ) 
 {
 	display_callback = callback;
-	TMR4_Counter16BitSet(0);
-	TMR4_Period16BitSet( period );
-	TMR4_Start();
+	TMR3_Counter16BitSet(0);
+	TMR3_Period16BitSet( period );
+	TMR3_Start();
 }
 
 inline void display_timer_off() 
 {
-	TMR4_Stop();
+	TMR3_Stop();
 }
 
-void TMR4_CallBack(void)
+void TMR3_CallBack(void)
 {
 	display_callback();
 }
@@ -47,7 +47,7 @@ void display_system_initialization()
  * - wait 1s
  * - leds off
  ******************************************************************/
-void display_system_ready()
+void display_system_running()
 {
 	display_timer_off();
 	led0_SetLow();
@@ -60,17 +60,17 @@ void display_system_ready()
  * state0: l0=on, l1=off
  * state1: l0=off, l1=on
  *****************************************************************/
-static void display_system_wait_0() 
+static void display_system_paused_0() 
 {
 	led0_Toggle();
 	led1_Toggle();
 }
 
-void display_system_wait()
+void display_system_paused()
 {
 	led0_SetHigh();
 	led1_SetLow();
-	display_timer_on( DISPLAY_TIMER_PERIOD_MS(1000), &display_system_wait_0 );
+	display_timer_on( DISPLAY_TIMER_PERIOD_MS(1000), &display_system_paused_0 );
 }
 
 
@@ -79,17 +79,17 @@ void display_system_wait()
  * state0: l0=on, l1=on
  * state1: l0=off, l1=off
  ******************************************************************/
-static void display_mpu_init_error_0()
+static void display_mpu_error_0()
 {
 	led0_Toggle();
 	led1_Toggle();
 }
 
-void display_mpu_init_error()
+void display_mpu_error()
 {
 	led0_SetHigh();
 	led1_SetHigh();
-	display_timer_on( DISPLAY_TIMER_PERIOD_MS(500), &display_mpu_init_error_0 );
+	display_timer_on( DISPLAY_TIMER_PERIOD_MS(500), &display_mpu_error_0 );
 }
 
 

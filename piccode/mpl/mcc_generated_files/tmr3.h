@@ -1,17 +1,17 @@
 /**
-  TMR4 Generated Driver API Header File 
+  TMR3 Generated Driver API Header File 
 
   @Company
     Microchip Technology Inc.
 
   @File Name
-    tmr4.h
+    tmr3.h
 
   @Summary
-    This is the generated header file for the TMR4 driver using MPLAB(c) Code Configurator
+    This is the generated header file for the TMR3 driver using MPLAB(c) Code Configurator
 
   @Description
-    This header file provides APIs for driver for TMR4. 
+    This header file provides APIs for driver for TMR3. 
     Generation Information : 
         Product Revision  :  MPLAB(c) Code Configurator - pic24-dspic-pic32mm : v1.35
         Device            :  PIC24FJ32GA002
@@ -42,8 +42,8 @@
     TERMS.
 */
 
-#ifndef _TMR4_H
-#define _TMR4_H
+#ifndef _TMR3_H
+#define _TMR3_H
 
 /**
   Section: Included Files
@@ -59,6 +59,7 @@
 
 #endif
 
+#define TMR3_INTERRUPT_TICKER_FACTOR    1
 
 /**
   Section: Interface Routines
@@ -87,34 +88,34 @@
 
     period = 0x20;
 
-    TMR4_Initialize();
+    TMR3_Initialize();
 
-    TMR4_Period16BitSet(period);
+    TMR3_Period16BitSet(period);
 
-    if((value = TMR4_Period16BitGet())== period)
+    if((value = TMR3_Period16BitGet())== period)
     {
-        TMR4_Start();
+        TMR3_Start();
     }
 
     while(1)
     {
-        TMR4_Tasks();
-        if( (statusTimer1 = TMR4_GetElapsedThenClear()) == true)
+        TMR3_Tasks();
+        if( (statusTimer1 = TMR3_GetElapsedThenClear()) == true)
         {
-            TMR4_Stop();
+            TMR3_Stop();
         }
     }
     </code>
 */
-void TMR4_Initialize (void);
+void TMR3_Initialize (void);
+
 
 /**
   @Summary
-    Used to maintain the driver's state machine and implement its ISR
+    Updates 16-bit timer value
 
   @Description
-    This routine is used to maintain the driver's internal state machine and
-    implement its ISR for interrupt-driven implementations.
+    This routine updates 16-bit timer value
 
   @Param
     None.
@@ -123,125 +124,99 @@ void TMR4_Initialize (void);
     None
  
   @Example 
-    Refer to the example of TMR4_Initialize();
+    Refer to the example of TMR3_Initialize();
 */
 
-void TMR4_Tasks_32BitOperation( void );
+void TMR3_Period16BitSet( uint16_t value );
+
+/**
+
+  @Summary
+    Provides the timer 16-bit period value
+
+  @Description
+    This routine provides the timer 16-bit period value
+
+  @Param
+    None.
+
+  @Returns
+    Timer 16-bit period value
+ 
+  @Example 
+    Refer to the example of TMR3_Initialize();
+*/
+
+uint16_t TMR3_Period16BitGet( void );
 
 /**
   @Summary
-    Updates 32-bit timer value
+    Updates the timer's 16-bit value
 
   @Description
-    This routine updates 32-bit timer value
+    This routine updates the timer's 16-bit value
 
   @Param
-    value       - 32-bit period value
+    None.
 
   @Returns
     None
 
   @Example 
     <code>
-    bool statusTimer1;
-    uint32_t period;
-    uint32_t value;
+    uint16_t value=0xF0F0;
 
-    period = 0x20202020;
-
-    TMR4_Initialize();
-
-    TMR4_Period32BitSet(period);
-
-    if((value = TMR4_Period32BitGet())== period)
-    {
-        TMR4_Start();
-    }
+    TMR3_Counter16BitSet(value));
 
     while(1)
     {
-        TMR4_Tasks();
-        if( (statusTimer1 = TMR4_IsElapsed()) == true)
+        TMR3_Tasks();
+        if( (value == TMR3_Counter16BitGet()))
         {
-            TMR4_Stop();
+            TMR3_Stop();
         }
     }
     </code>
 */
 
-void TMR4_Period32BitSet( uint32_t value );
+void TMR3_Counter16BitSet ( uint16_t value );
 
 /**
   @Summary
-    Provides the timer 32-bit period value
+    Provides 16-bit current counter value
 
   @Description
-    This routine provides the timer 32-bit period value
+    This routine provides 16-bit current counter value
 
   @Param
-    None
+    None.
 
   @Returns
-    Timer 32-bit period value
+    16-bit current counter value
  
   @Example 
-    Refer to the example of TMR4_Period32BitSet();
+    Refer to the example of TMR3_Counter16BitSet();
 */
 
-uint32_t TMR4_Period32BitGet( void );
+uint16_t TMR3_Counter16BitGet( void );
 
 /**
   @Summary
-    Updates the timer's 32-bit value
+    Callback for timer interrupt.
 
   @Description
-    This routine updates the timer's 32-bit value
+    This routine is callback for timer interrupt
 
   @Param
-    value       - 32-bit Counter value
+    None.
 
   @Returns
     None
-	
-  @Example 
-    <code>
-    uint32_t value=0xF0F0F0;
-
-    TMR4_Counter32BitSet(value));
-
-    while(1)
-    {
-        TMR4_Tasks();
-        if( (value == TMR4_Counter32BitGet()))
-        {
-            TMR4_Stop();
-        }
-    }
-    </code>
-*/
-
-void TMR4_Counter32BitSet( uint32_t value );
-
-/**
-  @Summary
-    Provides 32-bit  current counter value
-
-  @Description
-    This routine provides 32-bit current counter value
-
-  @Param
-    None
-
-  @Returns
-    32-bit current counter value
  
   @Example 
-    Refer to the example of TMR4_Counter32BitSet();
+    Refer to the example of TMR3_Initialize();
 */
-
-uint32_t TMR4_Counter32BitGet( void );
-
-
+void TMR3_CallBack(void);
 
 /**
   @Summary
@@ -257,10 +232,10 @@ uint32_t TMR4_Counter32BitGet( void );
     None
  
   @Example 
-    Refer to the example of TMR4_Initialize();
+    Refer to the example of TMR3_Initialize();
 */
 
-void TMR4_Start( void );
+void TMR3_Start( void );
 
 /**
   @Summary
@@ -276,10 +251,10 @@ void TMR4_Start( void );
     None
  
   @Example 
-    Refer to the example of TMR4_Initialize();
+    Refer to the example of TMR3_Initialize();
 */
 
-void TMR4_Stop( void );
+void TMR3_Stop( void );
 
 /**
   @Summary
@@ -297,10 +272,10 @@ void TMR4_Stop( void );
     False - Timer has not elapsed.
  
   @Example 
-    Refer to the example of TMR4_Initialize();
+    Refer to the example of TMR3_Initialize();
 */
 
-bool TMR4_GetElapsedThenClear(void);
+bool TMR3_GetElapsedThenClear(void);
 
 /**
   @Summary
@@ -316,10 +291,10 @@ bool TMR4_GetElapsedThenClear(void);
     Software counter value.
  
   @Example 
-    Refer to the example of TMR4_Initialize();
+    Refer to the example of TMR3_Initialize();
 */
 
-int TMR4_SoftwareCounterGet(void);
+int TMR3_SoftwareCounterGet(void);
 
 /**
   @Summary
@@ -335,10 +310,10 @@ int TMR4_SoftwareCounterGet(void);
     None
  
   @Example 
-    Refer to the example of TMR4_Initialize();
+    Refer to the example of TMR3_Initialize();
 */
 
-void TMR4_SoftwareCounterClear(void);
+void TMR3_SoftwareCounterClear(void);
 
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -346,7 +321,7 @@ void TMR4_SoftwareCounterClear(void);
 
 #endif
 
-#endif //_TMR4_H
+#endif //_TMR3_H
     
 /**
  End of File

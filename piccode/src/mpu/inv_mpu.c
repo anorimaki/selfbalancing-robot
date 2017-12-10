@@ -770,10 +770,15 @@ int mpu_init(struct int_param_s *int_param)
     if (mpu_set_bypass(0))
         return -1;
 #endif
-
+	
     //mpu_set_sensors(0);
 	st.chip_cfg.sensors = 0;
     st.chip_cfg.lp_accel_mode = 0;
+	
+	/*
+	 * Behaind this point are seetings from esp8266 in MPU.
+	 * See: bool Mpu9250::configure()
+	 */
 	
 	//mpu_set_sensors( INV_XYZ_GYRO | INV_XYZ_ACCEL )
 	st.chip_cfg.clk_src = INV_CLK_PLL;
@@ -961,7 +966,7 @@ int mpu_get_temperature(long *data, unsigned long *timestamp)
  *  @param[in]  accel_bias  returned structure with the accel bias
  *  @return     0 if successful.
  */
-int mpu_read_6500_accel_bias(long *accel_bias) {
+int mpu_read_6500_accel_bias(int16_t *accel_bias) {
 	unsigned char data[6];
 	if (i2c_read(st.hw->addr, 0x77, 2, &data[0]))
 		return -1;
@@ -969,9 +974,9 @@ int mpu_read_6500_accel_bias(long *accel_bias) {
 		return -1;
 	if (i2c_read(st.hw->addr, 0x7D, 2, &data[4]))
 		return -1;
-	accel_bias[0] = ((long)data[0]<<8) | data[1];
-	accel_bias[1] = ((long)data[2]<<8) | data[3];
-	accel_bias[2] = ((long)data[4]<<8) | data[5];
+	accel_bias[0] = ((int16_t)data[0]<<8) | data[1];
+	accel_bias[1] = ((int16_t)data[2]<<8) | data[3];
+	accel_bias[2] = ((int16_t)data[4]<<8) | data[5];
 	return 0;
 }
 
@@ -997,7 +1002,7 @@ int mpu_read_6050_accel_bias(long *accel_bias) {
 	return 0;
 }
 
-int mpu_read_6500_gyro_bias(long *gyro_bias) {
+int mpu_read_6500_gyro_bias(int16_t *gyro_bias) {
 	unsigned char data[6];
 	if (i2c_read(st.hw->addr, 0x13, 2, &data[0]))
 		return -1;
@@ -1005,9 +1010,9 @@ int mpu_read_6500_gyro_bias(long *gyro_bias) {
 		return -1;
 	if (i2c_read(st.hw->addr, 0x17, 2, &data[4]))
 		return -1;
-	gyro_bias[0] = ((long)data[0]<<8) | data[1];
-	gyro_bias[1] = ((long)data[2]<<8) | data[3];
-	gyro_bias[2] = ((long)data[4]<<8) | data[5];
+	gyro_bias[0] = ((int16_t)data[0]<<8) | data[1];
+	gyro_bias[1] = ((int16_t)data[2]<<8) | data[3];
+	gyro_bias[2] = ((int16_t)data[4]<<8) | data[5];
 	return 0;
 }
 
@@ -1019,7 +1024,7 @@ int mpu_read_6500_gyro_bias(long *gyro_bias) {
  *  @param[in]  gyro_bias  New biases.
  *  @return     0 if successful.
  */
-int mpu_set_gyro_bias_reg(long *gyro_bias)
+int mpu_set_gyro_bias_reg(int16_t *gyro_bias)
 {
     unsigned char data[6] = {0, 0, 0, 0, 0, 0};
     int i=0;
@@ -1087,9 +1092,9 @@ int mpu_set_accel_bias_6050_reg(const long *accel_bias) {
  *  @param[in]  accel_bias  New biases.
  *  @return     0 if successful.
  */
-int mpu_set_accel_bias_6500_reg(const long *accel_bias) {
+int mpu_set_accel_bias_6500_reg(const int16_t *accel_bias) {
     unsigned char data[6] = {0, 0, 0, 0, 0, 0};
-    long accel_reg_bias[3] = {0, 0, 0};
+    int16_t accel_reg_bias[3] = {0, 0, 0};
 
     if(mpu_read_6500_accel_bias(accel_reg_bias))
         return -1;

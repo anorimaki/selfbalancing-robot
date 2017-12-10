@@ -17,6 +17,14 @@ export class PitchDataComponent {
 	}
 
 	ngAfterViewInit() {
-		this.pidView.init( this.dataService.pitch.getData() );
+		let data = this.dataService.pitch.getData().map( pidSteps => {
+			pidSteps.forEach( pidStep => {
+				pidStep.index = pidStep.index/250000,	// index are steps of 4us. Convert to seconds
+				pidStep.current = pidStep.current * (180 / (3.1415 * 65535))
+			});
+			return pidSteps;
+		});
+
+		this.pidView.init( data );
 	}
 }

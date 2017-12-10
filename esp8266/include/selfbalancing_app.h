@@ -11,26 +11,16 @@ namespace selfbalancing
 
 class Application
 {
-private:
-	enum State {
-		Boot,
-		MpuInitiallization,
-		MpuChecking,
-		MpuError,
-		MotorsInitiallization,
-		MotorsError,
-		Running
-	};
-
 public:
-	Application(): m_state( Boot ) {}
+	Application(): m_httpServer(NULL) {}
 
 	void init();
 	void loop();
 
 
 private:
-	bool initMotors();
+	void initMotors();
+	bool mpuInitialization();
 	bool initMpu();
 	bool initWifi();
 	bool checkMpu();
@@ -38,10 +28,8 @@ private:
 	void showData( const mpu::MpuData& data );
 
 private:
-	State m_state;
-
 	mpu::Mpu9250 m_mpu9250;
-	http::Server m_httpServer;
+	http::Server* m_httpServer;
 	motion::Motors m_motors;
 	io::Display m_display;
 };

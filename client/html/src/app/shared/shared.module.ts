@@ -12,8 +12,6 @@ import { MatCheckboxModule } from '@angular/material';
 import { MatSnackBarModule } from '@angular/material';
 import { MatSlideToggleModule } from '@angular/material';
 
-import { AmChartsModule } from "@amcharts/amcharts3-angular";
-
 import { RbChartComponent } from './chart/chart.component';
 import { PidComponent } from './pid/pid.component';
 
@@ -25,7 +23,6 @@ import { PidComponent } from './pid/pid.component';
         FormsModule,
         HttpModule,
         FlexLayoutModule,
-        AmChartsModule,
         NoopAnimationsModule,
         MatInputModule,
         MatButtonModule,

@@ -11,8 +11,10 @@ extern "C" {
  *  General system registers
  */
 // (R/W)
-#define MOTORSREG_STATUS                0
-#define MOTORSREGBIT_STATUS_ON          0x01
+#define MOTORSREG_STATUS                    0
+#define MOTORSREGBIT_STATUS_RUNNING         0x10
+#define MOTORSREGBIT_STATUS_RUN_REQUEST     0x01
+#define MOTORSREGBIT_STATUS_PAUSE_REQUEST   0x02
     
 #define MOTORSREG_SYSTEM_END            (MOTORSREG_STATUS+sizeof(int8_t))
 

@@ -16,7 +16,8 @@ typedef enum {
     MPU_DATA_CORRUPTION
 } MpuStatus;
 
-bool mpu9250_init();
+bool mpu9250_start();
+bool mpu9250_end();
 
 MpuStatus mpu9250_get_data( MpuData* data );
 

@@ -22,9 +22,9 @@
 #include <string.h>
 #include <math.h>
 
-#include "../mpu/dmpKey.h"
-#include "../mpu/dmpmap.h"
-#include "../mpu/inv_mpu.h"
+#include "mpu/dmpKey.h"
+#include "mpu/dmpmap.h"
+#include "mpu/inv_mpu.h"
 
 /* The following functions must be defined for this platform:
  * i2c_write(unsigned char slave_addr, unsigned char reg_addr,

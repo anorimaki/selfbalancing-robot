@@ -39,7 +39,8 @@ export class PidStep {
         
         this.proportionalOutput = settings.proportional * error;
         
-        this.output = this.integralOutput + this.proportionalOutput + this.proportionalOutput ;
+		this.output = this.integralOutput + this.proportionalOutput + 
+						this.derivativeOutput ;
         
         this.output = this.output >> 6;     //Scale value as algorithm in PIC
         

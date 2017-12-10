@@ -6,7 +6,7 @@
 
 //DMP firmaware was previously loaded and sensors has been selected.
 // No need to load firmware and configure sensors here.
- bool mpu9250_init() {
+ bool mpu9250_start() {
 	struct int_param_s int_param;
 	if ( mpu_init(&int_param) )
 		TRACE_ERROR_AND_RETURN(false);
@@ -16,10 +16,34 @@
 
 	if ( dmp_set_fifo_rate(100) )
 		TRACE_ERROR_AND_RETURN(false);
+	
+//	if ( mpu_set_lpf(200) )
+//		TRACE_ERROR_AND_RETURN(false);
 
 	if ( mpu_set_dmp_state(1) )
 		TRACE_ERROR_AND_RETURN(false);
 	
+#if 0
+	int16_t gyro[3];
+	int16_t accel[3];
+	if ( mpu_read_6500_gyro_bias( gyro ) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+	if ( mpu_read_6500_accel_bias( accel ) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+		
+	printf( "Old gyro calibration data: %d %d %d\n", gyro[0], gyro[1], gyro[2] );
+	printf( "Old accel calibration data: %d %d %d\n", accel[0], accel[1], accel[2] );
+#endif
+	return true;
+}
+ 
+ 
+bool mpu9250_end() 
+{
+	if ( mpu_set_dmp_state(0) )
+	   TRACE_ERROR_AND_RETURN(false);
 	return true;
 }
 

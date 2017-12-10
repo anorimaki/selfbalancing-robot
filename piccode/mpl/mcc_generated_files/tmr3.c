@@ -1,18 +1,18 @@
 
 /**
-  TMR4 Generated Driver API Source File 
+  TMR3 Generated Driver API Source File 
 
   @Company
     Microchip Technology Inc.
 
   @File Name
-    tmr4.c
+    tmr3.c
 
   @Summary
-    This is the generated source file for the TMR4 driver using MPLAB(c) Code Configurator
+    This is the generated source file for the TMR3 driver using MPLAB(c) Code Configurator
 
   @Description
-    This source file provides APIs for driver for TMR4. 
+    This source file provides APIs for driver for TMR3. 
     Generation Information : 
         Product Revision  :  MPLAB(c) Code Configurator - pic24-dspic-pic32mm : v1.35
         Device            :  PIC24FJ32GA002
@@ -48,7 +48,7 @@
 */
 
 #include <xc.h>
-#include "tmr4.h"
+#include "tmr3.h"
 
 /**
   Section: Data Type Definitions
@@ -76,129 +76,124 @@ typedef struct _TMR_OBJ_STRUCT
 
 } TMR_OBJ;
 
-static TMR_OBJ tmr4_obj;
+static TMR_OBJ tmr3_obj;
 
 /**
   Section: Driver Interface
 */
 
 
-void TMR4_Initialize (void)
+void TMR3_Initialize (void)
 {
-    //TMR5 0; 
-    TMR5 = 0x0000;
-    //PR5 65535; 
-    PR5 = 0xFFFF;
-    //TMR4 0; 
-    TMR4 = 0x0000;
-    //Period = 17179.86918 s; Frequency = 16000000 Hz; PR4 65535; 
-    PR4 = 0xFFFF;
-    //TCKPS 1:64; T32 32 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
-    T4CON = 0x8028;
+    //TMR3 0; 
+    TMR3 = 0x0000;
+    //Period = 0 s; Frequency = 16000000 Hz; PR3 0; 
+    PR3 = 0x0000;
+    //TCKPS 1:256; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
+    T3CON = 0x8030;
 
     
+    IFS0bits.T3IF = false;
+    IEC0bits.T3IE = true;
 	
-    tmr4_obj.timerElapsed = false;
+    tmr3_obj.timerElapsed = false;
 
 }
 
 
-void TMR4_Tasks_32BitOperation( void )
+
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _T3Interrupt (  )
 {
     /* Check if the Timer Interrupt/Status is set */
-    if(IFS1bits.T5IF)
-    {
-        tmr4_obj.count++;
-        tmr4_obj.timerElapsed = true;
-        IFS1bits.T5IF = false;
-    }
+
+    //***User Area Begin
+
+    // ticker function call;
+    // ticker is 1 -> Callback function gets called everytime this ISR executes
+    TMR3_CallBack();
+
+    //***User Area End
+
+    tmr3_obj.count++;
+    tmr3_obj.timerElapsed = true;
+    IFS0bits.T3IF = false;
 }
 
 
-
-
-void TMR4_Period32BitSet( uint32_t value )
+void TMR3_Period16BitSet( uint16_t value )
 {
     /* Update the counter values */
-    PR4 = (value & 0x0000FFFF);
-    PR5 = ((value & 0xFFFF0000)>>16);
+    PR3 = value;
+    /* Reset the status information */
+    tmr3_obj.timerElapsed = false;
 }
 
-uint32_t TMR4_Period32BitGet( void )
+uint16_t TMR3_Period16BitGet( void )
 {
-    uint32_t periodVal = 0xFFFFFFFF;
-
-    /* get the timer period value and return it */
-    periodVal = (((uint32_t)PR5 <<16) | PR4);
-
-    return( periodVal );
-
+    return( PR3 );
 }
 
-void TMR4_Counter32BitSet( uint32_t value )
+void TMR3_Counter16BitSet ( uint16_t value )
 {
     /* Update the counter values */
-   TMR5HLD = ((value & 0xFFFF0000)>>16);
-   TMR4 = (value & 0x0000FFFF);
-
+    TMR3 = value;
+    /* Reset the status information */
+    tmr3_obj.timerElapsed = false;
 }
 
-uint32_t TMR4_Counter32BitGet( void )
+uint16_t TMR3_Counter16BitGet( void )
 {
-    uint32_t countVal = 0xFFFFFFFF;
-    uint16_t countValUpper;
-    uint16_t countValLower;
-
-    countValLower = TMR4;
-    countValUpper = TMR5HLD;
-
-    /* get the current counter value and return it */
-    countVal = (((uint32_t)countValUpper<<16)| countValLower );
-
-    return( countVal );
-
+    return( TMR3 );
 }
 
 
+void __attribute__ ((weak)) TMR3_CallBack(void)
+{
+    // Add your custom callback code here
+}
 
-void TMR4_Start( void )
+void TMR3_Start( void )
 {
     /* Reset the status information */
-    tmr4_obj.timerElapsed = false;
+    tmr3_obj.timerElapsed = false;
 
+    /*Enable the interrupt*/
+    IEC0bits.T3IE = true;
 
     /* Start the Timer */
-    T4CONbits.TON = 1;
+    T3CONbits.TON = 1;
 }
 
-void TMR4_Stop( void )
+void TMR3_Stop( void )
 {
     /* Stop the Timer */
-    T4CONbits.TON = false;
+    T3CONbits.TON = false;
 
+    /*Disable the interrupt*/
+    IEC0bits.T3IE = false;
 }
 
-bool TMR4_GetElapsedThenClear(void)
+bool TMR3_GetElapsedThenClear(void)
 {
     bool status;
     
-    status = tmr4_obj.timerElapsed;
+    status = tmr3_obj.timerElapsed;
 
     if(status == true)
     {
-        tmr4_obj.timerElapsed = false;
+        tmr3_obj.timerElapsed = false;
     }
     return status;
 }
 
-int TMR4_SoftwareCounterGet(void)
+int TMR3_SoftwareCounterGet(void)
 {
-    return tmr4_obj.count;
+    return tmr3_obj.count;
 }
 
-void TMR4_SoftwareCounterClear(void)
+void TMR3_SoftwareCounterClear(void)
 {
-    tmr4_obj.count = 0; 
+    tmr3_obj.count = 0; 
 }
 
 /**

@@ -89,11 +89,19 @@ void main_action()
 }
 
 
+inline void mpu_blocking_error()
+{
+	display_mpu_error();
+	while(true) {
+		__delay_ms(1000);
+	}
+}
+
+
 void main_resume() 
 {
 	if ( !mpu9250_start() ) {
-		display_mpu_error();
-		while(true);
+		mpu_blocking_error();
 	}
 }
 
@@ -101,8 +109,7 @@ void main_resume()
 void main_pause()
 {
 	if ( !mpu9250_end() ) {
-		display_mpu_error();
-		while(true);
+		mpu_blocking_error();
 	}
 }
 
@@ -113,14 +120,12 @@ int main(void)
 	
 	display_system_initialization();
 	
-	__delay_ms(2);
-	
+	motors_init();
 	system_init();
 	inputi2c_init();
 	pidpitch_init();
 	pidspeed_init();
-	motors_init();
-	
+		
 	display_system_paused();
 	system_paused();
 	
@@ -144,7 +149,7 @@ int main(void)
 			}
 		}
 		
-		__delay_ms(3);
+		__delay_ms(2);
 	}
 		
 	return -1;

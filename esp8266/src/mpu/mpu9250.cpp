@@ -132,7 +132,7 @@ bool Mpu9250::enableDmp( bool enable ) {
 
 
 bool Mpu9250::storedCalibration() {
-	static const long gyro[3] = {-27, 6, 19};
+	static long gyro[3] = {-27, 6, 19};
 	static const long accel[3] = {21, 75, 79};
 
 	if ( mpu_set_gyro_bias_reg(gyro) != 0 ) {

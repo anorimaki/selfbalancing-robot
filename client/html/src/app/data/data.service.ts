@@ -14,6 +14,7 @@ import { RobotService, PidService } from 'app/core/robot.service';
 import { PidStep } from "app/shared/pid-step";
 import { PidSettings } from "app/core/pid-settings";
 import { SettingsService, PidSettingsService } from 'app/settings/settings.service';
+import { NotificationService } from "app/core/notification.service";
 
 
 class PidDataService {
@@ -24,17 +25,19 @@ class PidDataService {
 	private dataSuscription?: Subscription;
 
 	constructor( private settingsService: PidSettingsService,
+				private notificationService: NotificationService,
 				private pidSerivce: PidService,
 				private period: number ) {
-		let baseRxData = this.settingsService.get().
-			concatMap( settings => 
+		let baseRxData = () => this.settingsService.get().
+			concatMap( settings =>
 				this.pidSerivce.getState().
-					map( pitches => 
-						pitches.map( item => new PidStep( item, settings ) )
-					)
-				);
-		this.rxData = baseRxData.expand( () => 
-								Observable.timer(period).concatMap( () => baseRxData ) );
+					map( pitches => pitches.map( item => new PidStep( item, settings ) ) ).
+					catch( (err, caught) => {
+						this.notificationService.error( "Error getting PID pitch data" );
+						return caught;
+					}));
+		this.rxData = baseRxData().expand( () => 
+								Observable.timer(period).concatMap( baseRxData ) );
 		this.rxDataBufer = new ReplaySubject<PidStep[]>(PidDataService.BUFFER_SIZE);
 	}
 
@@ -62,11 +65,12 @@ export class DataService {
 	pitch: PidDataService;
 		
 	constructor( private robotService : RobotService,
-				private settingsService: SettingsService  ) { 
+				private settingsService: SettingsService,
+				private notificationService: NotificationService ) { 
 		this.speed = new PidDataService( settingsService.speedPid, 
-									robotService.speed, 1000 );
+							notificationService, robotService.speed, 1000 );
 		this.pitch = new PidDataService( settingsService.pitchPid,
-									robotService.pitch, 200 );
+							notificationService, robotService.pitch, 20 );
 	}
 
 	startPolling(): void {

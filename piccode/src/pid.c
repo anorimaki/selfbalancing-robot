@@ -13,9 +13,11 @@ void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size )
 	pid->store.end = store+store_size;
 	pid->store.read_ptr = pid->store.begin;
 	pid->store.write_ptr = pid->store.begin;
-	pid->store.max_size = store_size;
+	pid->store.max_size = store_size-1;	//One of the positions is always
+										//been written. read_ptr should 
+										//advance before write_ptr reach it.
 	
-	pid->store.write_ptr->index = 0;
+	pid->store.write_ptr->index = TMR4_Counter32BitGet();
 	pid->store.write_ptr->state.current = 0;
 	pid->store.write_ptr->state.target = 0;
 	pid->store.write_ptr->state.integral_error = 0;
@@ -53,7 +55,7 @@ int16_t pid_compute( PID* pid, int16_t target, int16_t current )
 	++pid->store.size;
 	
 	//Update read_ptr if needed
-	//Must be done before new enrty (next writable entry) is added 
+	//Must be done before new entry (next writable entry) is added 
 	if ( pid->store.size == pid->store.max_size ) {
 		--pid->store.size;		//i2c read can interrupt while writing 
 								//in next_write_ptr, so don't lie about size

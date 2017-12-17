@@ -89,6 +89,9 @@ PidService::PidService( ESP8266WebServer* impl, const std::string& path,
 }
 
 
+static StaticJsonBuffer<1024*20> jsonBuffer;
+
+
 void PidService::handleState() {
 	std::vector<::PIDStateEntry> states;
 	if ( !m_pidEngine->state(states) ) {
@@ -96,15 +99,15 @@ void PidService::handleState() {
 		return;
 	}
 
-	DynamicJsonBuffer jsonBuffer;
+	jsonBuffer.clear();
 	JsonArray& array = jsonBuffer.createArray();
 	std::for_each( states.begin(), states.end(), [&array](const ::PIDStateEntry& state) {
 			JsonObject& entry = array.createNestedObject();
 			entry["i"] = state.index;
-			entry["p_err"] = state.state.previous_error;
-			entry["i_err"] = state.state.integral_error;
 			entry["tar"] = state.state.target;
 			entry["cur"] = state.state.current;
+			entry["p_err"] = state.state.previous_error;
+			entry["i_err"] = state.state.integral_error;
 		} );
 
 	sendJson( *m_impl, array );
@@ -118,7 +121,7 @@ void PidService::handleSettings() {
 		return;
 	}
 
-	DynamicJsonBuffer jsonBuffer;
+	jsonBuffer.clear();
 	JsonObject& jsonSetings = jsonBuffer.createObject();
 	jsonSetings["integral"] = settings.k_i;
 	jsonSetings["proportional"] = settings.k_p;
@@ -129,8 +132,8 @@ void PidService::handleSettings() {
 
 
 void PidService::handleSetSettings() {
+	jsonBuffer.clear();
 	String body = m_impl->arg("plain");
-	DynamicJsonBuffer jsonBuffer;
 	const JsonObject& root = jsonBuffer.parseObject( body );
 
 	motion::Motors::PIDSettings settings;

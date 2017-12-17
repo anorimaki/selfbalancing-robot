@@ -18,7 +18,7 @@ static const uint8_t MOTORS_SDA = D7;
 
 void Application::init()
 {
-	TRACE("");
+	Serial.println();
 
 	m_display.systemInitialization();
 	delay( 500 );

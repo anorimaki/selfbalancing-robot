@@ -8,8 +8,8 @@
 
 #define MOTORS_PWM_BITS		12
 #define MOTORS_MAX_POWER	((1<<MOTORS_PWM_BITS)-1)
-#define MOTORS_LEFT_MIN_POWER	0x864		//Min power to move motors
-#define MOTORS_RIGHT_MIN_POWER	0x864		//Min power to move motors
+#define MOTORS_LEFT_MIN_POWER	0x744		//Min power to move motors
+#define MOTORS_RIGHT_MIN_POWER	0x734		//Min power to move motors
 
 int16_t _motors_left_speed;
 int16_t _motors_right_speed;
@@ -74,10 +74,15 @@ void motors_init()
  * Note: Defined as macro instead of a function in order to do some
  * calculations at compile time.
  */
+#if 1
 #define power_to_pwm(power, minPower) \
 	(power == 0) ? 0 :	\
 	(minPower + 1 +		\
 		(__builtin_muluu( abs(power), MOTORS_MAX_POWER-minPower) >> 15))
+#else
+#define power_to_pwm(power, minPower) \
+	(minPower)
+#endif
 
 static inline void motors_set_left_power( int16_t power ) 
 {
@@ -89,6 +94,7 @@ static inline void motors_set_left_power( int16_t power )
 	}
 	
 	uint16_t pwm = power_to_pwm(power, MOTORS_LEFT_MIN_POWER);
+//printf( "l: %u\n", pwm );
 	OC2_SecondaryValueSet( pwm );
 }
 
@@ -101,7 +107,9 @@ static inline void motors_set_right_power( int16_t power )
 	else {
 		motors_right_backwards();
 	}
-	OC1_SecondaryValueSet( power_to_pwm(power, MOTORS_RIGHT_MIN_POWER) );
+	uint16_t pwm = power_to_pwm(power, MOTORS_RIGHT_MIN_POWER);
+//printf( "r: %u\n", pwm );	
+	OC1_SecondaryValueSet( pwm );
 }
 
 

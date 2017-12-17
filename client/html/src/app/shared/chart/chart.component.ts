@@ -91,12 +91,15 @@ export class RbChartComponent implements  OnDestroy {
 				visible: true,
 				showInLegend: false,
 				legendText: serie.label,
+				xValueFormatString: "#.###",
 				axisYIndex: serie.type,
 				dataPoints: this.seriesData[index],
 				color: RbChartComponent.COLORS[index]
 			});
 			axisY[serie.type] = {
-				title: axisY[serie.type] ? (axisY[serie.type].title + ', ' + serie.label) : serie.label,
+				title: axisY[serie.type] ?
+							(axisY[serie.type].title + ', ' + serie.label) :
+							serie.label,
 				titleFontWeight: "bold"
 			};
 		});

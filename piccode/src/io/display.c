@@ -10,11 +10,12 @@
 #define DISPLAY_TIMER_PERIOD_MS(ms)	(ms*(1000UL/DISPLAY_TIMER_PERIOD))
 
 // 1s -> 6250
-
+static bool display_mpu_busy = false;
 static void (*display_callback)() = 0;
 
 inline void display_timer_on( int16_t period, void (*callback)() ) 
 {
+	display_mpu_busy = true;
 	display_callback = callback;
 	TMR3_Counter16BitSet(0);
 	TMR3_Period16BitSet( period );
@@ -24,6 +25,7 @@ inline void display_timer_on( int16_t period, void (*callback)() )
 inline void display_timer_off() 
 {
 	TMR3_Stop();
+	display_mpu_busy = false;
 }
 
 void TMR3_CallBack(void)
@@ -103,11 +105,22 @@ void display_mpu_error()
  * MPU_ERROR:
  *	l0: on, l1=on
  ******************************************************************/
+static void display_mpu_result_0()
+{
+	led0_SetLow();
+	led1_SetLow();
+	display_timer_off();
+}
+
 void display_mpu_result( MpuStatus status )
 {
+	if ( display_mpu_busy ) {
+		return;
+	}
 	if ( status == MPU_OK ) {
 		led0_SetLow();
 		led1_SetLow();
+		return;
 	}
 	else if ( status == MPU_OVERUN ) {
 		led0_SetHigh();
@@ -121,4 +134,6 @@ void display_mpu_result( MpuStatus status )
 		led0_SetHigh();
 		led1_SetHigh();
 	}
+	display_mpu_busy = true;
+	display_timer_on( DISPLAY_TIMER_PERIOD_MS(500), &display_mpu_result_0 );
 }

@@ -14,7 +14,7 @@
 	if ( dmp_enable_feature( DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL ) )
 		TRACE_ERROR_AND_RETURN(false);
 
-	if ( dmp_set_fifo_rate(100) )
+	if ( dmp_set_fifo_rate(200) )
 		TRACE_ERROR_AND_RETURN(false);
 	
 //	if ( mpu_set_lpf(200) )

@@ -31,6 +31,6 @@ inline __attribute__((always_inline)) void system_running()
 }
 
 inline __attribute__((always_inline)) void system_paused()
-{
-	system_registers[MOTORSREG_STATUS] = 0;
+{		//Clear MOTORSREGBIT_STATUS_PAUSE_REQUEST & MOTORSREGBIT_STATUS_RUNNING
+	system_registers[MOTORSREG_STATUS] = 0;	
 }

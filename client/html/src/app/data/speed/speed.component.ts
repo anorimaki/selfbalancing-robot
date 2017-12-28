@@ -17,6 +17,14 @@ export class SpeedDataComponent {
 	}
 
 	ngAfterViewInit() {
-		this.pidView.init( this.dataService.speed.getData() );
+		let data = this.dataService.speed.getData().map( pidSteps => {
+			pidSteps.forEach( pidStep => {
+				pidStep.index = pidStep.index/250000,	// index are steps of 4us. Convert to seconds
+				pidStep.output = pidStep.output * (180 / (3.1415 * 65535))
+			});
+			return pidSteps;
+		});
+
+		this.pidView.init( 300, data );
 	}
 }

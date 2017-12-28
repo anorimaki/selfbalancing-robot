@@ -79,7 +79,7 @@ export class RbSettingsComponent implements OnInit, OnDestroy {
 		this.speedPid.destroy();
 	}
 
-	private applyAvailable(): boolean {
+	private applyPidAvailable(): boolean {
 		return this.pitchPidView.applyAvailable() || 
 				this.speedPidView.applyAvailable();
 	}
@@ -89,7 +89,7 @@ export class RbSettingsComponent implements OnInit, OnDestroy {
 		this.speedPid.toView();
 	}
 	
-	private apply(): void {
+	private applyPid(): void {
 		this.pitchPid.toService();
 		this.speedPid.toService();
 	}

@@ -18,7 +18,6 @@ export interface RbChartSerie {
 	styleUrls: ['./chart.component.css']
 } )
 export class RbChartComponent implements  OnDestroy {
-    private static readonly MAX_ENTIES = 900; 
     private static readonly COLORS: string[] = ["#b5030d", "#05F3Fd", "#1503Fd", "#F30300", "#00FF00"];
 
 	@Input() 
@@ -36,12 +35,14 @@ export class RbChartComponent implements  OnDestroy {
 	@Output("disable") 
 	private disableEvent = new EventEmitter<void>(); 
 
+	private dataSize_: number;
 	private chart: any;
 	private chartOptions: any;
 	private seriesData: any[][];
 
 	constructor() {
-        this.enabled = true;
+		this.enabled = true;
+		this.dataSize_ = 0;
     }
 
 	ngOnInit(): void {
@@ -54,15 +55,19 @@ export class RbChartComponent implements  OnDestroy {
     }
     
     ngOnDestroy(): void {
-    }
+	}
+	
+	set dataSize( x: number ) {
+		this.dataSize_ = x;
+	}
     
     insert( items : any[] ) : void {
-		if ( items.length > RbChartComponent.MAX_ENTIES ) {
-			items.splice( 0, items.length-RbChartComponent.MAX_ENTIES );
+		if ( items.length > this.dataSize_ ) {
+			items.splice( 0, items.length-this.dataSize_ );
 		}
 
 		this.seriesData.forEach( (values) => {
-			let itemsToRemove = (values.length + items.length) - RbChartComponent.MAX_ENTIES;
+			let itemsToRemove = (values.length + items.length) - this.dataSize_;
 			if ( itemsToRemove > 0 ) {
 				values.splice( 0, itemsToRemove );
 			}

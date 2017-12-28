@@ -1,13 +1,14 @@
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { MatInputModule } from '@angular/material';
-import { MatButtonModule } from '@angular/material';
+import { MatInputModule, MatListModule, MatButtonModule } from '@angular/material';
 
 import { RbSettingsComponent } from './settings.component';
 import { SettingsService } from './settings.service';
 import { RbPidComponent } from './pid/pid.component';
-
+import { MpuCalibrationComponent } from './mpu/calibration.component';
+import { MpuSettingsComponent } from './mpu/settings.component';
 
 
 @NgModule( {
@@ -15,11 +16,15 @@ import { RbPidComponent } from './pid/pid.component';
         FormsModule,
         MatInputModule,
 		MatButtonModule,
-		FlexLayoutModule
+		MatListModule,
+		FlexLayoutModule,
+		CommonModule 
     ],
     declarations: [
 		RbSettingsComponent,
-		RbPidComponent
+		RbPidComponent,
+		MpuSettingsComponent,
+		MpuCalibrationComponent
     ],
     exports: [
         RbSettingsComponent

@@ -1,18 +1,30 @@
-<form>
-	<div fxLayout='row' fxLayoutAlign="center start" fxLayoutGap='200px'>
-		<div fxLayout='column'>
-			<h3>Pitch PID Settings</h3>
-			<rb-pid #pitchPid></rb-pid>
+<div fxLayout='column' class='root'>
+	<div fxLayout='column' class='section'>
+		<h2>PID</h2>
+		<div fxLayout='row' fxLayoutAlign="center start" fxLayoutGap='200px'>
+			<div fxLayout='column'>
+				<h3>Pitch PID Settings</h3>
+				<rb-pid #pitchPid></rb-pid>
+			</div>
+			<div fxLayout='column'>
+				<h3>Speed PID Settings</h3>
+				<rb-pid #speedPid></rb-pid>
+			</div>
 		</div>
-		<div fxLayout='column'>
-			<h3>Speed PID Settings</h3>
-			<rb-pid #speedPid></rb-pid>
+		<div fxLayout='row' class='button-container' fxLayoutAlign="center"> 
+			<span fxFlex="auto"></span>
+			<button mat-raised-button
+				[attr.disabled]="applyPidAvailable() ? null : ''" 
+				(click)="applyPid()">
+				Apply
+			</button>
 		</div>
 	</div>
-	<div fxLayout='row' class='button-container' fxLayoutAlign="center"> 
-		<span fxFlex="auto"></span>
-		<button mat-raised-button [attr.disabled]="applyAvailable() ? null : ''" (click)="apply()">
-			Apply new values
-		</button>
+
+	<mat-divider></mat-divider>
+
+	<div fxLayout='column' class='section'>
+		<h2>MPU</h2>
+		<mpu-settings></mpu-settings>
 	</div>
-</form>
+</div>

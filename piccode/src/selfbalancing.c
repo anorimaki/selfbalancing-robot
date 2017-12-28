@@ -20,19 +20,17 @@
 #define MIN_PITCH_ANGLE			(-MAX_PITCH_ANGLE)					//Q16 format
 
 
-#define SPEED_CONTROL_PERIOD	3	//Number of pitch PID execuions between 
+#define SPEED_CONTROL_PERIOD	2	//Number of pitch PID execuions between 
 									// two speed PID executions
 
 bool cal_motors_power( int16_t target_pitch, int16_t* power )
 {
-	MpuData data;
-	MpuStatus status = mpu9250_get_data( &data );
+		//Pitch in radians and Q16 format
+	fix16_t current_pitch;
+	MpuStatus status = mpu9250_get_pitch( &current_pitch );
 	display_mpu_result( status );
 	if ( status != MPU_OK )
 		return false;
-
-	//Pitch in radians and Q16 format
-	fix16_t current_pitch = quat_to_pitch( &data.quaternation );
 		
 		//Limit angle range to:
 		//	[-14.2 .. +14.2] degrees
@@ -65,6 +63,8 @@ int16_t cal_pitch_target( int16_t speed_target )
 	int16_t left_speed = motors_right_speed();
 	int16_t right_speed = motors_left_speed();
 	
+//	printf( "l: %d, r:% d\n", left_speed, right_speed  );
+	
 	int16_t speed = left_speed + right_speed;
 
 	return pid_compute( &pidspeed_data, speed_target, speed ) ;
@@ -83,7 +83,7 @@ void main_action()
 	}
 
 	if ( --to_speed_control == 0 ) {
-//			pitch_target = cal_pitch_target( speed_target );
+	//	pitch_target = cal_pitch_target( speed_target );
 		to_speed_control = SPEED_CONTROL_PERIOD;
 	}
 }
@@ -93,7 +93,7 @@ inline void mpu_blocking_error()
 {
 	display_mpu_error();
 	while(true) {
-		__delay_ms(1000);
+		__delay_ms(5000);
 	}
 }
 
@@ -103,6 +103,12 @@ void main_resume()
 	if ( !mpu9250_start() ) {
 		mpu_blocking_error();
 	}
+	system_running();
+	
+	display_system_starting();
+	__delay_ms(5000);		//Wait for MPU to stabilize it
+	
+	display_system_running();
 }
 
 
@@ -111,6 +117,8 @@ void main_pause()
 	if ( !mpu9250_end() ) {
 		mpu_blocking_error();
 	}
+	display_system_paused();
+	system_paused();
 }
 
 
@@ -125,6 +133,7 @@ int main(void)
 	inputi2c_init();
 	pidpitch_init();
 	pidspeed_init();
+	mpu9250_init();
 		
 	display_system_paused();
 	system_paused();
@@ -134,8 +143,6 @@ int main(void)
 		if ( system_is_running() ) {
 			if ( system_pause_request() ) {
 				main_pause();
-				display_system_paused();
-				system_paused();
 			}
 			else {
 				main_action();
@@ -144,12 +151,10 @@ int main(void)
 		else {
 			if ( system_run_request() ) {
 				main_resume();
-				display_system_running();
-				system_running();
 			}
 		}
 		
-		__delay_ms(2);
+		__delay_ms((1000/MPU_DATA_RATE)-3);
 	}
 		
 	return -1;

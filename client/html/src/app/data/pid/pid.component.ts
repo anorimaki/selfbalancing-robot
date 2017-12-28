@@ -24,7 +24,8 @@ export class PidDataComponent {
 				private notificationService: NotificationService ) {
 	}
 
-	init( data: Observable<PidStep[]> ): void {
+	init( dataSize: number, data: Observable<PidStep[]> ): void {
+		this.chart.dataSize = dataSize;
 		this.dataSubscription = data.subscribe( state  => {
 			this.chart.insert( state );
 		});

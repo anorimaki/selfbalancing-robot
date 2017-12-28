@@ -2,14 +2,17 @@
 #define	MOTORS_I2C_MODEL_H
 
 #include <stdint.h>
+
+typedef int16_t PIDConstant;
+
 /*
  *  PID model
  */
 typedef struct __attribute((__packed__))
 {
-    int8_t k_p;
-    int8_t k_d;
-    int8_t k_i;
+	PIDConstant k_p;
+	PIDConstant k_d;
+	PIDConstant k_i;
 } PIDSettings;
 
 typedef struct __attribute((__packed__))
@@ -31,6 +34,16 @@ typedef struct __attribute((__packed__))
     PIDStateEntry current; 
     uint8_t size;       //Entries left in store
 } PIDFifo;
+
+
+typedef struct __attribute((__packed__))
+{
+    int32_t pitch_offset;   //Should be a fix16_t but it's a int32_t
+} MpuConfiguration;         // to avoid include q16.h.
+
+
+#define byte_ptr(base, address) \
+    (((uint8_t*)base)+address)
 
 
 #endif

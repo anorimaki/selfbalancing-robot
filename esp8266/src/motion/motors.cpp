@@ -136,4 +136,20 @@ bool Motors::resume()
 	return true;
 }
 
+bool Motors::setMpuOffset( int32_t pitchOffset )
+{
+	if ( !send( MOTORSREG_MPU_OFFSET, &pitchOffset ) ) {
+		MOTORS_ERROR(m_display);
+	}
+	return true;
+}
+
+bool Motors::getMpuOffset( int32_t* pitchOffset )
+{
+	if ( !receive( MOTORSREG_MPU_OFFSET, pitchOffset ) ) {
+		MOTORS_ERROR(m_display);
+	}
+	return true;
+}
+
 }

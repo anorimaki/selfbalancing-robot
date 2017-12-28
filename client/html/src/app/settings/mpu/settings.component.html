@@ -1,0 +1,15 @@
+<div>
+	<div class='content'>
+		<mpu-calibration></mpu-calibration>
+	</div>
+	<div class='content' fxLayout='row' fxLayoutAlign='start end' fxLayoutGap='30px'>
+		<mat-form-field *ngIf='settings && newValue'> 
+			<input matInput type="number" placeholder="Pitch offset" name="pitch_offset" 
+					[(ngModel)]="newValue.pitchOffset">
+			<mat-hint align="end">Current value: {{settings.pitchOffset}}</mat-hint>
+		</mat-form-field>
+		<button mat-raised-button (click)="apply()">
+			Apply
+		</button>
+	</div>
+</div>

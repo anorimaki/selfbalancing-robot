@@ -51,6 +51,9 @@ public:
 	PidEngine& speed() { return *m_speed; }
 	PidEngine& pitch() { return *m_pitch; }
 
+	bool setMpuOffset( int32_t pitchOffset );
+	bool getMpuOffset( int32_t* pitchOffset );
+
 private:
 	PidEngine* m_speed;
 	PidEngine* m_pitch;

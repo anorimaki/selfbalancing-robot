@@ -18,9 +18,9 @@ int16_t motors_left_speed();
 static inline void motors_left_qencoder_interrupt()
 {
 	if ( motors_left_qenc1_GetValue() )
-		_motors_left_speed++;
-	else
 		_motors_left_speed--;
+	else
+		_motors_left_speed++;
 }
 
 

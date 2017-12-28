@@ -1,0 +1,29 @@
+table {
+	display: block;
+	width: 40%;
+}
+
+thead {
+	width: 100%;
+}
+
+tbody {
+	width: 100%;
+}
+
+tr {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	align-items: center;
+	min-height: 48px;
+	padding: 0 24px;
+	display: flex;
+	width: 360px;
+}
+  
+th, td {
+	overflow: hidden;
+	word-wrap: break-word;
+	display: flex;
+	width: 90px;
+}

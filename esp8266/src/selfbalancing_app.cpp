@@ -9,12 +9,6 @@
 namespace selfbalancing
 {
 
-static const uint8_t MPU_SCL = D1;
-static const uint8_t MPU_SDA = D2;
-
-static const uint8_t MOTORS_SCL = D6;
-static const uint8_t MOTORS_SDA = D7;
-
 
 void Application::init()
 {
@@ -43,7 +37,7 @@ void Application::init()
 		m_display.wifiInitError( 2000 );
 	}
 	else {
-		m_httpServer = new http::Server( &m_motors, &m_display );
+		m_httpServer = new http::Server( &m_motors, &m_mpu9250, &m_display );
 	}
 
 	m_display.systemInitialized();
@@ -52,32 +46,9 @@ void Application::init()
 }
 
 
-static const unsigned long debounceDelay = 500; //In ms
-
-static bool calibrationPressed() {
-	static unsigned long lastStateChange = 0;
-	static int oldState = -1;
-	int currentState = digitalRead(0);
-
-	if ( (oldState != currentState) && (millis()>(lastStateChange+debounceDelay)) ) {
-		oldState = currentState;
-		return !currentState;
-	}
-	return false;
-}
-
-
 void Application::loop()
 {
-	if ( calibrationPressed() ) {
-		m_motors.pause();
-
-		i2c::init( MPU_SDA, MPU_SCL );			//Change I2C channel
-		m_mpu9250.calibrate();
-
-		i2c::init( MOTORS_SDA, MOTORS_SCL );	//Recover I2C channel
-		m_motors.resume();
-	}
+	doInput();
 
 	if ( m_httpServer ) {
 		m_httpServer->impl().handleClient();
@@ -157,14 +128,14 @@ bool Application::initWifi()
 
 void Application::initMotors()
 {
-	i2c::init( MOTORS_SDA, MOTORS_SCL );
+	i2c::init( i2c::MOTORS_SDA, i2c::MOTORS_SCL );
 	m_motors.init( &m_display );
 }
 
 
 bool Application::mpuInitialization()
 {
-	i2c::init( MPU_SDA, MPU_SCL );
+	i2c::init( i2c::MPU_SDA, i2c::MPU_SCL );
 
 	if ( !initMpu() ) {
 		m_display.mpuInitError();
@@ -184,7 +155,7 @@ bool Application::mpuInitialization()
 
 	TRACE("MPU initialized");
 
-	i2c::init( MOTORS_SDA, MOTORS_SCL );	//Recover I2C channel
+	i2c::init( i2c::MOTORS_SDA, i2c::MOTORS_SCL );	//Recover I2C channel
 
 	return true;
 }
@@ -222,6 +193,88 @@ bool Application::checkMpu()
 	TRACE( "MPU check: %d", !!data );
 
 	return !!data;
+}
+
+
+#define MPU_OFFSET_INCREMENT 0x00000100
+#define MPU_OFFSET_DECREMENT (-MPU_OFFSET_INCREMENT)
+
+bool Application::changeMpuOffset( bool inc )
+{
+	int32_t offset;
+	if ( !m_motors.getMpuOffset( &offset ) ) {
+		TRACE_ERROR( "Get MPU offset failed" );
+		return false;
+	}
+	offset += (inc ? MPU_OFFSET_INCREMENT : MPU_OFFSET_DECREMENT);
+	if ( !m_motors.setMpuOffset( offset ) ) {
+		TRACE_ERROR( "Set MPU offset failed" );
+		return false;
+	}
+	m_display.mpuOffsetChanged( inc );
+	return true;
+}
+
+
+
+enum InputCommand { NOTHING, MPU_OFFSET_MORE, MPU_OFFSET_LESS };
+static const unsigned long debouncePeriod = 100; 					//In ms
+static const unsigned long mpuOffsetMorePeriod = debouncePeriod*3; 	//In ms
+
+#define BUTTON_PRESSED(state) (state==LOW)
+
+static InputCommand checkButton() {
+	static unsigned long lastChangeTime = 0;
+	static int oldState = HIGH;
+	static bool inMpuOffsetMorePeriod = false;
+
+	bool currentState = digitalRead(0);
+	unsigned long currentTime = millis();
+
+	if ( currentState != oldState ) {
+		lastChangeTime = currentTime;
+		oldState = currentState;
+		return NOTHING;
+	}
+
+	unsigned long period = currentTime-lastChangeTime;
+	if ( period < debouncePeriod ) {
+		return NOTHING;
+	}
+
+	if ( BUTTON_PRESSED(currentState) ) {
+		if ( period > mpuOffsetMorePeriod ) {
+			lastChangeTime = currentTime;		//Reset time to do increments each mpuOffsetMorePeriod if keep pressed
+			inMpuOffsetMorePeriod = true;
+			return MPU_OFFSET_MORE;
+		}
+	}
+	else {
+		if ( (period < mpuOffsetMorePeriod) && !inMpuOffsetMorePeriod ) {
+						//Button has been released in mpuOffsetLessPeriod
+			lastChangeTime = 0;					//Just to not repeat the command. Next period will be > mpuOffsetMorePeriod
+			return MPU_OFFSET_LESS;
+		}
+		inMpuOffsetMorePeriod = false;
+	}
+
+	return NOTHING;
+}
+
+
+void Application::doInput()
+{
+	InputCommand input = checkButton();
+	switch( input ) {
+		case MPU_OFFSET_MORE:
+			changeMpuOffset(true);
+			break;
+		case MPU_OFFSET_LESS:
+			changeMpuOffset(false);
+			break;
+		default:
+			break;
+	}
 }
 
 

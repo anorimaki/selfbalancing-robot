@@ -3,10 +3,17 @@
 #include "mpu/inv_mpu_dmp_motion_driver.h"
 #include "trace.h"
 
+MpuConfiguration mpu9250_configuration;
+
+void mpu9250_init() 
+{
+	mpu9250_configuration.pitch_offset = -0x00000900;
+}
 
 //DMP firmaware was previously loaded and sensors has been selected.
 // No need to load firmware and configure sensors here.
- bool mpu9250_start() {
+ bool mpu9250_start()
+ {
 	struct int_param_s int_param;
 	if ( mpu_init(&int_param) )
 		TRACE_ERROR_AND_RETURN(false);
@@ -14,11 +21,11 @@
 	if ( dmp_enable_feature( DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL ) )
 		TRACE_ERROR_AND_RETURN(false);
 
-	if ( dmp_set_fifo_rate(200) )
+	if ( dmp_set_fifo_rate(MPU_DATA_RATE) )
 		TRACE_ERROR_AND_RETURN(false);
 	
-//	if ( mpu_set_lpf(200) )
-//		TRACE_ERROR_AND_RETURN(false);
+	if ( mpu_set_lpf(200) )
+		TRACE_ERROR_AND_RETURN(false);
 
 	if ( mpu_set_dmp_state(1) )
 		TRACE_ERROR_AND_RETURN(false);
@@ -74,4 +81,18 @@ MpuStatus mpu9250_get_data( MpuData* data ) {
 	data->quaternation.z = quat[3] >> 14;
 
 	return MPU_OK;
+}
+
+
+MpuStatus mpu9250_get_pitch( fix16_t* pitch ) 
+{
+	MpuData data;
+	MpuStatus status = mpu9250_get_data( &data );
+	if ( status == MPU_OK ) {
+		fix16_t ret = quat_to_pitch( &data.quaternation );
+		ret += mpu9250_configuration.pitch_offset;
+		*pitch = ret;
+	}
+	
+	return status;
 }

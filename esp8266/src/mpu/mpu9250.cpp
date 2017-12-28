@@ -132,22 +132,14 @@ bool Mpu9250::enableDmp( bool enable ) {
 
 
 bool Mpu9250::storedCalibration() {
-	static long gyro[3] = {-27, 6, 19};
+	static const long gyro[3] = {-27, 6, 19};
 	static const long accel[3] = {21, 75, 79};
 
-	if ( mpu_set_gyro_bias_reg(gyro) != 0 ) {
-		TRACE_ERROR_AND_RETURN(false);
-	}
-
-	if ( mpu_set_accel_bias_6500_reg(accel) != 0 ) {
-		TRACE_ERROR_AND_RETURN(false);
-	}
-
-	return true;
+	return setCalibration( accel, gyro );
 }
 
 
-bool Mpu9250::calibrate()
+bool Mpu9250::readCalibration()
 {
 	long gyro[3];
 	long accel[3];
@@ -157,8 +149,44 @@ bool Mpu9250::calibrate()
 	if ( mpu_read_6500_accel_bias( accel ) != 0 ) {
 		TRACE_ERROR_AND_RETURN(false);
 	}
-	TRACE( "Old gyro calibration data: %ld %ld %ld", gyro[0], gyro[1], gyro[2] );
-	TRACE( "Old accel calibration data: %ld %ld %ld", accel[0], accel[1], accel[2] );
+
+	m_accelBias[0] = accel[0];
+	m_accelBias[1] = accel[1];
+	m_accelBias[2] = accel[2];
+	m_gyroBias[0] = gyro[0];
+	m_gyroBias[1] = gyro[1];
+	m_gyroBias[2] = gyro[2];
+
+	TRACE( "Gyro bias (abs): %d %d %d", m_gyroBias[0], m_gyroBias[1], m_gyroBias[2] );
+	TRACE( "Accel bias (abs): %d %d %d", m_accelBias[0], m_accelBias[1], m_accelBias[2] );
+
+	return true;
+}
+
+/*
+ * Accel bias as differential offset.
+ * Gyro bias as absolute offset
+ */
+bool Mpu9250::setCalibration( const long *accelBias, const long *gyroBias )
+{
+	if ( mpu_set_gyro_bias_reg( const_cast<long*>(gyroBias) ) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+	if ( mpu_set_accel_bias_6500_reg( accelBias ) != 0 ) {
+		TRACE_ERROR_AND_RETURN(false);
+	}
+
+	TRACE( "New gyro bias (abs): %ld %ld %ld", gyroBias[0], gyroBias[1], gyroBias[2] );
+	TRACE( "New accel bias (diff): %ld %ld %ld", accelBias[0], accelBias[1], accelBias[2] );
+
+	return readCalibration();
+}
+
+
+bool Mpu9250::calibrate()
+{
+	long gyro[3];
+	long accel[3];
 
 	//Reset gyro offset to 0 before new offset calculation
 	//accel reset isn't needed because mpu_set_accel_bias_6500_reg
@@ -179,24 +207,13 @@ bool Mpu9250::calibrate()
 	 */
 	unsigned char i;
 	for (i = 0; i < 3; i++) {
-		gyro[i] = (long) (gyro[i] * 32.8f); //convert to +-1000dps
-		accel[i] *= 2048.f; //convert to +-16G
+		accel[i] *= 2048.f; 				//convert to +-16G
 		accel[i] = accel[i] >> 16;
+		gyro[i] = (long) (gyro[i] * 32.8f); //convert to +-1000dps
 		gyro[i] = (long) (gyro[i] >> 16);
 	}
 
-	if ( mpu_set_gyro_bias_reg(gyro) != 0 ) {
-		TRACE_ERROR_AND_RETURN(false);
-	}
-
-	if ( mpu_set_accel_bias_6500_reg(accel) != 0 ) {
-		TRACE_ERROR_AND_RETURN(false);
-	}
-
-	TRACE( "New gyro calibration data: %ld %ld %ld", gyro[0], gyro[1], gyro[2] );
-	TRACE( "New accel calibration data: %ld %ld %ld", accel[0], accel[1], accel[2] );
-
-	return true;
+	return setCalibration(accel, gyro);
 }
 
 

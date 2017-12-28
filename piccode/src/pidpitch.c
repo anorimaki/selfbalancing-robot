@@ -11,7 +11,7 @@ void pidpitch_init()
 	pid_init( &pidpitch_data, pidpitch_store, PIDPITCH_STORE_SIZE );
 		
 			//Max bits of constants = 15-PID_DATA_BITS to avoid overflows
-	pidpitch_data.settings.k_p = 127;
-	pidpitch_data.settings.k_i = 2;
-	pidpitch_data.settings.k_d = 100;
+	pidpitch_data.settings.k_p = 1000;
+	pidpitch_data.settings.k_i = 40;
+	pidpitch_data.settings.k_d = 1000;
 }

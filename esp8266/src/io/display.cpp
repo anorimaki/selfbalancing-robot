@@ -8,9 +8,10 @@ extern "C" {
 #define LED0_PIN	14
 #define LED1_PIN	16
 
-#define INIT_ERROR_PERIOD		200
-#define WIFI_INIT_ERROR_PERIOD	200
-#define MOTORS_ERROR_DURATION	1000
+#define INIT_ERROR_PERIOD			200
+#define WIFI_INIT_ERROR_PERIOD		200
+#define MOTORS_ERROR_DURATION		1000
+#define MPU_OFFSET_CHANGED_PERIOD	200
 
 namespace io
 {
@@ -46,7 +47,7 @@ static void toggle_for_ever( uint8_t pin )
  *
  */
 
-Display::Display(): m_state(StIdle), m_stateEndTime(0)
+Display::Display(): m_state(StIdle), m_nextChangeTime(0), m_remainingPeriods(0)
 {
 	pinMode(LED0_PIN, OUTPUT);
 	pinMode(LED1_PIN, OUTPUT);
@@ -120,19 +121,36 @@ void Display::httpRequestEnd()
 void Display::motorsError()
 {
 	digitalWrite(LED1_PIN, LOW);
-	m_stateEndTime = millis() + MOTORS_ERROR_DURATION;
-	m_state=StMotorsError;
+	m_nextChangeTime = millis() + MOTORS_ERROR_DURATION;
+	m_remainingPeriods = 1;
+}
+
+
+void Display::mpuOffsetChanged( bool inc )
+{
+	digitalWrite(LED1_PIN, LOW);
+	m_nextChangeTime = millis() + MPU_OFFSET_CHANGED_PERIOD;
+	m_remainingPeriods = inc ? 3 : 1;
 }
 
 
 void Display::update()
 {
-	if ( m_state==StMotorsError ) {
-		unsigned long current = millis();
-		if ( current >= m_stateEndTime ) {
-			digitalWrite(LED1_PIN, HIGH);
-			m_state=StIdle;
-		}
+	if ( m_remainingPeriods == 0 ) {
+		m_state=StIdle;
+		return;
+	}
+
+	unsigned long current = millis();
+	if ( current < m_nextChangeTime ) {
+		return;
+	}
+
+	--m_remainingPeriods;
+	digitalWrite( LED1_PIN, (m_remainingPeriods & 0x01) ? LOW : HIGH );
+
+	if ( m_state==StMpuOffsetChanged ) {
+		m_nextChangeTime = current + MPU_OFFSET_CHANGED_PERIOD;
 	}
 }
 

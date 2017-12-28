@@ -1,6 +1,7 @@
 #include "http/httpserver.h"
 #include "util/trace.h"
 #include "util/printbuffer.h"
+#include "i2c/i2c.h"
 #include "ArduinoJson.h"
 #include "StreamString.h"
 #include "util/arduino_stl_support.h"
@@ -155,15 +156,25 @@ void PidService::handleSetSettings() {
 /************************************************************************/
 // Server
 /************************************************************************/
-Server::Server( motion::Motors* motors, io::Display* display )
+Server::Server( motion::Motors* motors, mpu::Mpu9250* mpu, io::Display* display ):
+				m_motors(motors), m_display(display), m_mpu(mpu)
 {
-	m_motors = motors;
-	m_display = display;
-
 	m_impl.on( "/", std::bind( &Server::handleRoot, this ) );
 
 	m_pitchService = new PidService( &m_impl, "/pitch", &m_motors->pitch(), m_display );
 	m_speedService = new PidService( &m_impl, "/speed", &m_motors->speed(), m_display );
+
+	HandlerFunction getMpuSettings = std::bind( &Server::handleGetMpuSettings, this );
+	m_impl.on( "/mpu/settings", HTTPMethod::HTTP_GET, std::bind( &handleRequest, m_display, getMpuSettings ) );
+
+	HandlerFunction putMpuSettings = std::bind( &Server::handlePutMpuSettings, this );
+	m_impl.on( "/mpu/settings", HTTPMethod::HTTP_PUT, std::bind( &handleRequest, m_display, putMpuSettings ) );
+
+	HandlerFunction getMpuCalibration = std::bind( &Server::handleGetMpuCalibration, this );
+	m_impl.on( "/mpu/calibration", HTTPMethod::HTTP_GET, std::bind( &handleRequest, m_display, getMpuCalibration ) );
+
+	HandlerFunction doMpuCalibration = std::bind( &Server::handlePutMpuCalibration, this );
+	m_impl.on( "/mpu/calibration", HTTPMethod::HTTP_PUT, std::bind( &handleRequest, m_display, doMpuCalibration ) );
 
 	m_impl.onNotFound([this](){
 			if ( m_impl.method() == HTTP_OPTIONS ) {
@@ -179,8 +190,77 @@ Server::Server( motion::Motors* motors, io::Display* display )
 }
 
 
+void Server::handleGetMpuSettings()
+{
+	int32_t pitchOffset;
+	if ( !m_motors->getMpuOffset(&pitchOffset) ) {
+		sendError( m_impl, "Error reading MPU settings" );
+		return;
+	}
 
-void Server::handleRoot() {
+	jsonBuffer.clear();
+	JsonObject& ret = jsonBuffer.createObject();
+	ret["pitchOffset"] = ((float)pitchOffset) / 0x10000;		//Convert Q16 to float
+
+	sendJson( m_impl, ret );
+}
+
+
+void Server::handlePutMpuSettings()
+{
+	jsonBuffer.clear();
+	String body = m_impl.arg("plain");
+	const JsonObject& root = jsonBuffer.parseObject( body );
+
+	float pitchOffset;
+	pitchOffset = root["pitchOffset"];
+	if ( !m_motors->setMpuOffset( pitchOffset*0x10000 ) ) {		//Convert float to Q16
+		sendError( m_impl, "Error setting MPU settings" );
+		return;
+	}
+
+	//Send No content
+	m_impl.setContentLength( 0 );
+	m_impl.send( 204, NULL );
+}
+
+
+
+void Server::handleGetMpuCalibration()
+{
+	jsonBuffer.clear();
+	JsonObject& ret = jsonBuffer.createObject();
+
+	JsonObject& accel = ret.createNestedObject("accel");
+	accel["x"] = m_mpu->getAccelCalibration()[0];
+	accel["y"] = m_mpu->getAccelCalibration()[1];
+	accel["z"] = m_mpu->getAccelCalibration()[2];
+
+	JsonObject& gyro = ret.createNestedObject("gyro");
+	gyro["x"] = m_mpu->getGyroCalibration()[0];
+	gyro["y"] = m_mpu->getGyroCalibration()[1];
+	gyro["z"] = m_mpu->getGyroCalibration()[2];
+
+	sendJson( m_impl, ret );
+}
+
+
+void Server::handlePutMpuCalibration()
+{
+	m_motors->pause();
+
+	i2c::init( i2c::MPU_SDA, i2c::MPU_SCL );		//Change I2C channel
+	m_mpu->calibrate();
+
+	i2c::init( i2c::MOTORS_SDA, i2c::MOTORS_SCL );	//Recover I2C channel
+	m_motors->resume();
+
+	handleGetMpuCalibration();						//Send calibration data
+}
+
+
+void Server::handleRoot()
+{
 	char temp[400];
 	int sec = millis() / 1000;
 	int min = sec / 60;
@@ -205,12 +285,14 @@ void Server::handleRoot() {
 }
 
 
-void Server::handleNotFound() {
+void Server::handleNotFound()
+{
 	m_impl.send( 404, "text/html", "<h1>Resource not found</h1>" );
 }
 
 
-void Server::handleOptionsRequest() {
+void Server::handleOptionsRequest()
+{
 	String requestHeader = m_impl.header(ACCESS_CONTROL_REQUEST_HEADERS);
 
 	if ( requestHeader.length() > 0 ) {

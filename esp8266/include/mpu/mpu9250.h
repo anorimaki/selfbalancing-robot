@@ -3,6 +3,7 @@
 
 #include "mpu/quaternation.h"
 #include "util/optional.h"
+#include <stdint.h>
 
 
 namespace mpu
@@ -84,15 +85,27 @@ public:
 	bool enableDmp(bool enbale);
 
 	bool configure();
+
 	bool calibrate();
+
 	bool storedCalibration() ;
 
 	bool getData( Optional<MpuData>& data );
 
 	void test();
 
+	const int16_t* getGyroCalibration() const { return m_gyroBias; }		//As absolute offset
+	const int16_t* getAccelCalibration() const { return m_accelBias; }		//As absolute offset
+
 private:
+	bool setCalibration( const long *accelBias, const long *gyroBias );
+	bool readCalibration();
+
 	void handleError();
+
+private:
+	int16_t m_gyroBias[3];
+	int16_t m_accelBias[3];
 };
 
 

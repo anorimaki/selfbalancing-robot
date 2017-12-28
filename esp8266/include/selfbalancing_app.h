@@ -25,6 +25,9 @@ private:
 	bool initWifi();
 	bool checkMpu();
 
+	void doInput();
+	bool changeMpuOffset( bool inc );
+
 	void showData( const mpu::MpuData& data );
 
 private:

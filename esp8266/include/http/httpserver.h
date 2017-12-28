@@ -3,6 +3,7 @@
 
 #include <ESP8266WebServer.h>
 #include "motion/motors.h"
+#include "mpu/mpu9250.h"
 
 namespace http
 {
@@ -28,7 +29,7 @@ private:
 class Server
 {
 public:
-	Server( motion::Motors* motors, io::Display* display );
+	Server( motion::Motors* motors, mpu::Mpu9250* m_mpu, io::Display* display );
 
 	ESP8266WebServer& impl() {
 		return m_impl;
@@ -39,10 +40,17 @@ private:
 	void handleOptionsRequest();
 	void handleNotFound();
 
+	void handleGetMpuSettings();
+	void handlePutMpuSettings();
+
+	void handleGetMpuCalibration();
+	void handlePutMpuCalibration();
+
 private:
 	ESP8266WebServer m_impl;
 	motion::Motors* m_motors;
 	io::Display* m_display;
+	mpu::Mpu9250* m_mpu;
 	PidService* m_speedService;
 	PidService* m_pitchService;
 };

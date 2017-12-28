@@ -1,0 +1,27 @@
+<div fxLayout='row' fxLayoutAlign='start end' fxLayoutGap='30px'>
+	<table *ngIf='data'>
+		<tr class="header">
+			<th></th>
+			<th>X</th>
+			<th>Y</th>
+			<th>Z</th>
+		</tr>
+		<tbody>
+			<tr>
+				<th>Accel</th>
+				<td>{{data.accel.x}}</td>
+				<td>{{data.accel.y}}</td>
+				<td>{{data.accel.z}}</td>
+			</tr>
+			<tr>
+				<th>Gyro</th>
+				<td>{{data.gyro.x}}</td>
+				<td>{{data.gyro.y}}</td>
+				<td>{{data.gyro.z}}</td>
+			</tr>
+		</tbody>
+	</table>
+	<button mat-raised-button (click)="doCalibration()">
+		Calibrate
+	</button>
+</div>

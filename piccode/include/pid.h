@@ -15,7 +15,7 @@
 #define PID_MAX_OUTPUT          ((1U << (PID_OUTPUT_BIT_SIZE-1))-1)
 #define PID_MIN_OUTPUT          (-(signed)PID_MAX_OUTPUT)
 
-#define PID_CONSTANT_BIT_SIZE   8       //Limited to 8 bitssigned integers to 
+#define PID_CONSTANT_BIT_SIZE   13       //Limited to 
                                         // avoid internals overflows
 #define PID_MAX_CONSTANT        ((1 << (PID_CONSTANT_BIT_SIZE-1))-1)
 #define PID_MIN_CONSTANT        (-PID_MAX_CONSTANT)
@@ -47,9 +47,6 @@ typedef struct {
 
 void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size );
 int16_t pid_compute( PID* pid, int16_t target, int16_t current );
-
-#define byte_ptr(base, address) \
-    (((uint8_t*)base)+address)
 
 
 static inline PIDStateEntry* pid_next_state_entry( PIDStore* pid_store,

@@ -3,8 +3,8 @@
 #include "boost/preprocessor/arithmetic/sub.hpp"
 #include "tmr4.h"
 
-//#define PID_MAX_INTEGRAL_ERROR	(PID_MAX_OUTPUT*2L)
-//#define PID_MIN_INTEGRAL_ERROR	(PID_MIN_OUTPUT*2L)
+#define PID_MAX_INTEGRAL_ERROR	0x1FFF
+#define PID_MIN_INTEGRAL_ERROR	-PID_MAX_INTEGRAL_ERROR
 
 
 void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size )
@@ -32,15 +32,12 @@ int16_t pid_compute( PID* pid, int16_t target, int16_t current )
 
 	int16_t error = target - current;
 	
+	//Can't overflow: Two operands have 15 bits
 	int16_t integral_error = current_entry->state.integral_error + error;
-	if ( (error>0) && 
-				(current_entry->state.integral_error>0) && 
-				(integral_error<0) )
-		integral_error = 0x7FFF;
-	else if ( (error<0) && 
-				(current_entry->state.integral_error<0) && 
-				(integral_error>0) )
-		integral_error = 0x8001;
+	if ( integral_error > PID_MAX_INTEGRAL_ERROR )
+		integral_error = PID_MAX_INTEGRAL_ERROR;
+	else if ( integral_error < PID_MIN_INTEGRAL_ERROR )
+		integral_error = PID_MIN_INTEGRAL_ERROR;
 				
 	int16_t derivative_error = error - current_entry->state.previous_error;
 	
@@ -78,7 +75,7 @@ int16_t pid_compute( PID* pid, int16_t target, int16_t current )
 			//and adapt input bits to output bits
 	out = SCALE_VALUE( out,
 				BOOST_PP_ADD(PID_INPUT_BIT_SIZE, 
-						BOOST_PP_SUB( PID_CONSTANT_BIT_SIZE, 2 ) ),
+						BOOST_PP_SUB( PID_CONSTANT_BIT_SIZE, 5 ) ),
 				PID_OUTPUT_BIT_SIZE );
 
 #if 0

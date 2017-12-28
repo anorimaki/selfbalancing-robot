@@ -1,6 +1,11 @@
-form {
+.root {
 	margin-left: 10%;
 	margin-right: 10%;
+}
+
+.section {
+/*  border: 1px solid black; */
+	margin: 20px;
 }
 
 .button-container {

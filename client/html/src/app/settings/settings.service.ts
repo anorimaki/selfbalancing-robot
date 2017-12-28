@@ -31,6 +31,7 @@ export class PidSettingsService {
 	}
 }
 
+
 @Injectable()
 export class SettingsService {
 	speedPid: PidSettingsService;

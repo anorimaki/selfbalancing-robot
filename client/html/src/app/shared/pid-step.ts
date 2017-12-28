@@ -5,7 +5,7 @@ export class PidStep {
                 //Take this values from motor controller code
     static readonly PID_MAX_OUTPUT = 0x7FFF;
     static readonly PID_MIN_OUTPUT = -PidStep.PID_MAX_OUTPUT;
-    static readonly PID_MAX_INTEGRAL_ERROR = 0x7FFF;
+    static readonly PID_MAX_INTEGRAL_ERROR = 0x3FFF;
     static readonly PID_MIN_INTEGRAL_ERROR = -PidStep.PID_MAX_OUTPUT;
     
     public index: number;
@@ -42,11 +42,12 @@ export class PidStep {
 		this.output = this.integralOutput + this.proportionalOutput + 
 						this.derivativeOutput ;
         
-        this.output = this.output >> 6;     //Scale value as algorithm in PIC
+		this.output = this.output >> 7;     //Scale value as algorithm in PIC
+		
         
         if ( this.output > PidStep.PID_MAX_OUTPUT )
             this.output = PidStep.PID_MAX_OUTPUT;
         if ( this.output < PidStep.PID_MIN_OUTPUT )
-            this.output = PidStep.PID_MIN_OUTPUT;
+			this.output = PidStep.PID_MIN_OUTPUT;
     }
 }

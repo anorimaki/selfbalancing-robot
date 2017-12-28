@@ -11,7 +11,7 @@ void pidspeed_init()
 	pid_init( &pidspeed_data, pidspeed_store, PIDSPEED_STORE_SIZE );
 		
 			//Max bits of constants = 15-PID_DATA_BITS to avoid overflows
-	pidspeed_data.settings.k_p = 127;
-	pidspeed_data.settings.k_i = 2;
-	pidspeed_data.settings.k_d = 100;
+	pidspeed_data.settings.k_p = 0;
+	pidspeed_data.settings.k_i = 0;
+	pidspeed_data.settings.k_d = 0;
 }

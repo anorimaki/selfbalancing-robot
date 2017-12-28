@@ -11,9 +11,10 @@
 namespace io
 {
 
-class Display {
+class Display
+{
 private:
-	enum State { StIdle, StMotorsError };
+	enum State { StIdle, StMotorsError, StMpuOffsetChanged };
 
 public:
 	Display();
@@ -32,6 +33,8 @@ public:
 
 	void motorsError();
 
+	void mpuOffsetChanged( bool inc );
+
 	/*
 	 * Use of os_timer resets ESP8266 randomly. So, call this method from main application loop.
 	 */
@@ -39,7 +42,8 @@ public:
 
 private:
 	State m_state;
-	unsigned long m_stateEndTime;
+	unsigned long m_nextChangeTime;
+	int m_remainingPeriods;
 };
 
 }

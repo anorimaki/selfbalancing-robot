@@ -8,7 +8,9 @@
 
 #define MOTORS_PWM_BITS		12
 #define MOTORS_MAX_POWER	((1<<MOTORS_PWM_BITS)-1)
-#define MOTORS_LEFT_MIN_POWER	0x744		//Min power to move motors
+
+			//Min power to move motors
+#define MOTORS_LEFT_MIN_POWER	0x804		//Rueda al lado de los conectores
 #define MOTORS_RIGHT_MIN_POWER	0x734		//Min power to move motors
 
 int16_t _motors_left_speed;

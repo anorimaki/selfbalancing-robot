@@ -2,11 +2,18 @@ import { PidState } from "app/core/pid-state";
 import { PidSettings } from "app/core/pid-settings";
 
 export class PidStep {
-                //Take this values from motor controller code
+			//Take this values from motor controller code
     static readonly PID_MAX_OUTPUT = 0x7FFF;
     static readonly PID_MIN_OUTPUT = -PidStep.PID_MAX_OUTPUT;
-    static readonly PID_MAX_INTEGRAL_ERROR = 0x3FFF;
-    static readonly PID_MIN_INTEGRAL_ERROR = -PidStep.PID_MAX_OUTPUT;
+    static readonly PID_MAX_INTEGRAL_ERROR = 0x000FFFF;
+	static readonly PID_MIN_INTEGRAL_ERROR = -PidStep.PID_MAX_OUTPUT;
+	
+	static readonly PID_INPUT_BIT_SIZE = 11;
+	static readonly PID_CONSTANT_BIT_SIZE = 13
+	static readonly PID_OUTPUT_BIT_SIZE = 16;
+	static readonly OUTPUT_SHIFT = 
+			(PidStep.PID_INPUT_BIT_SIZE + (PidStep.PID_CONSTANT_BIT_SIZE - 5)) -
+				PidStep.PID_OUTPUT_BIT_SIZE ;
     
     public index: number;
     public current: number;
@@ -27,7 +34,7 @@ export class PidStep {
     private calculateOutputs( state: PidState, settings: PidSettings ): void {
         let error = state.target - state.current;
         
-        let integralError = state.integralError + error;
+		let integralError = state.integralError + error;
         if ( integralError > PidStep.PID_MAX_INTEGRAL_ERROR )
             integralError = PidStep.PID_MAX_INTEGRAL_ERROR;
         if ( integralError < PidStep.PID_MIN_INTEGRAL_ERROR )
@@ -41,13 +48,14 @@ export class PidStep {
         
 		this.output = this.integralOutput + this.proportionalOutput + 
 						this.derivativeOutput ;
-        
-		this.output = this.output >> 7;     //Scale value as algorithm in PIC
 		
-        
-        if ( this.output > PidStep.PID_MAX_OUTPUT )
+						//Scale value as algorithm in PIC
+		this.output = this.output >> PidStep.OUTPUT_SHIFT;
+		
+		if ( this.output > PidStep.PID_MAX_OUTPUT )
             this.output = PidStep.PID_MAX_OUTPUT;
         if ( this.output < PidStep.PID_MIN_OUTPUT )
 			this.output = PidStep.PID_MIN_OUTPUT;
     }
 }
+

@@ -15,52 +15,55 @@ import { PidStep } from "app/shared/pid-step";
 import { PidSettings } from "app/core/pid-settings";
 import { SettingsService, PidSettingsService } from 'app/settings/settings.service';
 import { NotificationService } from "app/core/notification.service";
+import { PidState } from 'app/core/pid-state';
+import { SpeedStep } from 'app/data/speed/speed-step';
+import { PitchStep } from 'app/data/pitch/pitch-step';
 
 
-class PidDataService {
+class PidDataService<T extends PidStep> {
 	private static BUFFER_SIZE = 400;
 
-	private rxData: Observable<PidStep[]>;
-	private rxDataBufer:  ReplaySubject<PidStep[]>;
+	private rxData: Observable<T[]>;
+	private rxDataBufer:  ReplaySubject<T[]>;
 	private dataSuscription?: Subscription;
-	private polling: boolean;
+	isPolling: boolean;
 
 	constructor( private settingsService: PidSettingsService,
 				private notificationService: NotificationService,
 				private pidSerivce: PidService,
+				private pidStateFactory: (settings: PidSettings, state: PidState) => T, 
 				private period: number ) {
-		this.polling = false;			
+		this.isPolling = false;			
 		let baseRxData = () => this.settingsService.get().
 			concatMap( settings =>
 				this.pidSerivce.getState().
-					map( pitches => pitches.map( item => new PidStep( item, settings ) ) ).
+					map( pitches => pitches.map( state => pidStateFactory(settings, state) ) ).
 					catch( (err, caught) => {
 						this.notificationService.error( "Error getting PID pitch data" );
 						return caught;
 					}));
 		this.rxData = baseRxData().expand( () => {
-								if ( this.polling ) {
+								if ( this.isPolling ) {
 									return Observable.timer(period).concatMap( baseRxData ) 
 								}
 								return Observable.empty();
 							});
-		this.rxDataBufer = new ReplaySubject<PidStep[]>(PidDataService.BUFFER_SIZE);
+		this.rxDataBufer = new ReplaySubject<T[]>(PidDataService.BUFFER_SIZE);
 	}
 
 	startPolling(): void {
-		this.polling = true;
-	//	this.rxData.subscribe( this.rxDataBufer );
+		this.isPolling = true;
 		this.dataSuscription = this.rxData.subscribe( this.rxDataBufer );
 	}
 	
 	stopPolling(): void {
-		this.polling = false;
+		this.isPolling = false;
 		if ( this.dataSuscription ) {
 			this.dataSuscription.unsubscribe();
 		} 
 	}
 
-	getData(): Observable<PidStep[]> {
+	getData(): Observable<T[]> {
 		return this.rxDataBufer;
 	}
 }
@@ -70,16 +73,24 @@ class PidDataService {
 export class DataService {
 	private static BUFFER_SIZE = 300;
 
-	speed: PidDataService;
-	pitch: PidDataService;
+	speed: PidDataService<SpeedStep>;
+	pitch: PidDataService<PitchStep>;
 		
 	constructor( private robotService : RobotService,
 				private settingsService: SettingsService,
 				private notificationService: NotificationService ) { 
 		this.speed = new PidDataService( settingsService.speedPid, 
-							notificationService, robotService.speed, 1000 );
+						notificationService, robotService.speed, 
+						(settings: PidSettings, state: PidState) => new SpeedStep(state, settings),
+						1000 );
 		this.pitch = new PidDataService( settingsService.pitchPid,
-							notificationService, robotService.pitch, 20 );
+						notificationService, robotService.pitch, 
+						(settings: PidSettings, state: PidState) => new PitchStep(state, settings),
+						20 );
+	}
+
+	get isPolling(): boolean {
+		return this.speed.isPolling;
 	}
 
 	startPolling(): void {

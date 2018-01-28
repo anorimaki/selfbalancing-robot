@@ -6,7 +6,7 @@
 #include "api/motors_i2c_reg.h"
 #include <stdint.h>
 
-#define PID_INPUT_BIT_SIZE      15      //Limited to 15 bits signed integers to 
+#define PID_INPUT_BIT_SIZE      11      //Limited to 
                                         // avoid internals overflows
 #define PID_MAX_INPUT           ((1 << (PID_INPUT_BIT_SIZE-1))-1)
 #define PID_MIN_INPUT           (-PID_MAX_INPUT)

@@ -1,5 +1,5 @@
 /**
-  @Generated MPLAB(c) Code Configurator Source File
+  @Generated PIC24 / dsPIC33 / PIC32MM MCUs Source File
 
   @Company:
     Microchip Technology Inc.
@@ -8,16 +8,16 @@
     mcc.c
 
   @Summary:
-    This is the mcc.c file generated using MPLAB(c) Code Configurator
+    This is the mcc.c file generated using PIC24 / dsPIC33 / PIC32MM MCUs
 
   @Description:
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
-        Product Revision  :  MPLAB(c) Code Configurator - pic24-dspic-pic32mm : v1.35
+        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - pic24-dspic-pic32mm : v1.45
         Device            :  PIC24FJ32GA002
     The generated drivers are tested against the following:
-        Compiler          :  XC16 1.31
-        MPLAB             :  MPLAB X 3.60
+        Compiler          :  XC16 1.32
+        MPLAB             :  MPLAB X 3.61
 */
 
 /*
@@ -61,7 +61,6 @@
 #pragma config WINDIS = ON    // Watchdog Timer Window->Standard Watchdog Timer enabled,(Windowed-mode is disabled)
 #pragma config FWDTEN = OFF    // Watchdog Timer Enable->Watchdog Timer is disabled
 #pragma config ICS = PGx1    // Comm Channel Select->Emulator EMUC1/EMUD1 pins are shared with PGC1/PGD1
-#pragma config COE = OFF    // Set Clip On Emulation Mode->Reset Into Operational Mode
 #pragma config BKBUG = OFF    // Background Debug->Device resets into Operational mode
 #pragma config GWRP = OFF    // General Code Segment Write Protect->Writes to program memory are allowed
 #pragma config GCP = OFF    // General Code Segment Code Protect->Code protection is disabled
@@ -77,11 +76,11 @@ void SYSTEM_Initialize(void)
     I2C1_Initialize();
     UART1_Initialize();
     TMR3_Initialize();
-    TMR4_Initialize();
     OC1_Initialize();
+    TMR4_Initialize();
     OC2_Initialize();
-    I2C2_Initialize();
     TMR2_Initialize();
+    I2C2_Initialize();
     EXT_INT_Initialize();
 }
 

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef int16_t PIDConstant;
+typedef uint16_t PIDConstant;
 
 /*
  *  PID model

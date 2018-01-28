@@ -37,6 +37,10 @@ export class PidDataComponent {
 		}
 	}
 
+	private isEnabled(): boolean {
+		return this.dataService.isPolling;
+	}
+
 	private onEnable() {
 		this.dataService.startPolling();
 	}

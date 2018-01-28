@@ -41,7 +41,6 @@ export class RbChartComponent implements  OnDestroy {
 	private seriesData: any[][];
 
 	constructor() {
-		this.enabled = true;
 		this.dataSize_ = 0;
     }
 
@@ -72,7 +71,7 @@ export class RbChartComponent implements  OnDestroy {
 				values.splice( 0, itemsToRemove );
 			}
 		});
-
+		
 		items.forEach( item => {
 			let x = item[this.x];
 			this.y.forEach( (serie, index) => {
@@ -83,6 +82,26 @@ export class RbChartComponent implements  OnDestroy {
 				});
 			});
 		});
+/*
+		let maximuns = new Array( this.chartOptions.axisY.length ).fill(0);
+		this.seriesData.forEach( (points, index) => {
+			let serie = this.y[index];
+			points.forEach( point => {
+				maximuns[serie.type] = Math.max( maximuns[serie.type], 
+					Math.abs(point.y) );
+			});
+		});
+			
+		maximuns.forEach( (value, index) => {
+			let axis = this.chartOptions.axisY[index];
+			value = value+1;
+			axis.minimum = -value;
+			axis.viewportMinimun = -value;
+			axis.maximun = value;
+			axis.viewportMaximum = value;
+		});  */
+
+		
 
 		this.chart.render();
 	}

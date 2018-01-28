@@ -17,6 +17,7 @@
         <itemPath>../include/math/fixdec16.h</itemPath>
         <itemPath>../include/math/quaternation.h</itemPath>
         <itemPath>../include/math/util.h</itemPath>
+        <itemPath>../include/math/mul.h</itemPath>
       </logicalFolder>
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
@@ -26,7 +27,6 @@
         <itemPath>mcc_generated_files/uart1.h</itemPath>
         <itemPath>mcc_generated_files/i2c2.h</itemPath>
         <itemPath>mcc_generated_files/pin_manager.h</itemPath>
-        <itemPath>mcc_generated_files/traps.h</itemPath>
         <itemPath>mcc_generated_files/i2c1.h</itemPath>
         <itemPath>mcc_generated_files/tmr2.h</itemPath>
         <itemPath>mcc_generated_files/oc1.h</itemPath>
@@ -66,13 +66,13 @@
         <itemPath>../src/math/quaternation.c</itemPath>
         <itemPath>../src/math/count_leading.s</itemPath>
         <itemPath>../src/math/mul32_32.s</itemPath>
+        <itemPath>mul32_16.s</itemPath>
       </logicalFolder>
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
                      projectFiles="true">
         <itemPath>mcc_generated_files/uart1.c</itemPath>
         <itemPath>mcc_generated_files/i2c2.c</itemPath>
-        <itemPath>mcc_generated_files/traps.c</itemPath>
         <itemPath>mcc_generated_files/mcc.c</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.c</itemPath>
         <itemPath>mcc_generated_files/pin_manager.c</itemPath>
@@ -118,7 +118,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.31</languageToolchainVersion>
+        <languageToolchainVersion>1.33</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>

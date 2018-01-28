@@ -2,8 +2,9 @@
 #include "boost/preprocessor/arithmetic/add.hpp"
 #include "boost/preprocessor/arithmetic/sub.hpp"
 #include "tmr4.h"
+#include "math/mul.h"
 
-#define PID_MAX_INTEGRAL_ERROR	0x1FFF
+#define PID_MAX_INTEGRAL_ERROR	0x0000FFFFl		//No more than 17 bits
 #define PID_MIN_INTEGRAL_ERROR	-PID_MAX_INTEGRAL_ERROR
 
 
@@ -26,27 +27,42 @@ void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size )
 }
 
 
+inline int32_t pid_calculate_integral_error( int32_t integral_error,
+											int16_t error,
+											int16_t previous_error ) 
+{
+#if 0
+	if ( ((error >= 0) && (previous_error < 0)) ||
+			((error < 0) && (previous_error >= 0)) ) {
+		return 0;	//Error sig changes -> Reset integral error.
+	}
+#endif
+	
+	integral_error += error;
+	
+	if ( integral_error > PID_MAX_INTEGRAL_ERROR ) {
+		return PID_MAX_INTEGRAL_ERROR;
+	}
+	if ( integral_error < PID_MIN_INTEGRAL_ERROR ) {
+		return PID_MIN_INTEGRAL_ERROR;
+	}
+	
+	return integral_error;
+}
+
+
 int16_t pid_compute( PID* pid, int16_t target, int16_t current )
 {
 	PIDStateEntry* current_entry = pid->store.write_ptr;
 
 	int16_t error = target - current;
 	
-	//Can't overflow: Two operands have 15 bits
-	int16_t integral_error = current_entry->state.integral_error + error;
-	if ( integral_error > PID_MAX_INTEGRAL_ERROR )
-		integral_error = PID_MAX_INTEGRAL_ERROR;
-	else if ( integral_error < PID_MIN_INTEGRAL_ERROR )
-		integral_error = PID_MIN_INTEGRAL_ERROR;
-				
+	int32_t integral_error = pid_calculate_integral_error( 
+						current_entry->state.integral_error, error, 
+						current_entry->state.previous_error );
+		
 	int16_t derivative_error = error - current_entry->state.previous_error;
 	
-	int32_t proportional_part = __builtin_mulss( error,  pid->settings.k_p );
-	int32_t integral_part = __builtin_mulss( integral_error,
-											pid->settings.k_i );
-	int32_t derivative_part = __builtin_mulss( derivative_error, 
-											pid->settings.k_d );
-
 	current_entry->state.current = current;
 	current_entry->state.target = target;
 	++pid->store.size;
@@ -68,7 +84,19 @@ int16_t pid_compute( PID* pid, int16_t target, int16_t current )
 	next_write_ptr->state.previous_error = error;
 	next_write_ptr->state.integral_error = integral_error;
 	pid->store.write_ptr = next_write_ptr;
-
+	
+	int32_t proportional_part = __builtin_mulsu( error,  pid->settings.k_p );
+	
+	int32_t derivative_part = __builtin_mulsu( derivative_error, 
+											pid->settings.k_d );
+	
+	uint32_t integral_error_abs = (integral_error<0) ? 
+									-integral_error : integral_error;
+	int32_t integral_part = umul32_16( integral_error_abs, pid->settings.k_i );
+	if ( integral_error<0 ) {
+		integral_part = -integral_part;
+	}
+	
 	//Finally, sum parts and adjust output
 	int32_t out = proportional_part + integral_part + derivative_part;
 			//Scale to remove constant factors (-1?)

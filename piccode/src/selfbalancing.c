@@ -11,18 +11,25 @@
 #include "pidspeed.h"
 #include "pid.h"
 #include "motors.h"
+#include "boost/preprocessor/arithmetic/sub.hpp"
 #include <stdio.h>
 #include <libpic30.h>
+
 
 //In Q16 format and RADs, it is equivalent to [-14.2º .. +14.2º] range
 #define MAX_PITCH_ANGLE_BITS	15		//In signed fomat
 #define MAX_PITCH_ANGLE         ((1 << (MAX_PITCH_ANGLE_BITS-1))-1)	//Q16 format
 #define MIN_PITCH_ANGLE			(-MAX_PITCH_ANGLE)					//Q16 format
 
+#define PITCH_CONTROL_PERIOD	500		//In ms
 
-#define SPEED_CONTROL_PERIOD	2	//Number of pitch PID execuions between 
-									// two speed PID executions
+//Number of pitch PID execuions between two speed PID executions
+#define PITCH_SPEED_CONTROL_RATIO	(PITCH_CONTROL_PERIOD/(1000/MPU_DATA_RATE))
 
+
+/*
+ * target_pitch range must be adjusted to PID algorithm input.
+ */
 bool cal_motors_power( int16_t target_pitch, int16_t* power )
 {
 		//Pitch in radians and Q16 format
@@ -49,7 +56,7 @@ bool cal_motors_power( int16_t target_pitch, int16_t* power )
 #if 0
 	char bb[MAX_FIX16_STR_SIZE];
 	fix16_to_str( current_pitch, bb );
-	printf( "p: %s %d\n", bb, pid_current_pitch );
+	printf( "p: %s %d %d\n", bb, pid_current_pitch, target_pitch );
 #endif	
 	
 	*power = pid_compute( &pidpitch_data, target_pitch, pid_current_pitch ) ;
@@ -58,16 +65,21 @@ bool cal_motors_power( int16_t target_pitch, int16_t* power )
 }
 
 
+/*
+ * Returns pitch target range adjusteded to PID algorithm input.
+ */
 int16_t cal_pitch_target( int16_t speed_target )
 {
 	int16_t left_speed = motors_right_speed();
 	int16_t right_speed = motors_left_speed();
 	
-//	printf( "l: %d, r:% d\n", left_speed, right_speed  );
-	
 	int16_t speed = left_speed + right_speed;
 
-	return pid_compute( &pidspeed_data, speed_target, speed ) ;
+	int16_t ret = pid_compute( &pidspeed_data, speed_target, speed ) ;
+	
+	//Adjust to PID algorithm input and restrict target to the half of max angle
+	return SCALE_VALUE( ret, PID_OUTPUT_BIT_SIZE,
+						BOOST_PP_SUB( PID_INPUT_BIT_SIZE, 1 ) );
 }
 
 
@@ -75,7 +87,7 @@ void main_action()
 {
 	static int16_t pitch_target = 0;		//Must be adapted to PID algorithm input
 	static int16_t speed_target = 0;
-	static int8_t to_speed_control = SPEED_CONTROL_PERIOD;
+	static int8_t to_speed_control = PITCH_SPEED_CONTROL_RATIO;
 	
 	int16_t motors_power;
 	if ( cal_motors_power( pitch_target, &motors_power ) ) {
@@ -83,8 +95,8 @@ void main_action()
 	}
 
 	if ( --to_speed_control == 0 ) {
-	//	pitch_target = cal_pitch_target( speed_target );
-		to_speed_control = SPEED_CONTROL_PERIOD;
+		pitch_target = cal_pitch_target( speed_target );
+		to_speed_control = PITCH_SPEED_CONTROL_RATIO;
 	}
 }
 
@@ -106,7 +118,7 @@ void main_resume()
 	system_running();
 	
 	display_system_starting();
-	__delay_ms(5000);		//Wait for MPU to stabilize it
+	__delay_ms(10000);		//Wait for MPU to stabilize it
 	
 	display_system_running();
 }
@@ -154,6 +166,7 @@ int main(void)
 			}
 		}
 		
+		// 3ms to do all main_action computations
 		__delay_ms((1000/MPU_DATA_RATE)-3);
 	}
 		

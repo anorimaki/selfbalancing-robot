@@ -1,8 +1,14 @@
+const PidController = require('./api/controllers/PidController');
+const pidRoutes = require('./api/routes/pidRoutes');
+const targetRoutes = require('./api/routes/targetRoutes');
 var express = require('express'),
   app = express(),
   port = process.env.PORT || 3000;
+const bodyParser = require('body-parser')
 
-var bodyParser = require('body-parser')
+speedController = new PidController(10);
+pitchController = new PidController(10);
+
 
 app.use(function(req, res, next) {
 	  res.header("Access-Control-Allow-Origin", "*");
@@ -13,10 +19,10 @@ app.use(function(req, res, next) {
 
 app.use( bodyParser.json() );
 
-var pidRoutes = require('./api/routes/pidRoutes');
-pidRoutes(app, 'pitch');
-pidRoutes(app, 'speed');
+pidRoutes(app, 'pitch', pitchController);
+pidRoutes(app, 'speed', speedController);
+targetRoutes(app, speedController);
 
 app.listen(port);
 
-console.log('todo list RESTful API server started on: ' + port);
+console.log('RESTful API server started on: ' + port);

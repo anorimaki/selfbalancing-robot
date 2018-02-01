@@ -7,6 +7,7 @@ function random(low, high) {
 class PidController {
 	constructor( period ) {
 		this.index = 0;
+		this.target = 0;
 		this.toSend = [];
 		this.settings = {
 			integral: 1.333,
@@ -45,7 +46,7 @@ class PidController {
 			i: this.index++,
 			p_err: random( -57, 57 ),
 			i_err: random( 50000, 100000 ),
-			tar: random( -57, 57 ),
+			tar: this.target,
 			cur: random( -5, 5 )
 		} );
 	}

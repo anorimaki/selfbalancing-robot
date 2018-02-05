@@ -1,4 +1,6 @@
 #include "motors.h"
+#include "heading.h"
+#include "pid.h"
 #include "oc1.h"
 #include "oc2.h"
 #include "pin_manager.h"
@@ -6,15 +8,20 @@
 #include <stdlib.h>
 
 
-#define MOTORS_PWM_BITS		12
-#define MOTORS_MAX_POWER	((1<<MOTORS_PWM_BITS)-1)
+#define MOTORS_PWM_BITS			12
+#define MOTORS_PWM_MAX_POWER	((1<<MOTORS_PWM_BITS)-1)
+
+#define MOTORS_POWER_BITS		16
+#define MOTORS_MAX_POWER		((1U << (MOTORS_POWER_BITS-1))-1)
+#define MOTORS_MIN_POWER		(-(signed)MOTORS_MAX_POWER)
 
 			//Min power to move motors
 #define MOTORS_LEFT_MIN_POWER	0x734		//Rueda al lado de los conectores
 #define MOTORS_RIGHT_MIN_POWER	0x734		//Min power to move motors
 
-int16_t _motors_left_speed;
-int16_t _motors_right_speed;
+int16_t motors_left_speed;
+int16_t motors_right_speed;
+static int16_t motors_heading;
 
 
 static inline void motors_left_fordward()
@@ -53,8 +60,9 @@ static inline void motors_stop()
 void motors_init()
 {
 	motors_stop();
-	_motors_right_speed = 0;
-	_motors_left_speed = 0;
+	motors_right_speed = 0;
+	motors_left_speed = 0;
+	motors_heading = 0;
 }
 
 
@@ -80,7 +88,7 @@ void motors_init()
 #define power_to_pwm(power, minPower) \
 	(power == 0) ? 0 :	\
 	(minPower + 1 +		\
-		(__builtin_muluu( abs(power), MOTORS_MAX_POWER-minPower) >> 15))
+		(__builtin_muluu( abs(power), MOTORS_PWM_MAX_POWER-minPower) >> 15))
 #else
 #define power_to_pwm(power, minPower) \
 	(minPower)
@@ -96,7 +104,6 @@ static inline void motors_set_left_power( int16_t power )
 	}
 	
 	uint16_t pwm = power_to_pwm(power, MOTORS_LEFT_MIN_POWER);
-//printf( "l: %u\n", pwm );
 	OC2_SecondaryValueSet( pwm );
 }
 
@@ -110,30 +117,62 @@ static inline void motors_set_right_power( int16_t power )
 		motors_right_backwards();
 	}
 	uint16_t pwm = power_to_pwm(power, MOTORS_RIGHT_MIN_POWER);
-//printf( "r: %u\n", pwm );	
 	OC1_SecondaryValueSet( pwm );
 }
 
 
-void motors_set_power( int16_t power, int8_t steering )
+static int16_t motors_calculate_pid_steering()
 {
-	steering >>= 1;		//Half of desired steering to each motor.
-	motors_set_left_power( power + steering );
-	motors_set_right_power( power - steering );
+	int16_t scaled_heading = 
+			SCALE_VALUE( motors_heading, MOTORS_SPEED_BITS, PID_INPUT_BIT_SIZE );
+	int16_t steering = pid_compute( &heading_data, scaled_heading ) ;
+	return SCALE_VALUE( steering, PID_OUTPUT_BIT_SIZE, 16 );
 }
 
 
-int16_t motors_right_speed()
+//Adjust steering: power can't override and linear velocity (expressed by
+// speed_power) must be conserved.
+static int16_t motors_adjust_steering( int16_t speed, int16_t steering ) 
 {
-	int16_t ret = _motors_right_speed;
-	_motors_right_speed = 0;
-	return ret;
+	if ( speed > 0 ) {
+		if ( steering > 0 ) {	//take care about speed + steering
+			return min( MOTORS_MAX_POWER - speed, steering );
+		}
+			////take care about speed - steering
+		return max( MOTORS_MIN_POWER + speed, steering );
+	}
+	
+	if ( steering > 0 ) {	//take care about speed - steering
+		return min( MOTORS_MAX_POWER + speed, steering );
+	}
+				//take care about speed + steering
+	return max( MOTORS_MIN_POWER - speed, steering );
 }
 
 
-int16_t motors_left_speed()
+void motors_set_power( int16_t speed_power )
 {
-	int16_t ret = _motors_left_speed;
-	_motors_left_speed = 0;
-	return ret;
+	int16_t steering_power = motors_calculate_pid_steering();
+	steering_power = motors_adjust_steering( speed_power, steering_power );
+	
+#if 0
+	printf( "ster: %d\n", steering_power );
+#endif	
+	
+	motors_set_left_power( speed_power - steering_power );
+	motors_set_right_power( speed_power + steering_power );
 }
+
+
+int16_t motors_speed()
+{
+	int16_t right = motors_right_speed;
+	motors_right_speed = 0;
+	int16_t left = motors_left_speed;
+	motors_left_speed = 0;
+	
+	motors_heading = right - left;
+	
+	return right + left;
+}
+

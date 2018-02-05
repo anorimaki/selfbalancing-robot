@@ -8,7 +8,7 @@ export class PidStep {
     static readonly PID_MAX_INTEGRAL_ERROR = 0x000FFFF;
 	static readonly PID_MIN_INTEGRAL_ERROR = -PidStep.PID_MAX_OUTPUT;
 	
-	static readonly PID_INPUT_BIT_SIZE = 11;
+	static readonly PID_INPUT_BIT_SIZE = 15;
 	static readonly PID_CONSTANT_BIT_SIZE = 13
 	static readonly PID_OUTPUT_BIT_SIZE = 16;
 	static readonly OUTPUT_SHIFT = 

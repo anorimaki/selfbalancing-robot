@@ -10,5 +10,13 @@
                 (in >> (in_bits-out_bits)),  \
                  (in << (out_bits-in_bits)) )
 
+#ifndef max
+#define max(a,b) ((a>b) ? a : b)
+#endif
+
+#ifndef min
+#define min(a,b) ((a>b) ? b : a)
+#endif
+
 #endif	
 

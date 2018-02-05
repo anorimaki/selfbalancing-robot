@@ -84,6 +84,13 @@ bool PidEngine::setSettins( const PIDSettings& settings )
 	return true;
 }
 
+bool PidEngine::setTarget( int16_t target )
+{
+	if ( !send( m_targetReg, &target ) )
+		MOTORS_ERROR(m_display);
+	return true;
+}
+
 
 /************************************************************************/
 // Motors
@@ -91,8 +98,12 @@ bool PidEngine::setSettins( const PIDSettings& settings )
 void Motors::init( io::Display* display )
 {
 	m_display = display;
-	m_speed = new PidEngine( display, MOTORSREG_SPEED_PID, MOTORSREG_SPEED_FIFO_SIZE, MOTORSREG_SPEED_FIFO_CURRENT );
-	m_pitch = new PidEngine( display, MOTORSREG_PITCH_PID, MOTORSREG_PITCH_FIFO_SIZE, MOTORSREG_PITCH_FIFO_CURRENT );
+	m_speed = new PidEngine( display, MOTORSREG_SPEED_PID, MOTORSREG_SPEED_FIFO_SIZE,
+			MOTORSREG_SPEED_FIFO_CURRENT, MOTORSREG_SPEED_PID_TARGET );
+	m_pitch = new PidEngine( display, MOTORSREG_PITCH_PID, MOTORSREG_PITCH_FIFO_SIZE,
+			MOTORSREG_PITCH_FIFO_CURRENT, MOTORSREG_PITCH_PID_TARGET );
+	m_heading = new PidEngine( display, MOTORSREG_HEADING_PID, MOTORSREG_HEADING_FIFO_SIZE,
+			MOTORSREG_HEADING_FIFO_CURRENT, MOTORSREG_HEADING_PID_TARGET );
 
 //twi_setClockStretchLimit( 0xFFF );
 }

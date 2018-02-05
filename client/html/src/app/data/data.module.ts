@@ -8,6 +8,7 @@ import { GeneralDataComponent } from './general/general.component';
 import { PitchDataComponent } from './pitch/pitch.component';
 import { SpeedDataComponent } from './speed/speed.component';
 import { PidDataComponent } from './pid/pid.component';
+import { HeadingDataComponent } from './heading/heading.component';
 import { DataService } from './data.service';
 
 const routes: Routes = [{
@@ -16,7 +17,8 @@ const routes: Routes = [{
 		{ path: '', redirectTo: './general', pathMatch: 'full' },
 		{ path: 'general', component: GeneralDataComponent },
 		{ path: 'pitch', component: PitchDataComponent },
-		{ path: 'speed', component: SpeedDataComponent }
+		{ path: 'speed', component: SpeedDataComponent },
+		{ path: 'heading', component: HeadingDataComponent }
 	]
 }];
 
@@ -31,6 +33,7 @@ const routes: Routes = [{
 		GeneralDataComponent,
 		PitchDataComponent,
 		SpeedDataComponent,
+		HeadingDataComponent,
 		PidDataComponent
 	],
 	exports: [

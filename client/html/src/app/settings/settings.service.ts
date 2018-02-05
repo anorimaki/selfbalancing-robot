@@ -36,9 +36,11 @@ export class PidSettingsService {
 export class SettingsService {
 	speedPid: PidSettingsService;
 	pitchPid: PidSettingsService;
+	headingPid: PidSettingsService;
 
 	constructor( private robotService: RobotService ) {
 		this.speedPid = new PidSettingsService( robotService.speed );
 		this.pitchPid = new PidSettingsService( robotService.pitch );
+		this.headingPid = new PidSettingsService( robotService.heading );
 	}
 }

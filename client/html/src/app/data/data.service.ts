@@ -18,6 +18,7 @@ import { NotificationService } from "app/core/notification.service";
 import { PidState } from 'app/core/pid-state';
 import { SpeedStep } from 'app/data/speed/speed-step';
 import { PitchStep } from 'app/data/pitch/pitch-step';
+import { HeadingStep } from 'app/data/heading/heading-step';
 
 
 class PidDataService<T extends PidStep> {
@@ -75,6 +76,7 @@ export class DataService {
 
 	speed: PidDataService<SpeedStep>;
 	pitch: PidDataService<PitchStep>;
+	heading: PidDataService<HeadingStep>;
 		
 	constructor( private robotService : RobotService,
 				private settingsService: SettingsService,
@@ -87,6 +89,10 @@ export class DataService {
 						notificationService, robotService.pitch, 
 						(settings: PidSettings, state: PidState) => new PitchStep(state, settings),
 						20 );
+		this.heading = new PidDataService( settingsService.headingPid,
+						notificationService, robotService.heading, 
+						(settings: PidSettings, state: PidState) => new HeadingStep(state, settings),
+						20 );
 	}
 
 	get isPolling(): boolean {
@@ -96,10 +102,12 @@ export class DataService {
 	startPolling(): void {
 		this.speed.startPolling();
 		this.pitch.startPolling();
+		this.heading.startPolling();
 	}
 	
 	stopPolling(): void {
 		this.speed.stopPolling();
 		this.pitch.stopPolling();
+		this.heading.stopPolling();
 	}
  }

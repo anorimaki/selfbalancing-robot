@@ -6,7 +6,7 @@
 #include "api/motors_i2c_reg.h"
 #include <stdint.h>
 
-#define PID_INPUT_BIT_SIZE      11      //Limited to 
+#define PID_INPUT_BIT_SIZE      15      //Limited to 
                                         // avoid internals overflows
 #define PID_MAX_INPUT           ((1 << (PID_INPUT_BIT_SIZE-1))-1)
 #define PID_MIN_INPUT           (-PID_MAX_INPUT)
@@ -42,11 +42,12 @@ typedef struct {
 typedef struct {
     PIDStore store;
     PIDSettings settings;
+    int16_t target;
 } PID;
 
 
 void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size );
-int16_t pid_compute( PID* pid, int16_t target, int16_t current );
+int16_t pid_compute( PID* pid, int16_t current );
 
 
 static inline PIDStateEntry* pid_next_state_entry( PIDStore* pid_store,
@@ -68,15 +69,14 @@ static inline uint8_t pid_i2c_read( PID* pid, uint8_t address )
         }
         return ret;
     }
-    // store.size and settings are mappeable from pid
+    // store.size, settings and taget are mappeable from pid
     return *byte_ptr(&pid->store.size, address-sizeof(PIDStateEntry));
 }
 
 static inline void pid_i2c_write( PID* pid, uint8_t address, uint8_t value )
-{
-                //Only PID settings are writable: skip FIFO and store.size
-    if ( address > sizeof(PIDStateEntry) ) {
-        *byte_ptr(&pid->store.size, address-sizeof(PIDStateEntry)) = value;
+{  //Only PID settings and target are writable: skip FIFO (entry and store.size)
+    if ( address > sizeof(PIDFifo) ) {
+        *byte_ptr(&pid->settings, address-sizeof(PIDFifo)) = value;
     }
 }
 

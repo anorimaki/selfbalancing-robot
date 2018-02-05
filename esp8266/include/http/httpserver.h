@@ -46,6 +46,8 @@ private:
 	void handleGetMpuCalibration();
 	void handlePutMpuCalibration();
 
+	void handlePutTargets();
+
 private:
 	ESP8266WebServer m_impl;
 	motion::Motors* m_motors;
@@ -53,6 +55,7 @@ private:
 	mpu::Mpu9250* m_mpu;
 	PidService* m_speedService;
 	PidService* m_pitchService;
+	PidService* m_headingService;
 };
 
 }

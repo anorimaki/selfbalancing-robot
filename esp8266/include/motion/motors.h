@@ -16,22 +16,26 @@ public:
 	typedef ::PIDSettings PIDSettings;
 
 public:
-	PidEngine( io::Display* display, uint8_t settingsReg, uint8_t fifoSizeReg, uint8_t fifoCurrentReg ):
+	PidEngine( io::Display* display, uint8_t settingsReg, uint8_t fifoSizeReg, uint8_t fifoCurrentReg, uint8_t targetReg ):
 					m_display( display ),
 					m_settingsReg( settingsReg ),
 					m_fifoSizeReg( fifoSizeReg ),
-					m_fifoCurrentReg( fifoCurrentReg ) {}
+					m_fifoCurrentReg( fifoCurrentReg ),
+					m_targetReg( targetReg ) {}
 
 	bool state( std::vector<PitchState>& state );
 
 	bool settins( PIDSettings& settings );
 	bool setSettins( const PIDSettings& settings );
 
+	bool setTarget( int16_t target );
+
 private:
 	io::Display* m_display;
 	const uint8_t m_settingsReg;
 	const uint8_t m_fifoSizeReg;
 	const uint8_t m_fifoCurrentReg;
+	const uint8_t m_targetReg;
 };
 
 
@@ -50,6 +54,7 @@ public:
 
 	PidEngine& speed() { return *m_speed; }
 	PidEngine& pitch() { return *m_pitch; }
+	PidEngine& heading() { return *m_heading; }
 
 	bool setMpuOffset( int32_t pitchOffset );
 	bool getMpuOffset( int32_t* pitchOffset );
@@ -57,6 +62,7 @@ public:
 private:
 	PidEngine* m_speed;
 	PidEngine* m_pitch;
+	PidEngine* m_heading;
 	io::Display* m_display;
 };
 

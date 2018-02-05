@@ -163,6 +163,10 @@ Server::Server( motion::Motors* motors, mpu::Mpu9250* mpu, io::Display* display 
 
 	m_pitchService = new PidService( &m_impl, "/pitch", &m_motors->pitch(), m_display );
 	m_speedService = new PidService( &m_impl, "/speed", &m_motors->speed(), m_display );
+	m_headingService = new PidService( &m_impl, "/heading", &m_motors->heading(), m_display );
+
+	HandlerFunction putTargets = std::bind( &Server::handlePutTargets, this );
+	m_impl.on( "/targets", HTTPMethod::HTTP_PUT, std::bind( &handleRequest, m_display, putTargets ) );
 
 	HandlerFunction getMpuSettings = std::bind( &Server::handleGetMpuSettings, this );
 	m_impl.on( "/mpu/settings", HTTPMethod::HTTP_GET, std::bind( &handleRequest, m_display, getMpuSettings ) );
@@ -256,6 +260,30 @@ void Server::handlePutMpuCalibration()
 	m_motors->resume();
 
 	handleGetMpuCalibration();						//Send calibration data
+}
+
+
+void Server::handlePutTargets()
+{
+	jsonBuffer.clear();
+	String body = m_impl.arg("plain");
+	const JsonObject& root = jsonBuffer.parseObject( body );
+
+	int16_t speed = root["speed"];
+	if ( !m_motors->pitch().setTarget( speed ) ) {
+		sendError( m_impl, "Error setting speed target" );
+		return;
+	}
+
+	int16_t heading = root["heading"];
+	if ( !m_motors->heading().setTarget( heading ) ) {
+		sendError( m_impl, "Error setting heading target" );
+		return;
+	}
+
+	//Send No content
+	m_impl.setContentLength( 0 );
+	m_impl.send( 204, NULL );
 }
 
 

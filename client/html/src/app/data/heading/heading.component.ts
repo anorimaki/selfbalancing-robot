@@ -2,12 +2,13 @@ import { Component, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DataService } from '../data.service';
 import { PidDataComponent } from '../pid/pid.component';
+import { PidStep } from 'app/shared/pid-step';
 
 @Component( {
-	templateUrl: './speed.component.html',
-	styleUrls: ['./speed.component.css']
+	templateUrl: './heading.component.html',
+	styleUrls: ['./heading.component.css']
 } )
-export class SpeedDataComponent {
+export class HeadingDataComponent {
 	@ViewChild("pidView") 
 	private pidView: PidDataComponent;
 
@@ -15,6 +16,6 @@ export class SpeedDataComponent {
 	}
 
 	ngAfterViewInit() {
-		this.pidView.init( 100, this.dataService.speed.getData() );
+		this.pidView.init( 1500, this.dataService.heading.getData() );
 	}
 }

@@ -48,7 +48,9 @@
       <itemPath>../include/system.h</itemPath>
       <itemPath>../include/pid.h</itemPath>
       <itemPath>../include/motors.h</itemPath>
-      <itemPath>../include/pidpitch.h</itemPath>
+      <itemPath>../include/speed.h</itemPath>
+      <itemPath>../include/pitch.h</itemPath>
+      <itemPath>../include/heading.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -94,8 +96,9 @@
       <itemPath>../src/system.c</itemPath>
       <itemPath>../src/pid.c</itemPath>
       <itemPath>../src/motors.c</itemPath>
-      <itemPath>../src/pidpitch.c</itemPath>
-      <itemPath>../src/pidspeed.c</itemPath>
+      <itemPath>../src/pitch.c</itemPath>
+      <itemPath>../src/speed.c</itemPath>
+      <itemPath>../src/heading.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

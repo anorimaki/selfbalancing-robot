@@ -69,11 +69,13 @@ export class MpuService {
 export class RobotService {
 	pitch: PidService;
 	speed: PidService;
+	heading: PidService;
 	mpu: MpuService;
 
     constructor( private http : Http ) { 
 		this.speed = new PidService( 'speed', http );
 		this.pitch = new PidService( 'pitch', http );
+		this.heading = new PidService( 'heading', http );
 		this.mpu = new MpuService( http );
 	}
 }

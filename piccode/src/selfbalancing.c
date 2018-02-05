@@ -7,8 +7,9 @@
 #include "io/display.h"
 #include "api/motors_i2c_reg.h"
 #include "mpu/inv_pic24f_adapter.h"
-#include "pidpitch.h"
-#include "pidspeed.h"
+#include "heading.h"
+#include "pitch.h"
+#include "speed.h"
 #include "pid.h"
 #include "motors.h"
 #include "boost/preprocessor/arithmetic/sub.hpp"
@@ -30,7 +31,7 @@
 /*
  * target_pitch range must be adjusted to PID algorithm input.
  */
-bool cal_motors_power( int16_t target_pitch, int16_t* power )
+bool cal_motors_power( int16_t* power )
 {
 		//Pitch in radians and Q16 format
 	fix16_t current_pitch;
@@ -55,12 +56,14 @@ bool cal_motors_power( int16_t target_pitch, int16_t* power )
 	
 #if 0
 	char bb[MAX_FIX16_STR_SIZE];
-	fix16_to_str( current_pitch, bb );
-	printf( "p: %s %d %d\n", bb, pid_current_pitch, target_pitch );
+	fix16_to_str( MAX_PITCH_ANGLE, bb );
+	printf( "p: %s %d %d\n", bb, pid_current_pitch, current_pitch );
 #endif	
 	
-	*power = pid_compute( &pidpitch_data, target_pitch, pid_current_pitch ) ;
+	*power = pid_compute( &pitch_data, pid_current_pitch ) ;
 		
+	*power = SCALE_VALUE( *power, PID_OUTPUT_BIT_SIZE, 16 );
+	
 	return true;
 }
 
@@ -68,14 +71,13 @@ bool cal_motors_power( int16_t target_pitch, int16_t* power )
 /*
  * Returns pitch target range adjusteded to PID algorithm input.
  */
-int16_t cal_pitch_target( int16_t speed_target )
+int16_t cal_pitch_target()
 {
-	int16_t left_speed = motors_right_speed();
-	int16_t right_speed = motors_left_speed();
+	int16_t speed = motors_speed();
 	
-	int16_t speed = left_speed + right_speed;
+	speed = SCALE_VALUE( speed, MOTORS_SPEED_BITS, PID_INPUT_BIT_SIZE );
 
-	int16_t ret = pid_compute( &pidspeed_data, speed_target, speed ) ;
+	int16_t ret = pid_compute( &speed_data, speed ) ;
 	
 	//Adjust to PID algorithm input and restrict target to the half of max angle
 	return SCALE_VALUE( ret, PID_OUTPUT_BIT_SIZE,
@@ -85,17 +87,15 @@ int16_t cal_pitch_target( int16_t speed_target )
 
 void main_action() 
 {
-	static int16_t pitch_target = 0;		//Must be adapted to PID algorithm input
-	static int16_t speed_target = 0;
 	static int8_t to_speed_control = PITCH_SPEED_CONTROL_RATIO;
 	
 	int16_t motors_power;
-	if ( cal_motors_power( pitch_target, &motors_power ) ) {
-		motors_set_power( motors_power, 0 );
+	if ( cal_motors_power( &motors_power ) ) {
+		motors_set_power( motors_power );
 	}
 
 	if ( --to_speed_control == 0 ) {
-		pitch_target = cal_pitch_target( speed_target );
+		pitch_data.target = cal_pitch_target();
 		to_speed_control = PITCH_SPEED_CONTROL_RATIO;
 	}
 }
@@ -143,8 +143,9 @@ int main(void)
 	motors_init();
 	system_init();
 	inputi2c_init();
-	pidpitch_init();
-	pidspeed_init();
+	pitch_init();
+	speed_init();
+	heading_init();
 	mpu9250_init();
 		
 	display_system_paused();
@@ -167,7 +168,7 @@ int main(void)
 		}
 		
 		// 3ms to do all main_action computations
-		__delay_ms((1000/MPU_DATA_RATE)-3);
+		__delay_ms((1000/MPU_DATA_RATE) - 2);
 	}
 		
 	return -1;

@@ -2,8 +2,9 @@
 #include "api/motors_i2c_api.h"
 #include "mpu/mpu9250.h"
 #include "system.h"
-#include "pidpitch.h"
-#include "pidspeed.h"
+#include "pitch.h"
+#include "speed.h"
+#include "heading.h"
 #include "i2c1.h"
 
 #define INVALID_REGISTER_ADDRESS 0xFF
@@ -16,11 +17,13 @@ static void i2cslave_set_send_buffer( uint8_t register_address )
 	if ( register_address < MOTORSREG_SYSTEM_END )
 		send_buffer = system_registers[register_address];
 	else if ( register_address < MOTORSREG_PITCH_PID_END )
-		send_buffer = pidpitch_i2c_read(register_address-MOTORSREG_SYSTEM_END);
+		send_buffer = pitch_i2c_read(register_address-MOTORSREG_SYSTEM_END);
 	else if ( register_address < MOTORSREG_SPEED_PID_END )
-		send_buffer = pidspeed_i2c_read(register_address-MOTORSREG_PITCH_PID_END);
+		send_buffer = speed_i2c_read(register_address-MOTORSREG_PITCH_PID_END);
+	else if ( register_address < MOTORSREG_HEADING_PID_END )
+		send_buffer = speed_i2c_read(register_address-MOTORSREG_SPEED_PID_END);
 	else if ( register_address < MOTORSREG_MPU_END )
-		send_buffer = mpu9250_i2c_read(register_address-MOTORSREG_SPEED_PID_END);
+		send_buffer = mpu9250_i2c_read(register_address-MOTORSREG_HEADING_PID_END);
 	else {
 		printf( "send: %x\n", register_address );
 	}
@@ -32,11 +35,13 @@ static void i2cslave_write( uint8_t register_address, uint8_t data )
 	if ( register_address < MOTORSREG_SYSTEM_END )
 		system_registers[register_address] = data;
 	else if ( register_address < MOTORSREG_PITCH_PID_END )
-		pidpitch_i2c_write( register_address-MOTORSREG_SYSTEM_END, data );
+		pitch_i2c_write( register_address-MOTORSREG_SYSTEM_END, data );
 	else if ( register_address < MOTORSREG_SPEED_PID_END )
-		pidspeed_i2c_write( register_address-MOTORSREG_PITCH_PID_END, data );
+		speed_i2c_write( register_address-MOTORSREG_PITCH_PID_END, data );
+	else if ( register_address < MOTORSREG_HEADING_PID_END )
+		speed_i2c_write( register_address-MOTORSREG_SPEED_PID_END, data );
 	else if ( register_address < MOTORSREG_MPU_END )
-		mpu9250_i2c_write( register_address-MOTORSREG_SPEED_PID_END, data );
+		mpu9250_i2c_write( register_address-MOTORSREG_HEADING_PID_END, data );
 	else {
 		printf( "rec: %x\n", register_address );
 	}

@@ -18,7 +18,7 @@ void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size )
 										//been written. read_ptr should 
 										//advance before write_ptr reach it.
 	
-	pid->store.write_ptr->index = TMR4_Counter32BitGet();
+	pid->store.write_ptr->index = 0;
 	pid->store.write_ptr->state.current = 0;
 	pid->store.write_ptr->state.target = 0;
 	pid->store.write_ptr->state.integral_error = 0;
@@ -28,16 +28,8 @@ void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size )
 
 
 inline int32_t pid_calculate_integral_error( int32_t integral_error,
-											int16_t error,
-											int16_t previous_error ) 
+											int16_t error ) 
 {
-#if 0
-	if ( ((error >= 0) && (previous_error < 0)) ||
-			((error < 0) && (previous_error >= 0)) ) {
-		return 0;	//Error sig changes -> Reset integral error.
-	}
-#endif
-	
 	integral_error += error;
 	
 	if ( integral_error > PID_MAX_INTEGRAL_ERROR ) {
@@ -46,23 +38,24 @@ inline int32_t pid_calculate_integral_error( int32_t integral_error,
 	if ( integral_error < PID_MIN_INTEGRAL_ERROR ) {
 		return PID_MIN_INTEGRAL_ERROR;
 	}
-	
 	return integral_error;
 }
 
 
-int16_t pid_compute( PID* pid, int16_t target, int16_t current )
+int16_t pid_compute( PID* pid, int16_t current )
 {
 	PIDStateEntry* current_entry = pid->store.write_ptr;
 
+	int16_t target = pid->target;		//Can be changed by i2c
+	
 	int16_t error = target - current;
 	
 	int32_t integral_error = pid_calculate_integral_error( 
-						current_entry->state.integral_error, error, 
-						current_entry->state.previous_error );
+						current_entry->state.integral_error, error );
 		
 	int16_t derivative_error = error - current_entry->state.previous_error;
 	
+	current_entry->index = TMR4_Counter32BitGet();
 	current_entry->state.current = current;
 	current_entry->state.target = target;
 	++pid->store.size;
@@ -80,7 +73,6 @@ int16_t pid_compute( PID* pid, int16_t target, int16_t current )
 	//Update write_ptr
 	PIDStateEntry* next_write_ptr =
 						pid_next_state_entry( &pid->store, current_entry );
-	next_write_ptr->index = TMR4_Counter32BitGet();
 	next_write_ptr->state.previous_error = error;
 	next_write_ptr->state.integral_error = integral_error;
 	pid->store.write_ptr = next_write_ptr;
@@ -99,7 +91,7 @@ int16_t pid_compute( PID* pid, int16_t target, int16_t current )
 	
 	//Finally, sum parts and adjust output
 	int32_t out = proportional_part + integral_part + derivative_part;
-			//Scale to remove constant factors (-1?)
+			//Scale to remove constant factors 
 			//and adapt input bits to output bits
 	out = SCALE_VALUE( out,
 				BOOST_PP_ADD(PID_INPUT_BIT_SIZE, 

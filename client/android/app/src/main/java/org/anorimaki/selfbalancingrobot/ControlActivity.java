@@ -3,18 +3,16 @@ package org.anorimaki.selfbalancingrobot;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.anorimaki.selfbalancingrobot.robot.ControlService;
 import org.anorimaki.selfbalancingrobot.robot.ControlServiceFactory;
 import org.anorimaki.selfbalancingrobot.robot.RobotConfig;
-import org.anorimaki.selfbalancingrobot.robot.Target;
-
-import java.util.Observable;
+import org.anorimaki.selfbalancingrobot.robot.Targets;
 
 import io.github.controlwear.virtual.joystick.android.JoystickView;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -52,16 +50,17 @@ public class ControlActivity extends AppCompatActivity {
 
         setTargetResponses = getJoysticsMoves().
                 subscribeOn(Schedulers.io()).
-                observeOn(AndroidSchedulers.mainThread()).
+                observeOn(Schedulers.io()).
                 flatMap( move -> {
                     double angle = move.getAngle() * Math.PI / 180;
                     double speed = Math.sin( angle ) * move.getStrength();
                     double heading = Math.cos( angle ) * move.getStrength();
-                    Log.d(TAG, Thread.currentThread().getId() + ": move " + speed + ", " + heading );
-                    return service.setTarget( new Target( (int)speed, (int)heading ) ).toFlowable();
+                    return service.setTargets( new Targets( (int)speed, (int)heading ) ).toFlowable();
                 } ).
+                observeOn(AndroidSchedulers.mainThread()).
                 doOnError( error -> {
-                    Log.e(TAG, Thread.currentThread().getId() + ": response error", error);
+                    Toast toast = Toast.makeText(this, "Error setting target", Toast.LENGTH_SHORT );
+                    toast.show();
                 }).
                 retry();
 	}

@@ -19,14 +19,18 @@ public class RobotConfig {
     public RobotConfig( Context context ) {
         try {
             Properties properties = PropetiesHelper.load(context, R.raw.app);
-            this.url = new URL(properties.getProperty("robot.url"));
+            String baseUrl = properties.getProperty("robot.url");
+            if ( baseUrl == null ) {
+                return;
+            }
+            this.url = new URL(baseUrl);
         }
         catch( Exception e ) {
-            this.url = null;            //Leave empty URL
+            this.url = null;
         }
     }
 
-    public URL getURL() {
+    public URL getUrl() {
         return url;
     }
 }

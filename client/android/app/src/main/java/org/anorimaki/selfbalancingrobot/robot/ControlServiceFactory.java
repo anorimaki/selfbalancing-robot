@@ -11,7 +11,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 public class ControlServiceFactory {
 	public static ControlService create(RobotConfig config ) {
         Retrofit retrofit = new Retrofit.Builder().
-				baseUrl(config.getURL().toString()).
+				baseUrl(config.getUrl().toString()).
 				addConverterFactory(JacksonConverterFactory.create()).
 				addCallAdapterFactory(RxJava2CallAdapterFactory.create()).
 				build();

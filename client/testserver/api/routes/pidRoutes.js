@@ -1,9 +1,6 @@
 'use strict';
 
-module.exports = function(app, urlPath) {
-	const PidController = require('../controllers/PidController');
-	const controller = new PidController(10);
-
+module.exports = function(app, urlPath, controller) {
 	app.route('/' + urlPath + '/state').
 		get((req, res) => controller.readState(req, res));
 	app.route('/' + urlPath + '/settings').

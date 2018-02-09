@@ -21,7 +21,7 @@ static void i2cslave_set_send_buffer( uint8_t register_address )
 	else if ( register_address < MOTORSREG_SPEED_PID_END )
 		send_buffer = speed_i2c_read(register_address-MOTORSREG_PITCH_PID_END);
 	else if ( register_address < MOTORSREG_HEADING_PID_END )
-		send_buffer = speed_i2c_read(register_address-MOTORSREG_SPEED_PID_END);
+		send_buffer = heading_i2c_read(register_address-MOTORSREG_SPEED_PID_END);
 	else if ( register_address < MOTORSREG_MPU_END )
 		send_buffer = mpu9250_i2c_read(register_address-MOTORSREG_HEADING_PID_END);
 	else {
@@ -39,7 +39,7 @@ static void i2cslave_write( uint8_t register_address, uint8_t data )
 	else if ( register_address < MOTORSREG_SPEED_PID_END )
 		speed_i2c_write( register_address-MOTORSREG_PITCH_PID_END, data );
 	else if ( register_address < MOTORSREG_HEADING_PID_END )
-		speed_i2c_write( register_address-MOTORSREG_SPEED_PID_END, data );
+		heading_i2c_write( register_address-MOTORSREG_SPEED_PID_END, data );
 	else if ( register_address < MOTORSREG_MPU_END )
 		mpu9250_i2c_write( register_address-MOTORSREG_HEADING_PID_END, data );
 	else {

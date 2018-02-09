@@ -113,6 +113,7 @@ export class RbChartComponent implements  OnDestroy {
 			charData.push({
 				type: "line",
 				visible: true,
+				markerType: "none",
 				showInLegend: false,
 				legendText: serie.label,
 				xValueFormatString: "#.###",

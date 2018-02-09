@@ -128,6 +128,8 @@ void PidService::handleSettings() {
 	jsonSetings["proportional"] = settings.k_p;
 	jsonSetings["derivative"] = settings.k_d;
 
+Serial.printf( "get: %d\n", settings.k_p );
+
 	sendJson( *m_impl, jsonSetings );
 }
 
@@ -270,7 +272,7 @@ void Server::handlePutTargets()
 	const JsonObject& root = jsonBuffer.parseObject( body );
 
 	int16_t speed = root["speed"];
-	if ( !m_motors->pitch().setTarget( speed ) ) {
+	if ( !m_motors->speed().setTarget( speed ) ) {
 		sendError( m_impl, "Error setting speed target" );
 		return;
 	}

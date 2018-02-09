@@ -2,7 +2,7 @@ import { PidStep } from "app/shared/pid-step";
 import { PidState } from "app/core/pid-state";
 import { PidSettings } from "app/core/pid-settings";
 
-const MOTORS_SPEED_BITS = 11;
+const MOTORS_SPEED_BITS = 8;
 
 export class SpeedStep extends PidStep {
 	constructor( state: PidState, settings: PidSettings ) {

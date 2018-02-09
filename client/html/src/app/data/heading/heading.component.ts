@@ -16,6 +16,6 @@ export class HeadingDataComponent {
 	}
 
 	ngAfterViewInit() {
-		this.pidView.init( 1500, this.dataService.heading.getData() );
+		this.pidView.init( 100, this.dataService.heading.getData() );
 	}
 }

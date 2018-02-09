@@ -72,8 +72,6 @@ class PidDataService<T extends PidStep> {
 
 @Injectable()
 export class DataService {
-	private static BUFFER_SIZE = 300;
-
 	speed: PidDataService<SpeedStep>;
 	pitch: PidDataService<PitchStep>;
 	heading: PidDataService<HeadingStep>;
@@ -84,15 +82,15 @@ export class DataService {
 		this.speed = new PidDataService( settingsService.speedPid, 
 						notificationService, robotService.speed, 
 						(settings: PidSettings, state: PidState) => new SpeedStep(state, settings),
-						1000 );
+						400 );
 		this.pitch = new PidDataService( settingsService.pitchPid,
 						notificationService, robotService.pitch, 
 						(settings: PidSettings, state: PidState) => new PitchStep(state, settings),
-						20 );
+						200 );
 		this.heading = new PidDataService( settingsService.headingPid,
 						notificationService, robotService.heading, 
 						(settings: PidSettings, state: PidState) => new HeadingStep(state, settings),
-						20 );
+						1000 );
 	}
 
 	get isPolling(): boolean {
@@ -101,8 +99,8 @@ export class DataService {
 
 	startPolling(): void {
 		this.speed.startPolling();
-		this.pitch.startPolling();
-		this.heading.startPolling();
+	//	this.pitch.startPolling();
+	//	this.heading.startPolling();
 	}
 	
 	stopPolling(): void {

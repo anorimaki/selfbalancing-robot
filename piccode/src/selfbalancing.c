@@ -22,10 +22,10 @@
 #define MAX_PITCH_ANGLE         ((1 << (MAX_PITCH_ANGLE_BITS-1))-1)	//Q16 format
 #define MIN_PITCH_ANGLE			(-MAX_PITCH_ANGLE)					//Q16 format
 
-#define PITCH_CONTROL_PERIOD	500		//In ms
+#define SPEED_CONTROL_PERIOD	50		//In ms
 
 //Number of pitch PID execuions between two speed PID executions
-#define PITCH_SPEED_CONTROL_RATIO	(PITCH_CONTROL_PERIOD/(1000/MPU_DATA_RATE))
+#define PITCH_SPEED_CONTROL_RATIO	(SPEED_CONTROL_PERIOD/(1000/MPU_DATA_RATE))
 
 
 /*
@@ -76,7 +76,7 @@ int16_t cal_pitch_target()
 	int16_t speed = motors_speed();
 	
 	speed = SCALE_VALUE( speed, MOTORS_SPEED_BITS, PID_INPUT_BIT_SIZE );
-
+	
 	int16_t ret = pid_compute( &speed_data, speed ) ;
 	
 	//Adjust to PID algorithm input and restrict target to the half of max angle

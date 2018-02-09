@@ -39,7 +39,7 @@ typedef struct {
                         //is fast.
 } PIDStore;
 
-typedef struct {
+typedef struct __attribute((__packed__)) {
     PIDStore store;
     PIDSettings settings;
     int16_t target;
@@ -75,7 +75,7 @@ static inline uint8_t pid_i2c_read( PID* pid, uint8_t address )
 
 static inline void pid_i2c_write( PID* pid, uint8_t address, uint8_t value )
 {  //Only PID settings and target are writable: skip FIFO (entry and store.size)
-    if ( address > sizeof(PIDFifo) ) {
+    if ( address >= sizeof(PIDFifo) ) {
         *byte_ptr(&pid->settings, address-sizeof(PIDFifo)) = value;
     }
 }

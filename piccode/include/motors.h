@@ -4,18 +4,22 @@
 #include <stdint.h>
 #include "pin_manager.h"
 
+#define MOTORS_POWER_BITS		16
+#define MOTORS_MAX_POWER		((1U << (MOTORS_POWER_BITS-1))-1)
+#define MOTORS_MIN_POWER		(-(signed)MOTORS_MAX_POWER)
+
+//Motors generates ~3953 pulses in 1 second at max power (speed = 3953)
+// SPEED_BITS is calculated as log2( (3953/1000) * PITCH_CONTROL_PERIOD )
+#define MOTORS_SPEED_BITS				10
+
 //Internal usage. Declared here to permit inline functions
 extern int16_t motors_left_speed;
 extern int16_t motors_right_speed;
 
-//Motors generates ~3953 pulses in 1 second at max power (speed = 3953)
-// SPEED_BITS is calculated as log2( (3953/1000) * PITCH_CONTROL_PERIOD )
-#define MOTORS_SPEED_BITS				8
-
 void motors_init();
-void motors_set_power( int16_t power );
+void motors_set_left_power( int16_t power );
+void motors_set_right_power( int16_t power );
 
-int16_t motors_speed();     //Returns linear velocity of vehicle (left+right)
 
 static inline void motors_left_qencoder_interrupt()
 {

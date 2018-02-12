@@ -47,6 +47,7 @@ typedef struct __attribute((__packed__)) {
 
 
 void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size );
+void pid_clear( PID* pid );
 int16_t pid_compute( PID* pid, int16_t current );
 
 

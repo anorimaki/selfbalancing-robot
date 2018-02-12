@@ -5,7 +5,7 @@
 namespace trace
 {
 
-void log( const char* level, const char* file, int line, const char * format, ... )
+std::string format( const char * format, ... )
 {
 	va_list arg;
 	va_start(arg, format);
@@ -13,6 +13,11 @@ void log( const char* level, const char* file, int line, const char * format, ..
 	vsnprintf(msg, sizeof(msg), format, arg);
 	va_end(arg);
 
+	return msg;
+}
+
+void log( const char* level, const char* file, int line, const char* msg )
+{
 	Serial.printf( "%s (%s: %d): %s\n", level, file, line, msg );
 }
 

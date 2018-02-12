@@ -1,7 +1,7 @@
 <div fxLayout='column' class='root'>
 	<div fxLayout='column' class='section'>
 		<h2>PID</h2>
-		<div fxLayout='row' fxLayoutAlign="center start" fxLayoutGap='200px'>
+		<div fxLayout='row' fxLayoutAlign="center start" fxLayoutGap='100px'>
 			<div fxLayout='column'>
 				<h3>Pitch PID Settings</h3>
 				<rb-pid #pitchPid></rb-pid>
@@ -9,6 +9,10 @@
 			<div fxLayout='column'>
 				<h3>Speed PID Settings</h3>
 				<rb-pid #speedPid></rb-pid>
+			</div>
+			<div fxLayout='column'>
+				<h3>Heading PID Settings</h3>
+				<rb-pid #headingPid></rb-pid>
 			</div>
 		</div>
 		<div fxLayout='row' class='button-container' fxLayoutAlign="center"> 

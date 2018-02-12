@@ -11,17 +11,13 @@
 #define MOTORS_PWM_BITS			12
 #define MOTORS_PWM_MAX_POWER	((1<<MOTORS_PWM_BITS)-1)
 
-#define MOTORS_POWER_BITS		16
-#define MOTORS_MAX_POWER		((1U << (MOTORS_POWER_BITS-1))-1)
-#define MOTORS_MIN_POWER		(-(signed)MOTORS_MAX_POWER)
-
 			//Min power to move motors
 #define MOTORS_LEFT_MIN_POWER	0x734		//Rueda al lado de los conectores
 #define MOTORS_RIGHT_MIN_POWER	0x734		//Min power to move motors
 
 int16_t motors_left_speed;
 int16_t motors_right_speed;
-static int16_t motors_heading;
+static int16_t motors_steering_power;
 
 
 static inline void motors_left_fordward()
@@ -62,7 +58,7 @@ void motors_init()
 	motors_stop();
 	motors_right_speed = 0;
 	motors_left_speed = 0;
-	motors_heading = 0;
+	motors_steering_power = 0;
 }
 
 
@@ -94,7 +90,7 @@ void motors_init()
 	(minPower)
 #endif
 
-static inline void motors_set_left_power( int16_t power ) 
+void motors_set_left_power( int16_t power ) 
 {
 	if ( power > 0 ) {
 		motors_left_fordward();
@@ -108,7 +104,7 @@ static inline void motors_set_left_power( int16_t power )
 }
 
 
-static inline void motors_set_right_power( int16_t power ) 
+void motors_set_right_power( int16_t power ) 
 {
 	if ( power > 0 ) {
 		motors_right_fordward();
@@ -121,58 +117,4 @@ static inline void motors_set_right_power( int16_t power )
 }
 
 
-static int16_t motors_calculate_pid_steering()
-{
-	int16_t scaled_heading = 
-			SCALE_VALUE( motors_heading, MOTORS_SPEED_BITS, PID_INPUT_BIT_SIZE );
-	int16_t steering = pid_compute( &heading_data, scaled_heading ) ;
-	return SCALE_VALUE( steering, PID_OUTPUT_BIT_SIZE, 16 );
-}
-
-
-//Adjust steering: power can't override and linear velocity (expressed by
-// speed_power) must be conserved.
-static int16_t motors_adjust_steering( int16_t speed, int16_t steering ) 
-{
-	if ( speed > 0 ) {
-		if ( steering > 0 ) {	//take care about speed + steering
-			return min( MOTORS_MAX_POWER - speed, steering );
-		}
-			////take care about speed - steering
-		return max( MOTORS_MIN_POWER + speed, steering );
-	}
-	
-	if ( steering > 0 ) {	//take care about speed - steering
-		return min( MOTORS_MAX_POWER + speed, steering );
-	}
-				//take care about speed + steering
-	return max( MOTORS_MIN_POWER - speed, steering );
-}
-
-
-void motors_set_power( int16_t speed_power )
-{
-	int16_t steering_power = motors_calculate_pid_steering();
-	steering_power = motors_adjust_steering( speed_power, steering_power );
-	
-#if 0
-	printf( "ster: %d\n", steering_power );
-#endif	
-	
-	motors_set_left_power( speed_power - steering_power );
-	motors_set_right_power( speed_power + steering_power );
-}
-
-
-int16_t motors_speed()
-{
-	int16_t right = motors_right_speed;
-	motors_right_speed = 0;
-	int16_t left = motors_left_speed;
-	motors_left_speed = 0;
-	
-	motors_heading = right - left;
-	
-	return right + left;
-}
 

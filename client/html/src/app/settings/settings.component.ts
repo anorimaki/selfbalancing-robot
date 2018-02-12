@@ -58,8 +58,12 @@ export class RbSettingsComponent implements OnInit, OnDestroy {
 	@ViewChild("speedPid") 
 	private speedPidView: RbPidComponent;
 
+	@ViewChild("headingPid") 
+	private headingPidView: RbPidComponent;
+
 	private pitchPid: PidComponent;
 	private speedPid: PidComponent;
+	private headingPid: PidComponent;
 
 	constructor( private notificationService: NotificationService,
 				private settingsService: SettingsService ) {}
@@ -69,28 +73,35 @@ export class RbSettingsComponent implements OnInit, OnDestroy {
 								this.settingsService.pitchPid,
 								this.notificationService );
 		this.speedPid = new PidComponent( this.speedPidView, 
-									this.settingsService.speedPid,
-									this.notificationService );
+								this.settingsService.speedPid,
+								this.notificationService );
+		this.headingPid = new PidComponent( this.headingPidView, 
+								this.settingsService.headingPid,
+								this.notificationService );							
 		this.readPidSettings();
     }
 
 	ngOnDestroy() {
 		this.pitchPid.destroy();
 		this.speedPid.destroy();
+		this.headingPid.destroy();
 	}
 
 	private applyPidAvailable(): boolean {
 		return this.pitchPidView.applyAvailable() || 
-				this.speedPidView.applyAvailable();
+				this.speedPidView.applyAvailable() ||
+				this.headingPidView.applyAvailable();
 	}
 
 	private readPidSettings(): void {
 		this.pitchPid.toView();
 		this.speedPid.toView();
+		this.headingPid.toView();
 	}
 	
 	private applyPid(): void {
 		this.pitchPid.toService();
 		this.speedPid.toService();
+		this.headingPid.toService();
 	}
 }

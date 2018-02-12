@@ -17,8 +17,8 @@ import io.reactivex.schedulers.Schedulers;
 public class ControlPresenter implements ControlContract.Presenter {
     private static final String TAG = ControlPresenter.class.getSimpleName();
 
-    private static int speedBits = 12;
-    private static int maxSpeed = (1<<speedBits)-1;
+    private static int pidBits = 14;
+    private static int maxPidValue = (1<<pidBits)-1;
 
     private Flowable<ControlContract.JoystickMove> userMoves;
     private Disposable targetsSubscription;
@@ -38,7 +38,8 @@ public class ControlPresenter implements ControlContract.Presenter {
                     double speed = Math.sin( angle ) * move.getStrength();
                     double heading = Math.cos( angle ) * move.getStrength();
 
-                    speed = (maxSpeed*speed) / 100;     //Scale value
+                    speed = (maxPidValue*speed) / 100;     //Scale value
+                    heading = (maxPidValue*heading) / 100;     //Scale value
 
                     return service.setTargets( new Targets( (int)speed, (int)heading ) ).toFlowable();
                 } ).

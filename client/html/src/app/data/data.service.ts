@@ -99,8 +99,8 @@ export class DataService {
 
 	startPolling(): void {
 		this.speed.startPolling();
-	//	this.pitch.startPolling();
-	//	this.heading.startPolling();
+		this.pitch.startPolling();
+		this.heading.startPolling();
 	}
 	
 	stopPolling(): void {

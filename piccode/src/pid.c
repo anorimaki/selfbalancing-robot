@@ -12,17 +12,24 @@ void pid_init( PID* pid, PIDStateEntry* store, uint8_t store_size )
 {
 	pid->store.begin = store;
 	pid->store.end = store+store_size;
-	pid->store.read_ptr = pid->store.begin;
-	pid->store.write_ptr = pid->store.begin;
 	pid->store.max_size = store_size-1;	//One of the positions is always
 										//been written. read_ptr should 
 										//advance before write_ptr reach it.
+	pid_clear( pid );
+}
+
+
+void pid_clear( PID* pid ) 
+{
+	pid->store.read_ptr = pid->store.begin;
+	pid->store.write_ptr = pid->store.begin;
 	
 	pid->store.write_ptr->index = 0;
 	pid->store.write_ptr->state.current = 0;
 	pid->store.write_ptr->state.target = 0;
 	pid->store.write_ptr->state.integral_error = 0;
 	pid->store.write_ptr->state.previous_error = 0;
+	
 	pid->store.size = 0;
 }
 

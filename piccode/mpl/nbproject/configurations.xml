@@ -51,6 +51,7 @@
       <itemPath>../include/speed.h</itemPath>
       <itemPath>../include/pitch.h</itemPath>
       <itemPath>../include/heading.h</itemPath>
+      <itemPath>../include/control.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -99,6 +100,7 @@
       <itemPath>../src/pitch.c</itemPath>
       <itemPath>../src/speed.c</itemPath>
       <itemPath>../src/heading.c</itemPath>
+      <itemPath>../src/control.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -45,7 +45,7 @@ static void sendJson( ESP8266WebServer& server, T& content )
 }
 
 
-static void sendError( ESP8266WebServer& impl, const char* message ) {
+static void sendError( ESP8266WebServer& impl ) {
 	String content = String("<html>\
 			  <head>\
 			    <title>ESP8266 error</title>\
@@ -54,9 +54,22 @@ static void sendError( ESP8266WebServer& impl, const char* message ) {
 			    </style>\
 			  </head>\
 			  <body>\
-			    <h1>") + message + "</h1>\
+			    <h1>Error stack</h1>");
+
+	while( !error::globalStack().empty() ) {
+		content.concat( "<p>" );
+		const error::StackItem& item = error::globalStack().top();
+		content.concat( item.file() );
+		content.concat( "," );
+		content.concat( item.line() );
+		content.concat( ": " );
+		content.concat( item.message().c_str() );
+		error::globalStack().pop();
+	}
+
+	content.concat("\
 			  </body>\
-			</html>";
+			</html>");
 	impl.send( 500, "text/html", content );
 }
 
@@ -96,7 +109,8 @@ static StaticJsonBuffer<1024*20> jsonBuffer;
 void PidService::handleState() {
 	std::vector<::PIDStateEntry> states;
 	if ( !m_pidEngine->state(states) ) {
-		sendError( *m_impl, "Error reading PID states" );
+		TRACE_ERROR( "Error reading PID states" );
+		sendError(*m_impl);
 		return;
 	}
 
@@ -118,7 +132,8 @@ void PidService::handleState() {
 void PidService::handleSettings() {
 	::PIDSettings settings;
 	if ( !m_pidEngine->settins(settings) ) {
-		sendError( *m_impl, "Error reading PID settings" );
+		TRACE_ERROR( "Error reading PID settings" );
+		sendError(*m_impl);
 		return;
 	}
 
@@ -127,8 +142,6 @@ void PidService::handleSettings() {
 	jsonSetings["integral"] = settings.k_i;
 	jsonSetings["proportional"] = settings.k_p;
 	jsonSetings["derivative"] = settings.k_d;
-
-Serial.printf( "get: %d\n", settings.k_p );
 
 	sendJson( *m_impl, jsonSetings );
 }
@@ -144,7 +157,8 @@ void PidService::handleSetSettings() {
 	settings.k_p = root["proportional"];
 	settings.k_d = root["derivative"];
 	if ( !m_pidEngine->setSettins(settings) ) {
-		sendError( *m_impl, "Error settings pitch PID settings" );
+		TRACE_ERROR( "Error settings pitch PID settings" );
+		sendError(*m_impl);
 		return;
 	}
 
@@ -200,7 +214,8 @@ void Server::handleGetMpuSettings()
 {
 	int32_t pitchOffset;
 	if ( !m_motors->getMpuOffset(&pitchOffset) ) {
-		sendError( m_impl, "Error reading MPU settings" );
+		TRACE_ERROR( "Error reading MPU settings" );
+		sendError( m_impl );
 		return;
 	}
 
@@ -221,7 +236,8 @@ void Server::handlePutMpuSettings()
 	float pitchOffset;
 	pitchOffset = root["pitchOffset"];
 	if ( !m_motors->setMpuOffset( pitchOffset*0x10000 ) ) {		//Convert float to Q16
-		sendError( m_impl, "Error setting MPU settings" );
+		TRACE_ERROR( "Error setting MPU settings" );
+		sendError( m_impl );
 		return;
 	}
 
@@ -273,13 +289,15 @@ void Server::handlePutTargets()
 
 	int16_t speed = root["speed"];
 	if ( !m_motors->speed().setTarget( speed ) ) {
-		sendError( m_impl, "Error setting speed target" );
+		TRACE_ERROR( "Error setting speed target" );
+		sendError( m_impl );
 		return;
 	}
 
 	int16_t heading = root["heading"];
 	if ( !m_motors->heading().setTarget( heading ) ) {
-		sendError( m_impl, "Error setting heading target" );
+		TRACE_ERROR( "Error setting heading target" );
+		sendError( m_impl );
 		return;
 	}
 

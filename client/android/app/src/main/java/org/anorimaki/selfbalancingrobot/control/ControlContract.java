@@ -27,7 +27,8 @@ public interface ControlContract {
 
     interface View {
         Flowable<JoystickMove> getTargets();
-        void showError( String msg );
+        void showResponseTime( long responseTime );
+        void showSettingTargetsError();
     }
 
     interface Presenter {

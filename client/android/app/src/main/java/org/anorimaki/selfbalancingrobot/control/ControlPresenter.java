@@ -4,10 +4,13 @@ package org.anorimaki.selfbalancingrobot.control;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.anorimaki.selfbalancingrobot.R;
 import org.anorimaki.selfbalancingrobot.robot.ControlService;
 import org.anorimaki.selfbalancingrobot.robot.ControlServiceFactory;
 import org.anorimaki.selfbalancingrobot.robot.RobotConfig;
 import org.anorimaki.selfbalancingrobot.robot.Targets;
+
+import javax.inject.Inject;
 
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -24,6 +27,7 @@ public class ControlPresenter implements ControlContract.Presenter {
     private Disposable targetsSubscription;
     private ControlService service;
 
+    @Inject
     public ControlPresenter( RobotConfig robotConfig ) {
         this.service = ControlServiceFactory.create( robotConfig );
     }
@@ -41,18 +45,20 @@ public class ControlPresenter implements ControlContract.Presenter {
                     speed = (maxPidValue*speed) / 100;     //Scale value
                     heading = (maxPidValue*heading) / 100;     //Scale value
 
-                    return service.setTargets( new Targets( (int)speed, (int)heading ) ).toFlowable();
+                    long startTime = System.currentTimeMillis();
+
+                    return service.setTargets( new Targets( (int)speed, (int)heading ) ).
+                            toSingle( () -> System.currentTimeMillis()-startTime ).
+                            toFlowable();
                 } ).
                 observeOn(AndroidSchedulers.mainThread()).
                 doOnError( error -> {
-                    view.showError( "Error setting target" );
+                    view.showSettingTargetsError();
+                    Log.e( TAG, "Error setting target", error );
                 }).
                 retry().
-                subscribe( response -> {
-                        Log.d(TAG, Thread.currentThread().getId() + ": response ok" + response);
-                    },
-                    error -> {
-                        Log.e(TAG, Thread.currentThread().getId() + ": response error", error);
+                subscribe( responseTime -> {
+                        view.showResponseTime(responseTime);
                     });
     }
 

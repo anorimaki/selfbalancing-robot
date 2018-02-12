@@ -9,13 +9,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-/**
- * Created by david.osorio on 31/01/2018.
- */
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class RobotConfig {
     private URL url;
 
+    @Inject
     public RobotConfig( Context context ) {
         try {
             Properties properties = PropetiesHelper.load(context, R.raw.app);

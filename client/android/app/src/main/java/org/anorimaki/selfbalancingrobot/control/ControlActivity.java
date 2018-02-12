@@ -1,25 +1,35 @@
 package org.anorimaki.selfbalancingrobot.control;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.anorimaki.selfbalancingrobot.R;
-import org.anorimaki.selfbalancingrobot.robot.RobotConfig;
 
+import javax.inject.Inject;
+
+import dagger.android.support.DaggerAppCompatActivity;
 import io.github.controlwear.virtual.joystick.android.JoystickView;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 
-public class ControlActivity extends AppCompatActivity implements ControlContract.View{
-	private ControlContract.Presenter presenter;
+public class ControlActivity extends DaggerAppCompatActivity implements ControlContract.View{
+    @Inject
+	ControlContract.Presenter presenter;
+
+    private TextView resposeTimeView;
+
+    @Inject
+    public ControlActivity() {
+        //Empty constructor needed by Dagger
+    }
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-	    inject();
+        super.onCreate(savedInstanceState);
+		setContentView(R.layout.control_act);
 
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_control);
+        resposeTimeView = findViewById(R.id.response_time);
 	}
 
 	@Override
@@ -37,9 +47,15 @@ public class ControlActivity extends AppCompatActivity implements ControlContrac
     }
 
     @Override
-    public void showError( String msg ) {
-        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT );
+    public void showSettingTargetsError() {
+        Toast toast = Toast.makeText(this, getString(R.string.setting_targets_error),
+                                Toast.LENGTH_SHORT );
         toast.show();
+    }
+
+    @Override
+    public void showResponseTime( long responseTime ) {
+        resposeTimeView.setText( Long.toString(responseTime) + " ms" );
     }
 
     @Override
@@ -57,9 +73,4 @@ public class ControlActivity extends AppCompatActivity implements ControlContrac
                 }, 500 );       //Generate events every 500ms
             }, BackpressureStrategy.LATEST );
 	}
-
-    private void inject() {
-        //TODO: Replace by Dagger
-        presenter = new ControlPresenter(new RobotConfig(getApplicationContext()));
-    }
 }

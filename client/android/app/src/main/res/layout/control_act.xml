@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="org.anorimaki.selfbalancingrobot.control.ControlActivity">
 
     <io.github.controlwear.virtual.joystick.android.JoystickView
@@ -11,11 +12,16 @@
         android:id="@+id/joystickView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        custom:JV_buttonColor="#FF6E40"
+        custom:JV_buttonColor="@color/colorAccent"
         custom:JV_buttonSizeRatio="15%"
         custom:JV_borderColor="#00796B"
-        custom:JV_backgroundColor="#009688"
+        custom:JV_backgroundColor="@color/colorPrimary"
         custom:JV_borderWidth="4dp"
         custom:JV_fixedCenter="false"/>
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:id="@+id/response_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

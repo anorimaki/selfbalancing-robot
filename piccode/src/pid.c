@@ -4,7 +4,7 @@
 #include "tmr4.h"
 #include "math/mul.h"
 
-#define PID_MAX_INTEGRAL_ERROR	0x0000FFFFl		//No more than 17 bits
+#define PID_MAX_INTEGRAL_ERROR	0x0001FFFFl		//No more than 17 bits
 #define PID_MIN_INTEGRAL_ERROR	-PID_MAX_INTEGRAL_ERROR
 
 
@@ -45,6 +45,7 @@ inline int32_t pid_calculate_integral_error( int32_t integral_error,
 	if ( integral_error < PID_MIN_INTEGRAL_ERROR ) {
 		return PID_MIN_INTEGRAL_ERROR;
 	}
+	
 	return integral_error;
 }
 
@@ -65,6 +66,9 @@ int16_t pid_compute( PID* pid, int16_t current )
 	current_entry->index = TMR4_Counter32BitGet();
 	current_entry->state.current = current;
 	current_entry->state.target = target;
+	
+	IEC1bits.SI2C1IE = 0;		//Disable I2C read interrupt
+	
 	++pid->store.size;
 	
 	//Update read_ptr if needed
@@ -76,6 +80,8 @@ int16_t pid_compute( PID* pid, int16_t current )
 		pid->store.read_ptr = pid_next_state_entry( &pid->store,
 											 pid->store.read_ptr );
 	}
+	
+	IEC1bits.SI2C1IE = 1;		//Enable I2C read interrupt
 
 	//Update write_ptr
 	PIDStateEntry* next_write_ptr =

@@ -15,6 +15,7 @@ export class SpeedDataComponent {
 	}
 
 	ngAfterViewInit() {
-		this.pidView.init( 100, this.dataService.speed.getData() );
+		// Wait a tick because the component's view has already been checked
+		setTimeout( () => this.pidView.init( 100, this.dataService.speed ), 0 );
 	}
 }

@@ -20,6 +20,7 @@ int snprintf( char * s, size_t n, const char * format, ... );
 namespace http
 {
 
+#define ACCESS_CONTROL_ALLOW_ORIGIN "Access-Control-Allow-Origin"
 #define ACCESS_CONTROL_REQUEST_HEADERS "Access-Control-Request-Headers"
 #define ACCESS_CONTROL_REQUEST_METHOD "Access-Control-Request-Method"
 #define ACCESS_CONTROL_ALLOW_HEADERS "Access-Control-Allow-Headers"
@@ -34,6 +35,7 @@ template <typename T>
 static void sendJson( ESP8266WebServer& server, T& content )
 {
 			//Send headers
+	server.sendHeader( ACCESS_CONTROL_ALLOW_ORIGIN, "*" );
 	server.setContentLength( content.measureLength() );
 	server.send( 200, "application/json" );
 
@@ -342,7 +344,6 @@ void Server::handleNotFound()
 void Server::handleOptionsRequest()
 {
 	String requestHeader = m_impl.header(ACCESS_CONTROL_REQUEST_HEADERS);
-
 	if ( requestHeader.length() > 0 ) {
 		m_impl.sendHeader( ACCESS_CONTROL_ALLOW_HEADERS, requestHeader );
 	}

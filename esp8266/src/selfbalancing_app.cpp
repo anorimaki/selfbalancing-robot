@@ -12,6 +12,8 @@ namespace selfbalancing
 
 void Application::init()
 {
+	delay( 100 );
+	Serial.begin(115200);
 	Serial.println();
 
 	m_display.systemInitialization();

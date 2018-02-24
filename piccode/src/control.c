@@ -82,8 +82,8 @@ bool ctrl_update_motors_power( fix16_t pitch )
 
 	int16_t adjusted_steering_power = adjust_steering( speed_power, steering_power );
 	
-	motors_set_left_power( speed_power - adjusted_steering_power );
-	motors_set_right_power( speed_power + adjusted_steering_power );
+	motors_set_left_power( speed_power + adjusted_steering_power );
+	motors_set_right_power( speed_power - adjusted_steering_power );
 	
 	return true;
 }
@@ -120,6 +120,6 @@ void ctrl_update_pitch_target_and_steering()
 	motors_left_speed = 0;
 	
 	update_pitch_target( right + left );
-	update_steering_power( left - right );
+	update_steering_power( right - left );
 }
 

@@ -16,6 +16,7 @@ export class PitchDataComponent {
 	}
 
 	ngAfterViewInit() {
-		this.pidView.init( 1500, this.dataService.pitch.getData() );
+		// Wait a tick because the component's view has already been checked
+		setTimeout( () => this.pidView.init( 1200, this.dataService.pitch ), 0 );
 	}
 }

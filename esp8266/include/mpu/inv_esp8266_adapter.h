@@ -34,9 +34,11 @@ void esp8266_trace( const char * format, ... );
 #define get_ms(ms_addr)    		esp8266_get_ms(ms_addr)
 #define log_i    				esp8266_trace
 #define log_e    				esp8266_trace
-#ifndef min
+
+#if !defined(min) && !defined(__cplusplus)
 #define min(a,b) 				((a<b)?a:b)
 #endif
+
 static inline int reg_int_cb(struct int_param_s* dummy)
 {
 	return -1;

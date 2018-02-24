@@ -39,7 +39,7 @@
  */
 #if 1
 
-#include "inv_esp8266_adapter.h"
+#include "mpu/inv_esp8266_adapter.h"
 #define MPU9250
 
 #elif defined EMPL_TARGET_STM32F4

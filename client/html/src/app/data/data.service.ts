@@ -20,9 +20,10 @@ import { SpeedStep } from 'app/data/speed/speed-step';
 import { PitchStep } from 'app/data/pitch/pitch-step';
 import { HeadingStep } from 'app/data/heading/heading-step';
 
+let l;
 
-class PidDataService<T extends PidStep> {
-	private static BUFFER_SIZE = 400;
+export class PidDataService<T extends PidStep> {
+	private static BUFFER_SIZE = 300;
 
 	private rxData: Observable<T[]>;
 	private rxDataBufer:  ReplaySubject<T[]>;
@@ -82,19 +83,15 @@ export class DataService {
 		this.speed = new PidDataService( settingsService.speedPid, 
 						notificationService, robotService.speed, 
 						(settings: PidSettings, state: PidState) => new SpeedStep(state, settings),
-						400 );
+						1000 );
 		this.pitch = new PidDataService( settingsService.pitchPid,
 						notificationService, robotService.pitch, 
 						(settings: PidSettings, state: PidState) => new PitchStep(state, settings),
-						200 );
+						150 );
 		this.heading = new PidDataService( settingsService.headingPid,
 						notificationService, robotService.heading, 
 						(settings: PidSettings, state: PidState) => new HeadingStep(state, settings),
 						1000 );
-	}
-
-	get isPolling(): boolean {
-		return this.speed.isPolling;
 	}
 
 	startPolling(): void {

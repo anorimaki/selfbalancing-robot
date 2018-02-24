@@ -10,16 +10,20 @@
 #include <stdio.h>
 #include <libpic30.h>
 
+#define TIMER_PERIOD			4						//In us
+#define TIMER_STEPS_BY_MS		(1000/TIMER_PERIOD)
 
-#define SPEED_CONTROL_PERIOD	200		//In ms
+#define MOTORS_CONTROL_TIMER_STEPS		(1000000/MPU_DATA_RATE)/TIMER_PERIOD
+#define MAX_MOTORS_CONTROL_TIMER_STEPS	(MOTORS_CONTROL_TIMER_STEPS*2)
 
-//Number of pitch PID execuions between two speed PID executions
-#define PITCH_SPEED_CONTROL_RATIO	(SPEED_CONTROL_PERIOD/(1000/MPU_DATA_RATE))
+#define SPEED_CONTROL_PERIOD	200					//In ms
+#define SPEED_CONTROL_TIMER_STEPS	((SPEED_CONTROL_PERIOD*1000LU)/TIMER_PERIOD)
 
 
 void main_action() 
 {
-	static int8_t to_speed_control = PITCH_SPEED_CONTROL_RATIO;
+	static uint32_t last_motors_ctrl_time = 0;
+	static uint32_t next_speed_crtl_time = 0;
 	
 			//Pitch in radians and Q16 format
 	fix16_t current_pitch;
@@ -28,14 +32,22 @@ void main_action()
 	if ( status != MPU_OK ) {
 		return;
 	}
-	
+
+	uint32_t current_time = TMR4_Counter32BitGet();
+	uint16_t diff_time = current_time - last_motors_ctrl_time;
+	if ( diff_time > MAX_MOTORS_CONTROL_TIMER_STEPS ) {
+		display_motor_control_overtime();
+	}
+	last_motors_ctrl_time = current_time;
+
+
 	if ( !ctrl_update_motors_power( current_pitch ) ) {
 		return;
 	}
 
-	if ( --to_speed_control == 0 ) {
+	if ( current_time > next_speed_crtl_time ) {
 		ctrl_update_pitch_target_and_steering();
-		to_speed_control = PITCH_SPEED_CONTROL_RATIO;
+		next_speed_crtl_time = current_time + SPEED_CONTROL_TIMER_STEPS;
 	}
 }
 
@@ -57,6 +69,7 @@ void main_resume()
 	system_running();
 	
 	display_system_starting();
+
 	__delay_ms(10000);		//Wait for MPU to stabilize it
 	
 	display_system_running();
@@ -102,9 +115,8 @@ int main(void)
 				main_resume();
 			}
 		}
-		
 		// 3ms to do all main_action computations
-		__delay_ms((1000/MPU_DATA_RATE) - 2);
+		__delay_ms((1000/MPU_DATA_RATE) - 4);
 	}
 		
 	return -1;

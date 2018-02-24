@@ -1,6 +1,6 @@
-#include "mpu9250.h"
-#include "inv_mpu.h"
-#include "inv_mpu_dmp_motion_driver.h"
+#include "mpu/mpu9250.h"
+#include "mpu/inv_mpu.h"
+#include "mpu/inv_mpu_dmp_motion_driver.h"
 #include "util/trace.h"
 #include "Wire.h"
 

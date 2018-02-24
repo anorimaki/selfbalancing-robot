@@ -2,8 +2,7 @@ import { Component, ViewChild, Input, Output, EventEmitter } from '@angular/core
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { RbChartComponent, RbChartSerie } from 'app/shared/chart/chart.component';
-import { DataService } from '../data.service';
-import { NotificationService } from "app/core/notification.service";
+import { PidDataService } from '../data.service';
 import { PidStep } from "app/shared/pid-step";
 
 @Component( {
@@ -18,15 +17,13 @@ export class PidDataComponent {
 	@Input()
 	private variableName: string;
 
+	private service: PidDataService<PidStep>;
 	private dataSubscription: Subscription;
-	
-	constructor( private dataService: DataService,
-				private notificationService: NotificationService ) {
-	}
 
-	init( dataSize: number, data: Observable<PidStep[]> ): void {
+	init( dataSize: number, service: PidDataService<PidStep> ): void {
+		this.service = service;
 		this.chart.dataSize = dataSize;
-		this.dataSubscription = data.subscribe( state  => {
+		this.dataSubscription = service.getData().subscribe( state  => {
 			this.chart.insert( state );
 		});
 	}
@@ -38,14 +35,14 @@ export class PidDataComponent {
 	}
 
 	private isEnabled(): boolean {
-		return this.dataService.isPolling;
+		return this.service && this.service.isPolling;
 	}
 
 	private onEnable() {
-		this.dataService.startPolling();
+		this.service.startPolling();
 	}
 
 	private onDisable() {
-		this.dataService.stopPolling();
+		this.service.stopPolling();
 	}
 }

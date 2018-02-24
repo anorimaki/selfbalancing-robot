@@ -5,8 +5,8 @@ export class PidStep {
 			//Take this values from motor controller code
     static readonly PID_MAX_OUTPUT = 0x7FFF;
     static readonly PID_MIN_OUTPUT = -PidStep.PID_MAX_OUTPUT;
-    static readonly PID_MAX_INTEGRAL_ERROR = 0x000FFFF;
-	static readonly PID_MIN_INTEGRAL_ERROR = -PidStep.PID_MAX_OUTPUT;
+    static readonly PID_MAX_INTEGRAL_ERROR = 0x001FFFF;
+	static readonly PID_MIN_INTEGRAL_ERROR = -PidStep.PID_MAX_INTEGRAL_ERROR;
 	
 	static readonly PID_INPUT_BIT_SIZE = 15;
 	static readonly PID_CONSTANT_BIT_SIZE = 13
@@ -32,8 +32,8 @@ export class PidStep {
     }
         
     private calculateOutputs( state: PidState, settings: PidSettings ): void {
-        let error = state.target - state.current;
-        
+		let error = state.target - state.current;
+		
 		let integralError = state.integralError + error;
         if ( integralError > PidStep.PID_MAX_INTEGRAL_ERROR )
             integralError = PidStep.PID_MAX_INTEGRAL_ERROR;

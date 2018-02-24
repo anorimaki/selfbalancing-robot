@@ -1,5 +1,5 @@
 #include <Arduino.h>		//define min
-#include "inv_esp8266_adapter.h"
+#include "mpu/inv_esp8266_adapter.h"
 #include "util/trace.h"
 #include "i2c/i2c.h"
 #include <stdio.h>

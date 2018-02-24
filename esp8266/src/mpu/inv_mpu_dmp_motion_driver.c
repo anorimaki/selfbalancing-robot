@@ -14,7 +14,7 @@
  *      @details    All functions are preceded by the dmp_ prefix to
  *                  differentiate among MPL and general driver function calls.
  */
-#include "../mpu/inv_mpu_dmp_motion_driver.h"
+#include "mpu/inv_mpu_dmp_motion_driver.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -37,7 +37,7 @@
 #if 1
 
 
-#include "inv_esp8266_adapter.h"
+#include "mpu/inv_esp8266_adapter.h"
 
 
 #elif defined EMPL_TARGET_STM32F4

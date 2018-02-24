@@ -16,6 +16,7 @@ export class HeadingDataComponent {
 	}
 
 	ngAfterViewInit() {
-		this.pidView.init( 100, this.dataService.heading.getData() );
+		// Wait a tick because the component's view has already been checked
+		setTimeout( () => this.pidView.init( 100, this.dataService.heading ), 0 );
 	}
 }

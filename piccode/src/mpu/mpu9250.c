@@ -65,7 +65,7 @@ MpuStatus mpu9250_get_data( MpuData* data ) {
 
 	int err = dmp_read_fifo( gyro, accel, quat, &timestamp, &sensors, &more );
 	if ( err != 0 ) {
-		return (more==0) ? MPU_NO_DATA : 
+		return (err==-4) ? MPU_NO_DATA : 
 			(err==-6) ? MPU_OVERUN : 
 			(err==-10) ? MPU_DATA_CORRUPTION : 
 			MPU_ERROR;

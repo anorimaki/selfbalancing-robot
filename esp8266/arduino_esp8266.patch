@@ -1,0 +1,27 @@
+diff -Naur esp8266.orig/cores/esp8266/core_esp8266_si2c.c esp8266/cores/esp8266/core_esp8266_si2c.c
+--- esp8266.orig/cores/esp8266/core_esp8266_si2c.c	2018-02-20 23:21:46.870318100 +0100
++++ esp8266/cores/esp8266/core_esp8266_si2c.c	2018-02-20 23:29:19.847588200 +0100
+@@ -162,6 +162,8 @@
+     return 2; //received NACK on transmit of address
+   }
+   for(i=0; i<len; i++) {
++	SCL_LOW();
++	twi_delay( TWI_CLOCK_STRETCH_MULTIPLIER*7 );
+     if(!twi_write_byte(buf[i])) {
+       if (sendStop) twi_write_stop();
+       return 3;//received NACK on transmit of data
+@@ -185,7 +187,13 @@
+     if (sendStop) twi_write_stop();
+     return 2;//received NACK on transmit of address
+   }
+-  for(i=0; i<(len-1); i++) buf[i] = twi_read_byte(false);
++  SCL_LOW();
++  twi_delay( TWI_CLOCK_STRETCH_MULTIPLIER*7 );
++  for(i=0; i<(len-1); i++) {
++	  buf[i] = twi_read_byte(false);
++	  SCL_LOW();
++	  twi_delay( TWI_CLOCK_STRETCH_MULTIPLIER*7 );
++  }
+   buf[len-1] = twi_read_byte(true);
+   if(sendStop) twi_write_stop();
+   i = 0;

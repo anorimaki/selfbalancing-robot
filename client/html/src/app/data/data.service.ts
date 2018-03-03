@@ -83,7 +83,7 @@ export class DataService {
 		this.speed = new PidDataService( settingsService.speedPid, 
 						notificationService, robotService.speed, 
 						(settings: PidSettings, state: PidState) => new SpeedStep(state, settings),
-						1000 );
+						700 );
 		this.pitch = new PidDataService( settingsService.pitchPid,
 						notificationService, robotService.pitch, 
 						(settings: PidSettings, state: PidState) => new PitchStep(state, settings),
@@ -91,7 +91,7 @@ export class DataService {
 		this.heading = new PidDataService( settingsService.headingPid,
 						notificationService, robotService.heading, 
 						(settings: PidSettings, state: PidState) => new HeadingStep(state, settings),
-						1000 );
+						700 );
 	}
 
 	startPolling(): void {

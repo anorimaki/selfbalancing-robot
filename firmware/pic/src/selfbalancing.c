@@ -40,7 +40,6 @@ void main_action()
 	}
 	last_motors_ctrl_time = current_time;
 
-
 	if ( !ctrl_update_motors_power( current_pitch ) ) {
 		return;
 	}

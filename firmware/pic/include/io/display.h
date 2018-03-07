@@ -10,7 +10,7 @@ void display_system_paused();
 void display_system_starting();
 void display_mpu_error();
 void display_mpu_result( MpuStatus status );
-
+void display_motor_control_overtime();
 
 #endif	/* DISPLAY_H */
 

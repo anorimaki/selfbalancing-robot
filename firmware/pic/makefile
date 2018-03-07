@@ -58,6 +58,8 @@ flash: $(FINAL_IMAGE)
 	$(PK3CMD) -P$(PIC_PROCESSOR) -F$(FINAL_IMAGE) -V3.25 -M
 	$(PK3CMD) -P$(PIC_PROCESSOR) -L
 
+clean:
+	rm -rf $(BUILD_DIR)
 
 #########################################
 ## Compiler stage

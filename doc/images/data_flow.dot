@@ -1,0 +1,20 @@
+digraph G {
+    graph [splines=line];
+    node [shape=box];
+    edge [fontsize=8];
+
+    PIC [label="PIC24FJ32GA002"];
+	MPU [label="MPU-9250"];
+	L_Motor[shape=record, label="<encoder>Left\nencoder|<motor>Left\nmotor"]
+	R_Motor[shape=record, label="<motor>Right\nmotor|<encoder>Right\nencoder"]
+
+    ESP8266 -> PIC [dir=both] [label="commands\nalgorithms states\n...", weight=2];
+    MPU -> PIC [label="quaternions"];
+	ESP8266 -> MPU [label="DMP firmware"];
+	
+	PIC -> R_Motor:motor [label=power];
+	R_Motor:encoder -> PIC [label=speed];
+	
+	PIC -> L_Motor:motor [label=power];
+	L_Motor:encoder -> PIC [label=speed];
+}

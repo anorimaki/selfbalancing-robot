@@ -1,0 +1,47 @@
+digraph G {
+    graph [rankdir="LR", splines=spline, pad=0.2, layout=dot, sep=.4, newrank=true];
+    node [shape=circle];
+    edge [fontsize=10];
+
+    subgraph cluster_0 {
+        style=filled;
+        color=lightgrey;
+		margin=20;
+		
+       	SpeedPID -> PitchPID [label="pitch\ntarget", weight=3];
+    	PitchPID -> PowerSumSub [label="power", weight=3];
+    	HeadingPID -> PowerSumSub [label="sterring"];
+        SpeedSum -> SpeedPID [label="current speed"];
+        SpeedSub -> HeadingPID [label="current sterring", weight=5];
+
+		PitchPID [label="Pitch\nPID", width=0.8, fixedsize=true, pos="3,0!"];
+    	SpeedPID [label="Speed\nPID", width=0.8, fixedsize=true, pos="1,0!"];
+    	HeadingPID [label="Heading\nPID", width=0.8, fixedsize=true, pos="3,-1.5!"];
+    	PowerSumSub[label="+/-", width=0.3, fixedsize=true, pos="5,0!"];
+    	SpeedSum[label="+", width=0.3, fixedsize=true, pos="5,-0.75!"];
+    	SpeedSub[label="-", width=0.3, fixedsize=true, pos="5,-1.5!"];
+
+		{rank="same"; PitchPID; HeadingPID;}
+		{rank="same"; PowerSumSub; SpeedSum; SpeedSub; }
+    }
+
+	ESP8266 -> SpeedPID [label="speed\n target", weight=3];
+	MPU -> PitchPID [label="current pitch"];
+	ESP8266 -> HeadingPID [xlabel="sterring target"];
+
+	PowerSumSub -> {LeftMotor, RightMotor};
+
+	SpeedSub -> RightEncoder [dir="back"];
+	SpeedSub -> LeftEncoder [dir="back"];
+	SpeedSum -> RightEncoder [dir="back"];
+	SpeedSum -> LeftEncoder [dir="back"];
+
+	ESP8266 [shape=plaintext, label="ESP8266", pos="-0.75,0!"];
+    MPU [shape=plaintext, label="MPU", pos="3,1.25!"];
+	LeftEncoder [shape=plaintext, label="Left motor\nencoder", pos="6,-0.75!"]
+	RightEncoder [shape=plaintext, label="Right motor\nencoder", pos="6,-1.5!"]
+	LeftMotor [shape=plaintext, label="Left\nmotor", pos="6,0.7!"]
+	RightMotor [shape=plaintext, label="Right\nmotor", pos="6,0!"]
+
+	{rank="same"; MPU; PitchPID}
+}

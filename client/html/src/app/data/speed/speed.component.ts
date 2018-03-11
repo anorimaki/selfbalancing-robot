@@ -1,5 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { DataService } from '../data.service';
 import { PidDataComponent } from '../pid/pid.component';
 
@@ -7,8 +6,8 @@ import { PidDataComponent } from '../pid/pid.component';
 	templateUrl: './speed.component.html',
 	styleUrls: ['./speed.component.css']
 } )
-export class SpeedDataComponent {
-	@ViewChild("pidView") 
+export class SpeedDataComponent implements AfterViewInit {
+	@ViewChild('pidView')
 	private pidView: PidDataComponent;
 
 	constructor( private dataService: DataService ) {

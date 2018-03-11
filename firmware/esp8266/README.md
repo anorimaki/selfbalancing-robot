@@ -10,11 +10,14 @@ When application starts perform the following actions:
 - Initializes MPU-9250 and loads stored calibration.
 - Loads DMP firmware to MPU-9250.
 - Signals PIC microcontroller to starts its activity.
-- Connects with WiFi AP.
+- Initializes WiFi connection.
 
 After initialization, the application:
 - Attends the HTTP requests to its REST API. The REST API is documented [here](./doc/restapi.md).
 - Monitor the `flash` button of the circuit. At runtime, this button allows you to change the PID offset calibration. A short pulse increases offset and a long pulse decreases it.
+
+## WiFi modes
+//TBD
 
 ## Build
 Build script is based on [makeEspArduino.mk](https://github.com/plerup/makeEspArduino). If you have problems to build the firmware, you could refer to this project that is pretty well documented. 
@@ -27,17 +30,17 @@ This software must be installed (in Cygwin environment, if you use Windows):
 - Perl
 - Make
 - Git
+- Patch
 
 ### Generate firmware
 #### WiFi settings
-Create `include/wifiproperties.h` file with your WiFi AP definitions. This is an example:
+Edit `include/wifiproperties.h` file with your WiFi AP definitions. This is an example:
 ```
-namespace wifi {
+#define WIFI_SSID "My AP SSID"
+#define WIFI_PASSWORD "Secret"
 
-static const char* ssid = "My AP SSID";
-static const char* password = "Secret";
-
-}
+#define WIFI_OWN_SSID "selfbalancing"
+#define WIFI_OWN_PASSWORD "selfbalancing"
 ```
 #### Compile
 ```

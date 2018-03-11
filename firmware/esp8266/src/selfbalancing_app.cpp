@@ -14,7 +14,10 @@ void Application::init()
 {
 	delay( 100 );
 	Serial.begin(115200);
+	Serial.setDebugOutput(false);
 	Serial.println();
+
+	TRACE( "CPU: %u MHz", ESP.getCpuFreqMHz() );
 
 	m_display.systemInitialization();
 	delay( 500 );
@@ -106,9 +109,10 @@ void Application::showData( const mpu::MpuData& data )
 }
 
 
-bool Application::initWifi()
+bool Application::connectAsStation()
 {
-	WiFi.begin( wifi::ssid, wifi::password );
+#ifdef WIFI_SSID
+	WiFi.begin( WIFI_SSID, WIFI_PASSWORD );
 
 	uint8_t status = WiFi.status();
 	while ( status == WL_DISCONNECTED ) {
@@ -122,9 +126,52 @@ bool Application::initWifi()
 		return false;
 	}
 
-	Serial.print( "IP address: " );
-	Serial.println( WiFi.localIP() );
+	TRACE( "IP address: %s", WiFi.localIP().toString().c_str() );
+#endif
 	return true;
+}
+
+
+bool Application::connectAsAP()
+{
+#ifdef WIFI_OWN_SSID
+	IPAddress localIP(192,168,4,2);
+	IPAddress gateway(192,168,4,1);
+	IPAddress subnet(255,255,255,0);
+
+	if ( !WiFi.softAPConfig(localIP, gateway, subnet) ) {
+		TRACE_ERROR( "WIFI AP error" );
+		return false;
+	}
+	if ( !WiFi.softAP(WIFI_OWN_SSID, WIFI_OWN_PASSWORD) ) {
+		TRACE_ERROR( "WIFI AP error" );
+		return false;
+	}
+
+	TRACE( "AP IP address: %s", WiFi.softAPIP().toString().c_str() );
+#endif
+	return true;
+}
+
+#if defined(WIFI_SSID) && defined(WIFI_OWN_SSID)
+#define WIFI_MODE WIFI_AP_STA
+#elif defined(WIFI_OWN_SSID)
+#define WIFI_MODE WIFI_AP
+#elif defined(WIFI_SSID)
+#define WIFI_MODE WIFI_STA
+#else
+#define WIFI_MODE WIFI_OFF
+#endif
+
+bool Application::initWifi()
+{
+	WiFi.persistent(false);
+	WiFi.mode(WIFI_MODE);
+
+	bool c1 = connectAsStation();
+	bool c2 = connectAsAP();
+	WiFi.printDiag(Serial);
+	return c1 && c2;
 }
 
 

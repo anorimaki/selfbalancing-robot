@@ -1,21 +1,20 @@
-import { Component, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Component, ViewChild, Input, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
-import { RbChartComponent, RbChartSerie } from 'app/shared/chart/chart.component';
+import { RbChartComponent } from 'app/shared/chart/chart.component';
 import { PidDataService } from '../data.service';
-import { PidStep } from "app/shared/pid-step";
+import { PidStep } from 'app/shared/pid-step';
 
 @Component( {
 	selector: 'rb-pid-data',
 	templateUrl: './pid.component.html',
 	styleUrls: ['./pid.component.css']
 } )
-export class PidDataComponent {
-	@ViewChild("chart") 
-	private chart: RbChartComponent;
-
+export class PidDataComponent implements OnDestroy {
 	@Input()
-	private variableName: string;
+	public variableName: string;
+
+	@ViewChild('chart')
+	private chart: RbChartComponent;
 
 	private service: PidDataService<PidStep>;
 	private dataSubscription: Subscription;
@@ -34,15 +33,18 @@ export class PidDataComponent {
 		}
 	}
 
-	private isEnabled(): boolean {
+	// Accessed from HTML template
+	public isEnabled(): boolean {
 		return this.service && this.service.isPolling;
 	}
 
-	private onEnable() {
+	// Accessed from HTML template
+	public onEnable() {
 		this.service.startPolling();
 	}
 
-	private onDisable() {
+	// Accessed from HTML template
+	public onDisable() {
 		this.service.stopPolling();
 	}
 }

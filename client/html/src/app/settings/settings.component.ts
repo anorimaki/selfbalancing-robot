@@ -1,13 +1,12 @@
 import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { RbPidComponent } from './pid/pid.component';
-import { NotificationService } from "app/core/notification.service";
+import { NotificationService } from 'app/core/notification.service';
 import { SettingsService, PidSettingsService } from './settings.service';
 import { Subscription } from 'rxjs/Subscription';
 
 
-
 class PidComponent {
-	private setSubscription: Subscription; 
+	private setSubscription: Subscription;
 	private getSubscription: Subscription;
 
 	constructor( private view: RbPidComponent,
@@ -25,40 +24,40 @@ class PidComponent {
 	}
 
 	toView(): void {
-		this.getSubscription = this.service.get().subscribe( 
+		this.getSubscription = this.service.get().subscribe(
 			settings => {
 				this.view.set( settings );
 			},
 			err => {
-				this.notificationService.error( "Error reading PID settings" );
+				this.notificationService.error( 'Error reading PID settings' );
 			});
 	}
 
 	toService(): void {
-		this.setSubscription = this.service.set( this.view.get() ).subscribe( 
-            () => {
-				this.notificationService.success( "PID settings saved" );
-            },
-            err => {
-                this.notificationService.error( "Error saving PID settings" );
+		this.setSubscription = this.service.set( this.view.get() ).subscribe(
+			() => {
+				this.notificationService.success( 'PID settings saved' );
+			},
+			err => {
+				this.notificationService.error( 'Error saving PID settings' );
 			});
 	}
 }
 
 
 @Component( {
-    selector: 'rb-settings',
-    templateUrl: './settings.component.html',
-    styleUrls: ['./settings.component.css']
+	selector: 'rb-settings',
+	templateUrl: './settings.component.html',
+	styleUrls: ['./settings.component.css']
 } )
 export class RbSettingsComponent implements OnInit, OnDestroy {
-	@ViewChild("pitchPid") 
+	@ViewChild('pitchPid')
 	private pitchPidView: RbPidComponent;
-	
-	@ViewChild("speedPid") 
+
+	@ViewChild('speedPid')
 	private speedPidView: RbPidComponent;
 
-	@ViewChild("headingPid") 
+	@ViewChild('headingPid')
 	private headingPidView: RbPidComponent;
 
 	private pitchPid: PidComponent;
@@ -69,17 +68,17 @@ export class RbSettingsComponent implements OnInit, OnDestroy {
 				private settingsService: SettingsService ) {}
 
 	ngOnInit() {
-        this.pitchPid = new PidComponent( this.pitchPidView, 
+		this.pitchPid = new PidComponent( this.pitchPidView,
 								this.settingsService.pitchPid,
 								this.notificationService );
-		this.speedPid = new PidComponent( this.speedPidView, 
+		this.speedPid = new PidComponent( this.speedPidView,
 								this.settingsService.speedPid,
 								this.notificationService );
-		this.headingPid = new PidComponent( this.headingPidView, 
+		this.headingPid = new PidComponent( this.headingPidView,
 								this.settingsService.headingPid,
-								this.notificationService );							
+								this.notificationService );
 		this.readPidSettings();
-    }
+	}
 
 	ngOnDestroy() {
 		this.pitchPid.destroy();
@@ -87,21 +86,23 @@ export class RbSettingsComponent implements OnInit, OnDestroy {
 		this.headingPid.destroy();
 	}
 
-	private applyPidAvailable(): boolean {
-		return this.pitchPidView.applyAvailable() || 
+	// Accessed from HTML template
+	public applyPidAvailable(): boolean {
+		return this.pitchPidView.applyAvailable() ||
 				this.speedPidView.applyAvailable() ||
 				this.headingPidView.applyAvailable();
+	}
+
+	// Accessed from HTML template
+	public  applyPid(): void {
+		this.pitchPid.toService();
+		this.speedPid.toService();
+		this.headingPid.toService();
 	}
 
 	private readPidSettings(): void {
 		this.pitchPid.toView();
 		this.speedPid.toView();
 		this.headingPid.toView();
-	}
-	
-	private applyPid(): void {
-		this.pitchPid.toService();
-		this.speedPid.toService();
-		this.headingPid.toService();
 	}
 }

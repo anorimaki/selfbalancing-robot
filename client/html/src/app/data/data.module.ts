@@ -40,8 +40,8 @@ const routes: Routes = [{
 		RbDataComponent,
 	],
 	providers: [
-        DataService
-    ]
+		DataService
+	]
 })
 export class DataModule { }
 

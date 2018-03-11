@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MpuCalibrationData } from 'app/core/mpu-data';
-import { NotificationService } from "app/core/notification.service";
+import { NotificationService } from 'app/core/notification.service';
 import { RobotService } from 'app/core/robot.service';
 
 @Component({
@@ -8,8 +8,9 @@ import { RobotService } from 'app/core/robot.service';
 	templateUrl: './calibration.component.html',
 	styleUrls: ['./calibration.component.css']
 })
-export class MpuCalibrationComponent {
-	private data: MpuCalibrationData;
+export class MpuCalibrationComponent implements OnInit {
+	// Accessed from HTML template
+	public data: MpuCalibrationData;
 
 	constructor( private robotService: RobotService,
 				private notificationService: NotificationService ) {}
@@ -20,9 +21,9 @@ export class MpuCalibrationComponent {
 				this.data = calibrationData;
 			},
 			err => {
-				this.notificationService.error( "Error reading MPU calibration" );
+				this.notificationService.error( 'Error reading MPU calibration' );
 			});
-    }
+	}
 
 	doCalibration() {
 		this.robotService.mpu.doCalibration().subscribe(
@@ -30,7 +31,7 @@ export class MpuCalibrationComponent {
 				this.data = calibrationData;
 			},
 			err => {
-				this.notificationService.error( "Error doing MPU calibration" );
+				this.notificationService.error( 'Error doing MPU calibration' );
 			});
 	}
 }

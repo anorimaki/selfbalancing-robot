@@ -1,15 +1,13 @@
-import { Component, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { DataService } from '../data.service';
 import { PidDataComponent } from '../pid/pid.component';
-import { PidStep } from 'app/shared/pid-step';
 
 @Component( {
 	templateUrl: './pitch.component.html',
 	styleUrls: ['./pitch.component.css']
 } )
-export class PitchDataComponent {
-	@ViewChild("pidView") 
+export class PitchDataComponent implements AfterViewInit {
+	@ViewChild('pidView')
 	private pidView: PidDataComponent;
 
 	constructor( private dataService: DataService ) {

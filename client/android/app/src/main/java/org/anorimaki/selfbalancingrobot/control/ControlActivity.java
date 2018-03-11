@@ -1,10 +1,16 @@
 package org.anorimaki.selfbalancingrobot.control;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.anorimaki.selfbalancingrobot.R;
+import org.anorimaki.selfbalancingrobot.settings.SettingsActivity;
 
 import javax.inject.Inject;
 
@@ -26,11 +32,35 @@ public class ControlActivity extends DaggerAppCompatActivity implements ControlC
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
         super.onCreate(savedInstanceState);
 		setContentView(R.layout.control_act);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         resposeTimeView = findViewById(R.id.response_time);
 	}
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            // launch settings activity
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
 	@Override
     protected void onResume() {

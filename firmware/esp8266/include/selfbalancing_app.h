@@ -20,10 +20,14 @@ public:
 
 private:
 	void initMotors();
+
 	bool mpuInitialization();
 	bool initMpu();
-	bool initWifi();
 	bool checkMpu();
+
+	bool initWifi();
+	bool connectAsStation();
+	bool connectAsAP();
 
 	void doInput();
 	bool changeMpuOffset( bool inc );

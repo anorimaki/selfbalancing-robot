@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FlexLayoutModule } from "@angular/flex-layout";
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatInputModule, MatListModule, MatButtonModule } from '@angular/material';
 
 import { RbSettingsComponent } from './settings.component';
@@ -13,24 +13,24 @@ import { MpuSettingsComponent } from './mpu/settings.component';
 
 @NgModule( {
 	imports: [
-        FormsModule,
-        MatInputModule,
+		FormsModule,
+		MatInputModule,
 		MatButtonModule,
 		MatListModule,
 		FlexLayoutModule,
-		CommonModule 
-    ],
-    declarations: [
+		CommonModule
+	],
+	declarations: [
 		RbSettingsComponent,
 		RbPidComponent,
 		MpuSettingsComponent,
 		MpuCalibrationComponent
-    ],
-    exports: [
-        RbSettingsComponent
+	],
+	exports: [
+		RbSettingsComponent
 	],
 	providers: [
-        SettingsService
-    ]
+		SettingsService
+	]
 } )
-export class SettingsModule { }
+export class SettingsModule {}

@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { PidSettings } from "app/core/pid-settings";
-import { Observable } from "rxjs/Observable";
+import { PidSettings } from 'app/core/pid-settings';
 
 @Component({
 	selector: 'rb-pid',
@@ -9,8 +8,11 @@ import { Observable } from "rxjs/Observable";
 	styleUrls: ['./pid.component.css']
 })
 export class RbPidComponent {
-	private current: PidSettings;
-	private newVal: PidSettings;
+	// Accessed from HTML template
+	public  current: PidSettings;
+
+	// Accessed from HTML template
+	public newVal: PidSettings;
 
 	constructor(private ref: ChangeDetectorRef) {
 		this.current = new PidSettings();
@@ -30,8 +32,8 @@ export class RbPidComponent {
 	}
 
 	applyAvailable(): boolean {
-		return (this.newVal.proportional != undefined) ||
-			(this.newVal.integral != undefined) ||
-			(this.newVal.derivative != undefined);
+		return (this.newVal.proportional !== undefined) ||
+			(this.newVal.integral !== undefined) ||
+			(this.newVal.derivative !== undefined);
 	}
 }

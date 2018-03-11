@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RobotService } from 'app/core/robot.service';
 import { MpuSettings } from 'app/core/mpu-data';
-import { NotificationService } from "app/core/notification.service";
+import { NotificationService } from 'app/core/notification.service';
 
 
 @Component({
@@ -9,9 +9,12 @@ import { NotificationService } from "app/core/notification.service";
 	templateUrl: './settings.component.html',
 	styleUrls: ['./settings.component.css']
 })
-export class MpuSettingsComponent {
-	private settings: MpuSettings;
-	private newValue: MpuSettings;
+export class MpuSettingsComponent implements OnInit {
+	// Accessed from HTML template
+	public settings: MpuSettings;
+
+	// Accessed from HTML template
+	public newValue: MpuSettings;
 
 	constructor( private robotService: RobotService,
 				private notificationService: NotificationService ) {}
@@ -19,10 +22,9 @@ export class MpuSettingsComponent {
 	ngOnInit() {
 		this.read();
 	}
-	
-	private apply() {
 
-
+	// Accessed from HTML template
+	public apply() {
 		this.robotService.mpu.setSettings({
 			pitchOffset: this.newValue.pitchOffset * 3.1415 / 180
 		}).subscribe(
@@ -30,7 +32,7 @@ export class MpuSettingsComponent {
 				this.read();
 			},
 			err => {
-				this.notificationService.error( "Error setting MPU settings" );
+				this.notificationService.error( 'Error setting MPU settings' );
 			});
 	}
 
@@ -43,7 +45,7 @@ export class MpuSettingsComponent {
 				this.newValue = Object.assign( {}, this.settings );
 			},
 			err => {
-				this.notificationService.error( "Error reading MPU settings" );
+				this.notificationService.error( 'Error reading MPU settings' );
 			});
 	}
 }

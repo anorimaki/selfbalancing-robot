@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/pref_general">
+        <EditTextPreference
+            android:key="robot_ip"
+            android:summary="@string/pref_robot_robotIpSummary"
+            android:title="@string/pref_robotIp"
+            android:defaultValue="192.168.4.2" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_about">
+        <Preference
+            android:selectable="false"
+            android:summary="@string/pref_about_summary" />
+
+        <Preference
+            android:summary="@string/pref_app_version"
+            android:title="@string/pref_title_version" />
+    </PreferenceCategory>
+</PreferenceScreen>

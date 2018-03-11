@@ -1,4 +1,4 @@
-import { NgModule, ErrorHandler } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,30 +14,30 @@ import { SharedModule } from './shared/shared.module';
 
 
 const routes: Routes = [
-    { path: '', redirectTo: '/control', pathMatch: 'full' },
-    { path: 'control', component: RbControlComponent },
-    { path: 'data', component: RbDataComponent },
-    { path: 'settings', component: RbSettingsComponent }
+	{ path: '', redirectTo: '/control', pathMatch: 'full' },
+	{ path: 'control', component: RbControlComponent },
+	{ path: 'data', component: RbDataComponent },
+	{ path: 'settings', component: RbSettingsComponent }
 ];
 
 @NgModule( {
-    imports: [
-        CoreModule,
-        MatToolbarModule,
-        MatButtonModule,
-        ControlModule,
-        DataModule,
-        SettingsModule,
-        SharedModule,
-        RouterModule.forRoot(routes),
-    ],
-    exports: [
-        RouterModule 
-    ],
-    declarations: [
-        AppComponent
-    ],
+	imports: [
+		CoreModule,
+		MatToolbarModule,
+		MatButtonModule,
+		ControlModule,
+		DataModule,
+		SettingsModule,
+		SharedModule,
+		RouterModule.forRoot(routes),
+	],
+	exports: [
+		RouterModule
+	],
+	declarations: [
+		AppComponent
+	],
 
-    bootstrap: [AppComponent]
+	bootstrap: [AppComponent]
 } )
 export class AppModule { }

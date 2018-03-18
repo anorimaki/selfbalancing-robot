@@ -4,6 +4,7 @@
 #include "i2c/i2c.h"
 #include "wifiproperties.h"
 #include "motors_i2c_api.h"
+#include <ArduinoOTA.h>
 
 
 namespace selfbalancing
@@ -23,6 +24,8 @@ void Application::init()
 	delay( 500 );
 
 	initMotors();
+
+	initOTA();
 
 	if ( !m_motors.isRunning() ) {
 		if( !mpuInitialization() ) {
@@ -54,6 +57,8 @@ void Application::init()
 void Application::loop()
 {
 	doInput();
+
+	ArduinoOTA.handle();
 
 	if ( m_httpServer ) {
 		m_httpServer->impl().handleClient();
@@ -228,6 +233,34 @@ bool Application::initMpu()
 	}
 
 	return true;
+}
+
+
+void Application::initOTA()
+{
+	ArduinoOTA.onStart([]() {
+		TRACE("OTA: Update start");
+	});
+	ArduinoOTA.onEnd([]() {
+		TRACE("OTA: Update end");
+	});
+	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+		TRACE("OTA: Progress %u%%", progress / (total / 100));
+	});
+	ArduinoOTA.onError([](ota_error_t error) {
+		if (error == OTA_AUTH_ERROR)
+			TRACE_ERROR("OTA: Auth Failed")
+		else if (error == OTA_BEGIN_ERROR)
+			TRACE_ERROR("Begin Failed" )
+		else if (error == OTA_CONNECT_ERROR)
+			TRACE_ERROR("Connect Failed" )
+		else if (error == OTA_RECEIVE_ERROR)
+			TRACE_ERROR("Recieve Failed" )
+		else if (error == OTA_END_ERROR)
+			TRACE_ERROR("End Failed" )
+	});
+	ArduinoOTA.setHostname(net::hostName);
+	ArduinoOTA.begin();
 }
 
 

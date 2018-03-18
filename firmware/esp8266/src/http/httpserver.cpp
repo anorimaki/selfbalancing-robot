@@ -112,8 +112,31 @@ PidService::PidService( ESP8266WebServer* impl, const std::string& path,
 }
 
 
-static StaticJsonBuffer<1024*20> jsonBuffer;
+static StaticJsonBuffer<1024*10> jsonBuffer;
 
+template <typename Print>
+static size_t serialize( const ::PIDStateEntry& state, Print& print ) {
+	jsonBuffer.clear();
+	JsonObject& entry = jsonBuffer.createObject();
+	entry["i"] = state.index;
+	entry["tar"] = state.state.target;
+	entry["cur"] = state.state.current;
+	entry["p_err"] = state.state.previous_error;
+	entry["i_err"] = state.state.integral_error;
+	return entry.printTo(print);
+}
+
+
+class DummyPrint {
+public:
+	size_t print(char) {
+		return 1;
+	}
+
+	size_t print(const char* s) {
+		return strlen(s);
+	}
+};
 
 void PidService::handleState() {
 	std::vector<::PIDStateEntry> states;
@@ -123,18 +146,31 @@ void PidService::handleState() {
 		return;
 	}
 
-	jsonBuffer.clear();
-	JsonArray& array = jsonBuffer.createArray();
-	std::for_each( states.begin(), states.end(), [&array](const ::PIDStateEntry& state) {
-			JsonObject& entry = array.createNestedObject();
-			entry["i"] = state.index;
-			entry["tar"] = state.state.target;
-			entry["cur"] = state.state.current;
-			entry["p_err"] = state.state.previous_error;
-			entry["i_err"] = state.state.integral_error;
-		} );
+	int length = std::accumulate( states.begin(), states.end(), 0, []( int accum, const ::PIDStateEntry& state) {
+			DummyPrint dummyPrint;
+			return accum + serialize( state, dummyPrint );
+		}) + 1 + states.size();
 
-	sendJson( *m_impl, array );
+	//Send headers
+	m_impl->sendHeader( ACCESS_CONTROL_ALLOW_ORIGIN, "*" );
+	m_impl->setContentLength( length );
+	m_impl->send( 200, "application/json" );
+
+	WiFiClient client = m_impl->client();
+	io::PrintBuffer<1760> printBuf(&client);
+
+	printBuf.print('[');
+	std::vector<::PIDStateEntry>::iterator it=states.begin();
+	if ( it != states.end() ) {
+		serialize( *it, printBuf );
+	}
+	++it;
+	std::for_each( it, states.end(), [&printBuf](const ::PIDStateEntry& state) {
+		printBuf.print(',');
+		serialize( state, printBuf );
+	});
+	printBuf.print(']');
+	printBuf.flush();
 }
 
 

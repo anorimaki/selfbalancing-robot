@@ -19,6 +19,8 @@ public:
 
 
 private:
+	void initOTA();
+
 	void initMotors();
 
 	bool mpuInitialization();

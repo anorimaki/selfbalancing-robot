@@ -29,6 +29,17 @@ private:
 
 class Server
 {
+private:
+	class AsyncWebServerImpl: public AsyncWebServer {
+	public:
+		AsyncWebServerImpl( uint16_t port ): AsyncWebServer(port) {}
+
+		void begin() {
+			_server.setNoDelay(true);
+			AsyncWebServer::begin();
+		}
+	};
+
 public:
 	Server( motion::Motors* motors, mpu::Mpu9250* m_mpu, io::Display* display );
 
@@ -49,7 +60,7 @@ private:
 	void handlePutTargets( AsyncWebServerRequest* request, char* data, size_t len );
 
 private:
-	AsyncWebServer m_impl;
+	AsyncWebServerImpl m_impl;
 	motion::Motors* m_motors;
 	io::Display* m_display;
 	mpu::Mpu9250* m_mpu;

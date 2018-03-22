@@ -1,13 +1,12 @@
 #include "http/httpserver.h"
 #include "http/webhandlers.h"
+#include "http/pidstatesstream.h"
 #include "util/trace.h"
 #include "util/printbuffer.h"
 #include "i2c/i2c.h"
 #include "util/arduino_stl_support.h"
 #include "motors_i2c_model.h"
-#include <AsyncJson.h>
 #include <ArduinoJson.h>
-#include <StreamString.h>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -15,8 +14,14 @@
 
 
 
-int snprintf( char * s, size_t n, const char * format, ... );
+extern "C" {
 
+//int snprintf( char * s, size_t n, const char * format, ... );
+
+//Declared in espconn.h but we can't include here due to type conflics.
+sint8 espconn_tcp_set_max_con(uint8 num);
+
+}
 
 
 namespace http
@@ -61,6 +66,7 @@ static void sendError( AsyncWebServerRequest* request ) {
 	request->send( 500, CONTENT_TYPE_JSON, content );
 }
 
+
 /************************************************************************/
 // PidService
 /************************************************************************/
@@ -80,90 +86,11 @@ PidService::PidService( AsyncWebServer* impl, const std::string& path,
 }
 
 
-class PidStatesStream: public Stream {
-public:
-	PidStatesStream( std::unique_ptr<std::vector<::PIDStateEntry>> array ): m_array(std::move(array)) {
-		m_length = calculateLength();
-		m_read = 0;
-		m_it = m_array->begin();
-		m_currentSerialization = "[";
-		m_currentSerializationPos = m_currentSerialization.begin();
-	}
-
-	int available() override {
-		return m_length - m_read;
-	}
-
-	size_t write(uint8_t data) override {
-		//Unsupported
-		return 0;
-	}
-
-	int read() override {
-		int ret = peek();
-		if ( ret != -1 ) {
-			++m_currentSerializationPos;
-			++m_read;
-		}
-		return ret;
-	}
-
-	int peek() override {
-		if ( m_currentSerializationPos == m_currentSerialization.end() ) {
-			if ( m_it == m_array->end() ) {
-				return -1;
-			}
-			serialize(*m_it);
-			++m_it;
-
-			char concatChar = (m_it == m_array->end()) ? ']' : ',';
-			m_currentSerialization.concat(concatChar);
-			m_currentSerializationPos = m_currentSerialization.begin();
-		}
-
-		return *m_currentSerializationPos;
-	}
-
-	void flush() override {}
-
-private:
-	int calculateLength() {
-		int itemsSerializationSize = std::accumulate( m_array->begin(), m_array->end(), 0, [this](int acc, const ::PIDStateEntry& state) {
-			serialize(state);
-			return acc + m_currentSerialization.length();
-		});
-		return itemsSerializationSize + 1 + m_array->size();
-	}
-
-	void serialize( const ::PIDStateEntry& state ) {
-		m_jsonBuffer.clear();
-		JsonObject& entry = m_jsonBuffer.createObject();
-		entry["i"] = state.index;
-		entry["tar"] = state.state.target;
-		entry["cur"] = state.state.current;
-		entry["p_err"] = state.state.previous_error;
-		entry["i_err"] = state.state.integral_error;
-
-		m_currentSerialization = "";
-		entry.printTo(m_currentSerialization);
-	}
-
-private:
-	std::unique_ptr<std::vector<::PIDStateEntry>> m_array;
-	int m_read;
-	int m_length;
-	std::vector<::PIDStateEntry>::const_iterator m_it;
-	String m_currentSerialization;
-	const char* m_currentSerializationPos;
-	StaticJsonBuffer<JSON_OBJECT_SIZE(5)> m_jsonBuffer;
-};
-
-
-
 void PidService::handleState( AsyncWebServerRequest *request ) {
 	std::unique_ptr<std::vector<::PIDStateEntry>> states( new std::vector<::PIDStateEntry>() );
+	states->reserve(200);
 	if ( !m_pidEngine->state( *states ) ) {
-		TRACE_ERROR( "Error reading PID states" );
+		TRACE_ERROR( F("Error reading PID states") );
 		sendError(request);
 		return;
 	}
@@ -180,7 +107,7 @@ void PidService::handleState( AsyncWebServerRequest *request ) {
 void PidService::handleSettings( AsyncWebServerRequest *request ) {
 	::PIDSettings settings;
 	if ( !m_pidEngine->settins(settings) ) {
-		TRACE_ERROR( "Error reading PID settings" );
+		TRACE_ERROR( F("Error reading PID settings") );
 		sendError(request);
 		return;
 	}
@@ -206,7 +133,7 @@ void PidService::handleSetSettings( AsyncWebServerRequest *request, char* data, 
 	settings.k_d = root["derivative"];
 
 	if ( !m_pidEngine->setSettins(settings) ) {
-		TRACE_ERROR( "Error settings pitch PID settings" );
+		TRACE_ERROR( F("Error settings pitch PID settings") );
 		sendError( request );
 		return;
 	}
@@ -222,6 +149,9 @@ void PidService::handleSetSettings( AsyncWebServerRequest *request, char* data, 
 Server::Server( motion::Motors* motors, mpu::Mpu9250* mpu, io::Display* display ):
 				m_motors(motors), m_display(display), m_mpu(mpu), m_impl(80)
 {
+	//limits the number of connections to prevent RAM from running out
+	espconn_tcp_set_max_con(3);
+
 //	m_impl.on( "/", HTTP_ANY, [](AsyncWebServerRequest *request) {
 //			request->redirect("/index.html");
 //		});
@@ -260,7 +190,7 @@ void Server::handleGetMpuSettings( AsyncWebServerRequest* request )
 {
 	int32_t pitchOffset;
 	if ( !m_motors->getMpuOffset(&pitchOffset) ) {
-		TRACE_ERROR( "Error reading MPU settings" );
+		TRACE_ERROR( F("Error reading MPU settings") );
 		sendError( request );
 		return;
 	}
@@ -280,7 +210,7 @@ void Server::handlePutMpuSettings( AsyncWebServerRequest* request, char* data, s
 
 	float pitchOffset = root["pitchOffset"];
 	if ( !m_motors->setMpuOffset( pitchOffset*0x10000 ) ) {		//Convert float to Q16
-		TRACE_ERROR( "Error setting MPU settings" );
+		TRACE_ERROR( F("Error setting MPU settings") );
 		sendError( request );
 		return;
 	}
@@ -330,14 +260,14 @@ void Server::handlePutTargets( AsyncWebServerRequest* request, char* data, size_
 
 	int16_t speed = root["speed"];
 	if ( !m_motors->speed().setTarget( speed ) ) {
-		TRACE_ERROR( "Error setting speed target" );
+		TRACE_ERROR( F("Error setting speed target") );
 		sendError( request );
 		return;
 	}
 
 	int16_t heading = root["heading"];
 	if ( !m_motors->heading().setTarget( heading ) ) {
-		TRACE_ERROR( "Error setting heading target" );
+		TRACE_ERROR( F("Error setting heading target") );
 		sendError( request );
 		return;
 	}

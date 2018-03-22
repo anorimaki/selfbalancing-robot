@@ -28,7 +28,7 @@ bool write( unsigned char slave_addr, unsigned char reg_addr,
 	}
 
 	if ( Wire.endTransmission(true) != 0 ) {
-		TRACE_ERROR( "I2C write error on device: %X, reg: %X", slave_addr, reg_addr );
+		TRACE_ERROR( F("I2C write error on device: %X, reg: %X"), slave_addr, reg_addr );
 		return false;
 	}
 
@@ -43,7 +43,7 @@ bool read( unsigned char slave_addr, unsigned char reg_addr,
 #if 1
 	int err = twi_writeTo(slave_addr, &reg_addr, 1, false);
 	if ( err != 0 ) {
-		TRACE_ERROR( "I2C write error: %d on device: %X, reg: %X", err, slave_addr, reg_addr );
+		TRACE_ERROR( F("I2C write error: %d on device: %X, reg: %X"), err, slave_addr, reg_addr );
 		return false;
 	}
 
@@ -51,7 +51,7 @@ bool read( unsigned char slave_addr, unsigned char reg_addr,
 
 	err = twi_readFrom(slave_addr, data, length, true);
 	if ( err != 0 ) {
-		TRACE_ERROR( "I2C read error: %d", err );
+		TRACE_ERROR( F("I2C read error: %d"), err );
 		return false;
 	}
 #else

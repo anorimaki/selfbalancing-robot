@@ -2862,14 +2862,14 @@ int mpu_read_mem(unsigned short mem_addr, unsigned short length,
  *  @param[in]  sample_rate Fixed sampling rate used when DMP is enabled.
  *  @return     0 if successful.
  */
-int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
+int mpu_load_firmware(unsigned short length, PGM_P firmware,
     unsigned short start_addr, unsigned short sample_rate)
 {
     unsigned short ii;
     unsigned short this_write;
     /* Must divide evenly into st.hw->bank_size to avoid bank crossings. */
 #define LOAD_CHUNK  (16)
-    unsigned char cur[LOAD_CHUNK], tmp[2];
+    unsigned char written[LOAD_CHUNK], readed[LOAD_CHUNK], tmp[2];
 
     if (st.chip_cfg.dmp_loaded)
         /* DMP should only be loaded once. */
@@ -2877,13 +2877,16 @@ int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
 
     if (!firmware)
         return -1;
+
     for (ii = 0; ii < length; ii += this_write) {
         this_write = min(LOAD_CHUNK, length - ii);
-        if (mpu_write_mem(ii, this_write, (unsigned char*)&firmware[ii]))
+        memcpy_P( written, firmware+ii, this_write );
+
+        if (mpu_write_mem(ii, this_write, written))
             return -1;
-        if (mpu_read_mem(ii, this_write, cur))
+        if (mpu_read_mem(ii, this_write, readed))
             return -1;
-        if (memcmp(firmware+ii, cur, this_write))
+        if (memcmp(written, readed, this_write))
             return -2;
     }
 

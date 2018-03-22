@@ -12,8 +12,8 @@ export class PidService {
 	private settingsUrl;
 
 	constructor( urlPath: string, private http: Http  ) {
-		this.stateUrl = `${environment.robotUrl}/${urlPath}/state`;
-		this.settingsUrl = `${environment.robotUrl}/${urlPath}/settings`;
+		this.stateUrl = `${environment.robotUrl}${urlPath}/state`;
+		this.settingsUrl = `${environment.robotUrl}${urlPath}/settings`;
 	}
 
 	getState(): Observable<PidState[]> {
@@ -40,8 +40,8 @@ export class MpuService {
 	private settingsUrl;
 
 	constructor( private http: Http  ) {
-		this.calibrationUrl = `${environment.robotUrl}/mpu/calibration`;
-		this.settingsUrl = `${environment.robotUrl}/mpu/settings`;
+		this.calibrationUrl = `${environment.robotUrl}mpu/calibration`;
+		this.settingsUrl = `${environment.robotUrl}mpu/settings`;
 	}
 
 	getCalibration(): Observable<MpuCalibrationData> {

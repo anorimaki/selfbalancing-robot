@@ -75,13 +75,10 @@ public:
 		m_display->httpRequestBegin();
 
 		if (index == 0 ) {
-			request->setAppData( malloc(total) );
-			request->onDisconnect( [request] {
-				free( request->appData() );
-			});
+			request->_tempObject = malloc(total);
 		}
 
-		char* buffer = request->appData<char>();
+		char* buffer = reinterpret_cast<char*>(request->_tempObject);
 		memcpy( buffer+index, data, len );
 
 		if (index + len == total) {

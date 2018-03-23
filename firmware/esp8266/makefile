@@ -3,7 +3,7 @@ ARDUINO_ESP8288_TAG=2.4.0
 # Directories
 BUILD_DIR=build
 ESP_ROOT=$(BUILD_DIR)/esp8266
-FS_DIR=build/data
+FS_DIR=data
 
 #Other libraries
 PIC_CODE_API_DIR=../pic/include/api
@@ -17,12 +17,12 @@ UPLOAD_PORT?=COM6			#Default COM6
 default:
 	make all
 
-$(FS_DIR)/app: $(HTML_APP_DIR)
-	rm -rf $(FS_DIR)/app
+$(FS_DIR): $(HTML_APP_DIR)
+	rm -rf $(FS_DIR)
 	mkdir -p $(FS_DIR)
 	cp -r $(HTML_APP_DIR) $(FS_DIR)/app
 
-flash_fs: $(FS_DIR)/app
+flash_fs: $(FS_DIR)
 
 $(ESP_ROOT): |  $(BUILD_DIR)
 	git clone --depth 1 --branch $(ARDUINO_ESP8288_TAG) https://github.com/esp8266/Arduino.git $(ESP_ROOT)
@@ -36,7 +36,7 @@ $(ESP_ROOT)/.patch: $(ESP_ROOT)/tools/xtensa-lx106-elf/bin arduino_esp8266.patch
 	cd $(ESP_ROOT) && patch -p1 < ../../arduino_esp8266.patch 
 	touch $(ESP_ROOT)/.patch
 
-$(filter-out clean,$(MAKECMDGOALS)): $(ESP_ROOT)/.patch
+$(filter-out clean data,$(MAKECMDGOALS)): $(ESP_ROOT)/.patch
 	make -f makeEspArduino.mk BUILD_DIR=$(BUILD_DIR)/bin \
 		BOARD="nodemcuv2" \
 		ESP_ROOT=$(ESP_ROOT) \

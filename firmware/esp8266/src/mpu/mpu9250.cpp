@@ -234,7 +234,7 @@ bool Mpu9250::getData( Optional<MpuData>& data )
 		return true;
 	}
 	if ( err == -2 ) {
-		TRACE_ERROR_MSG_AND_RETURN( "Mpu FIFO overflow", false );
+		TRACE_ERROR_MSG_AND_RETURN( F("Mpu FIFO overflow"), false );
 	}
 
 	data = MpuData( timestamp );

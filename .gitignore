@@ -20,6 +20,7 @@ build/
 
 firmware/esp8266/.settings/
 firmware/esp8266/Release/
+firmware/esp8266/data/
 
 node_modules/
 

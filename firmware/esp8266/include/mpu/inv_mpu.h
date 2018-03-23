@@ -21,6 +21,8 @@
 #ifndef _INV_MPU_H_
 #define _INV_MPU_H_
 
+#include "pgmspace.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -126,7 +128,7 @@ int mpu_write_mem(unsigned short mem_addr, unsigned short length,
     unsigned char *data);
 int mpu_read_mem(unsigned short mem_addr, unsigned short length,
     unsigned char *data);
-int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
+int mpu_load_firmware(unsigned short length, PGM_P firmware,
     unsigned short start_addr, unsigned short sample_rate);
 
 int mpu_reg_dump(void);

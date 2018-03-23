@@ -1,11 +1,13 @@
 #include "http/httpserver.h"
+#include "http/httphandle.h"
 #include "util/trace.h"
 #include "util/printbuffer.h"
 #include "i2c/i2c.h"
-#include "ArduinoJson.h"
-#include "StreamString.h"
 #include "util/arduino_stl_support.h"
 #include "motors_i2c_model.h"
+#include <FS.h>
+#include <ArduinoJson.h>
+#include <StreamString.h>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -19,6 +21,9 @@ int snprintf( char * s, size_t n, const char * format, ... );
 
 namespace http
 {
+
+static const char* CONTENT_TYPE_JSON = "application/json";
+static const char* CONTENT_TYPE_HTML = "text/html";
 
 #define ACCESS_CONTROL_ALLOW_ORIGIN "Access-Control-Allow-Origin"
 #define ACCESS_CONTROL_REQUEST_HEADERS "Access-Control-Request-Headers"
@@ -37,7 +42,7 @@ static void sendJson( ESP8266WebServer& server, T& content )
 			//Send headers
 	server.sendHeader( ACCESS_CONTROL_ALLOW_ORIGIN, "*" );
 	server.setContentLength( content.measureLength() );
-	server.send( 200, "application/json" );
+	server.send( 200, CONTENT_TYPE_JSON );
 
 			//Send body
 	WiFiClient client = server.client();
@@ -55,18 +60,8 @@ static void sendNoContent( ESP8266WebServer& server )
 }
 
 static void sendError( ESP8266WebServer& impl ) {
-	String content = String("<html>\
-			  <head>\
-			    <title>ESP8266 error</title>\
-			    <style>\
-			      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
-			    </style>\
-			  </head>\
-			  <body>\
-			    <h1>Error stack</h1>");
-
+	String content = String("{\"error\":\"");
 	while( !error::globalStack().empty() ) {
-		content.concat( "<p>" );
 		const error::StackItem& item = error::globalStack().top();
 		content.concat( item.file() );
 		content.concat( "," );
@@ -75,21 +70,13 @@ static void sendError( ESP8266WebServer& impl ) {
 		content.concat( item.message().c_str() );
 		error::globalStack().pop();
 	}
+	content.concat("\"}");
 
-	content.concat("\
-			  </body>\
-			</html>");
-	impl.send( 500, "text/html", content );
+	impl.send( 500, CONTENT_TYPE_JSON, content );
 }
 
 typedef std::function<void()> HandlerFunction;
 
-static void handleRequest( io::Display* display, HandlerFunction handler )
-{
-	display->httpRequestBegin();
-	handler();
-	display->httpRequestEnd();
-}
 
 
 /************************************************************************/
@@ -98,17 +85,15 @@ static void handleRequest( io::Display* display, HandlerFunction handler )
 PidService::PidService( ESP8266WebServer* impl, const std::string& path,
 						motion::PidEngine* pidEngine, io::Display* display ):
 						m_impl(impl), m_pidEngine(pidEngine), m_display( display ) {
+	MethodHttpHandlerFactory<PidService> handler(this, display);
+
 	std::string statePath = path + "/state";
+	m_impl->on( statePath.c_str(), HTTPMethod::HTTP_GET, handler( &PidService::handleState ) );
+
 	std::string settingsPath = path + "/settings";
+	m_impl->on( settingsPath.c_str(), HTTPMethod::HTTP_GET, handler( &PidService::handleSettings ) );
 
-	HandlerFunction stateFn = std::bind( &PidService::handleState, this );
-	m_impl->on( statePath.c_str(), HTTPMethod::HTTP_GET, std::bind( &handleRequest, m_display, stateFn ) );
-
-	HandlerFunction settingsFn = std::bind( &PidService::handleSettings, this );
-	m_impl->on( settingsPath.c_str(), HTTPMethod::HTTP_GET, std::bind( &handleRequest, m_display, settingsFn ) );
-
-	HandlerFunction setSettingsFn = std::bind( &PidService::handleSetSettings, this );
-	m_impl->on( settingsPath.c_str(), HTTPMethod::HTTP_PUT, std::bind( &handleRequest, m_display, setSettingsFn ) );
+	m_impl->on( settingsPath.c_str(), HTTPMethod::HTTP_PUT, handler( &PidService::handleSetSettings ) );
 }
 
 
@@ -141,7 +126,7 @@ public:
 void PidService::handleState() {
 	std::vector<::PIDStateEntry> states;
 	if ( !m_pidEngine->state(states) ) {
-		TRACE_ERROR( "Error reading PID states" );
+		TRACE_ERROR( F("Error reading PID states") );
 		sendError(*m_impl);
 		return;
 	}
@@ -154,7 +139,7 @@ void PidService::handleState() {
 	//Send headers
 	m_impl->sendHeader( ACCESS_CONTROL_ALLOW_ORIGIN, "*" );
 	m_impl->setContentLength( length );
-	m_impl->send( 200, "application/json" );
+	m_impl->send( 200, CONTENT_TYPE_JSON );
 
 	WiFiClient client = m_impl->client();
 	io::PrintBuffer<1760> printBuf(&client);
@@ -177,7 +162,7 @@ void PidService::handleState() {
 void PidService::handleSettings() {
 	::PIDSettings settings;
 	if ( !m_pidEngine->settins(settings) ) {
-		TRACE_ERROR( "Error reading PID settings" );
+		TRACE_ERROR( F("Error reading PID settings") );
 		sendError(*m_impl);
 		return;
 	}
@@ -202,7 +187,7 @@ void PidService::handleSetSettings() {
 	settings.k_p = root["proportional"];
 	settings.k_d = root["derivative"];
 	if ( !m_pidEngine->setSettins(settings) ) {
-		TRACE_ERROR( "Error settings pitch PID settings" );
+		TRACE_ERROR( F("Error settings pitch PID settings") );
 		sendError(*m_impl);
 		return;
 	}
@@ -218,33 +203,32 @@ void PidService::handleSetSettings() {
 Server::Server( motion::Motors* motors, mpu::Mpu9250* mpu, io::Display* display ):
 				m_motors(motors), m_display(display), m_mpu(mpu)
 {
-	m_impl.on( "/", std::bind( &Server::handleRoot, this ) );
-
 	m_pitchService = new PidService( &m_impl, "/pitch", &m_motors->pitch(), m_display );
 	m_speedService = new PidService( &m_impl, "/speed", &m_motors->speed(), m_display );
 	m_headingService = new PidService( &m_impl, "/heading", &m_motors->heading(), m_display );
 
-	HandlerFunction putTargets = std::bind( &Server::handlePutTargets, this );
-	m_impl.on( "/targets", HTTPMethod::HTTP_PUT, std::bind( &handleRequest, m_display, putTargets ) );
+	MethodHttpHandlerFactory<Server> handler(this, display);
 
-	HandlerFunction getMpuSettings = std::bind( &Server::handleGetMpuSettings, this );
-	m_impl.on( "/mpu/settings", HTTPMethod::HTTP_GET, std::bind( &handleRequest, m_display, getMpuSettings ) );
+	m_impl.on( "/targets", HTTPMethod::HTTP_PUT, handler( &Server::handlePutTargets ) );
 
-	HandlerFunction putMpuSettings = std::bind( &Server::handlePutMpuSettings, this );
-	m_impl.on( "/mpu/settings", HTTPMethod::HTTP_PUT, std::bind( &handleRequest, m_display, putMpuSettings ) );
+	m_impl.on( "/mpu/settings", HTTPMethod::HTTP_GET, handler( &Server::handleGetMpuSettings ) );
+	m_impl.on( "/mpu/settings", HTTPMethod::HTTP_PUT, handler( &Server::handlePutMpuSettings ) );
 
-	HandlerFunction getMpuCalibration = std::bind( &Server::handleGetMpuCalibration, this );
-	m_impl.on( "/mpu/calibration", HTTPMethod::HTTP_GET, std::bind( &handleRequest, m_display, getMpuCalibration ) );
+	m_impl.on( "/mpu/calibration", HTTPMethod::HTTP_GET, handler( &Server::handleGetMpuCalibration ) );
+	m_impl.on( "/mpu/calibration", HTTPMethod::HTTP_PUT, handler( &Server::handlePutMpuCalibration ) );
 
-	HandlerFunction doMpuCalibration = std::bind( &Server::handlePutMpuCalibration, this );
-	m_impl.on( "/mpu/calibration", HTTPMethod::HTTP_PUT, std::bind( &handleRequest, m_display, doMpuCalibration ) );
+	SPIFFS.begin();
+	m_impl.serveStatic("/", SPIFFS, "/app/");
+
+	m_impl.on( "/", std::bind( &Server::handleRoot, this ) );
 
 	m_impl.onNotFound([this](){
 			if ( m_impl.method() == HTTP_OPTIONS ) {
 				handleOptionsRequest();
-				return;
 			}
-			handleRequest( m_display, std::bind( &Server::handleNotFound, this ) );
+			else {
+				handleNotFound();
+			}
 		});
 
 	m_impl.collectHeaders( headersToCollect, sizeof(headersToCollect)/sizeof(const char*) );
@@ -257,7 +241,7 @@ void Server::handleGetMpuSettings()
 {
 	int32_t pitchOffset;
 	if ( !m_motors->getMpuOffset(&pitchOffset) ) {
-		TRACE_ERROR( "Error reading MPU settings" );
+		TRACE_ERROR( F("Error reading MPU settings") );
 		sendError( m_impl );
 		return;
 	}
@@ -279,7 +263,7 @@ void Server::handlePutMpuSettings()
 	float pitchOffset;
 	pitchOffset = root["pitchOffset"];
 	if ( !m_motors->setMpuOffset( pitchOffset*0x10000 ) ) {		//Convert float to Q16
-		TRACE_ERROR( "Error setting MPU settings" );
+		TRACE_ERROR( F("Error setting MPU settings") );
 		sendError( m_impl );
 		return;
 	}
@@ -330,14 +314,14 @@ void Server::handlePutTargets()
 
 	int16_t speed = root["speed"];
 	if ( !m_motors->speed().setTarget( speed ) ) {
-		TRACE_ERROR( "Error setting speed target" );
+		TRACE_ERROR( F("Error setting speed target") );
 		sendError( m_impl );
 		return;
 	}
 
 	int16_t heading = root["heading"];
 	if ( !m_motors->heading().setTarget( heading ) ) {
-		TRACE_ERROR( "Error setting heading target" );
+		TRACE_ERROR( F("Error setting heading target") );
 		sendError( m_impl );
 		return;
 	}
@@ -348,33 +332,15 @@ void Server::handlePutTargets()
 
 void Server::handleRoot()
 {
-	char temp[400];
-	int sec = millis() / 1000;
-	int min = sec / 60;
-	int hr = min / 60;
-
-	snprintf ( temp, 400,
-					"<html>\
-					  <head>\
-						<meta http-equiv='refresh' content='5'/>\
-						<title>ESP8266 Self balancing robot</title>\
-						<style>\
-						  body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
-						</style>\
-					  </head>\
-					  <body>\
-						<h1>Hello from ESP8266!</h1>\
-						<p>Uptime: %02d:%02d:%02d</p>\
-					  </body>\
-					</html>",
-			hr, min % 60, sec % 60 );
-	m_impl.send ( 200, "text/html", temp );
+	File file = SPIFFS.open("/app/index.html", "r");
+	m_impl.streamFile(file, CONTENT_TYPE_HTML);
+	file.close();
 }
 
 
 void Server::handleNotFound()
 {
-	m_impl.send( 404, "text/html", "<h1>Resource not found</h1>" );
+	m_impl.send( 404, CONTENT_TYPE_HTML, "<h1>Resource not found</h1>" );
 }
 
 
@@ -390,7 +356,8 @@ void Server::handleOptionsRequest()
 	requestHeader = m_impl.header(ACCESS_CONTROL_REQUEST_METHOD);
 	m_impl.sendHeader( ACCESS_CONTROL_ALLOW_METHODS, (requestHeader.length()>0) ? requestHeader : "GET, POST, PUT, OPTIONS" );
 
-	m_impl.send( 200, "text/plain", "" );
+	sendNoContent( m_impl );
+	//m_impl.send( 200, "text/plain", "" );
 }
 
 

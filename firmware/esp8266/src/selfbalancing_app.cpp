@@ -15,10 +15,12 @@ void Application::init()
 {
 	delay( 100 );
 	Serial.begin(115200);
-	Serial.setDebugOutput(false);
+#ifdef DEBUG_ESP_CORE
+	Serial.setDebugOutput(true);
+#endif
 	Serial.println();
 
-	TRACE( "CPU: %u MHz", ESP.getCpuFreqMHz() );
+	TRACE( F("CPU: %u MHz"), ESP.getCpuFreqMHz() );
 
 	m_display.systemInitialization();
 	delay( 500 );
@@ -33,7 +35,7 @@ void Application::init()
 		}
 
 		if ( !m_motors.resume() ) {
-			TRACE_ERROR( "Motors start failed" );
+			TRACE_ERROR( F("Motors start failed") );
 			m_display.motorsInitError();
 			return;
 		}
@@ -56,13 +58,13 @@ void Application::init()
 
 void Application::loop()
 {
-	doInput();
-
 	ArduinoOTA.handle();
 
 	if ( m_httpServer ) {
 		m_httpServer->impl().handleClient();
 	}
+
+	doInput();
 
 	m_display.update();
 }
@@ -131,7 +133,7 @@ bool Application::connectAsStation()
 		return false;
 	}
 
-	TRACE( "IP address: %s", WiFi.localIP().toString().c_str() );
+	TRACE( F("IP address: %s"), WiFi.localIP().toString().c_str() );
 #endif
 	return true;
 }
@@ -145,15 +147,15 @@ bool Application::connectAsAP()
 	IPAddress subnet(255,255,255,0);
 
 	if ( !WiFi.softAPConfig(localIP, gateway, subnet) ) {
-		TRACE_ERROR( "WIFI AP error" );
+		TRACE_ERROR( F("WIFI AP error") );
 		return false;
 	}
 	if ( !WiFi.softAP(WIFI_OWN_SSID, WIFI_OWN_PASSWORD) ) {
-		TRACE_ERROR( "WIFI AP error" );
+		TRACE_ERROR( F("WIFI AP error") );
 		return false;
 	}
 
-	TRACE( "AP IP address: %s", WiFi.softAPIP().toString().c_str() );
+	TRACE( F("AP IP address: %s"), WiFi.softAPIP().toString().c_str() );
 #endif
 	return true;
 }
@@ -170,9 +172,9 @@ bool Application::connectAsAP()
 
 bool Application::initWifi()
 {
+	WiFi.hostname(net::hostName);
 	WiFi.persistent(false);
 	WiFi.mode(WIFI_MODE);
-
 	bool c1 = connectAsStation();
 	bool c2 = connectAsAP();
 	WiFi.printDiag(Serial);
@@ -202,12 +204,12 @@ bool Application::mpuInitialization()
 	}
 
 	if ( !m_mpu9250.end() ) {
-		TRACE_ERROR( "MPU end failed" );
+		TRACE_ERROR( F("MPU end failed") );
 		m_display.mpuInitError();
 		return false;
 	}
 
-	TRACE("MPU initialized");
+	TRACE( F("MPU initialized") );
 
 	i2c::init( i2c::MOTORS_SDA, i2c::MOTORS_SCL );	//Recover I2C channel
 
@@ -218,17 +220,17 @@ bool Application::mpuInitialization()
 bool Application::initMpu()
 {
 	if ( !m_mpu9250.init() ) {
-		TRACE_ERROR( "MPU initialization failed" );
+		TRACE_ERROR( F("MPU initialization failed") );
 		return false;
 	}
 
 	if ( !m_mpu9250.storedCalibration() ) {
-		TRACE_ERROR( "MPU calibration failed" );
+		TRACE_ERROR( F("MPU calibration failed") );
 		return false;
 	}
 
 	if ( !m_mpu9250.configure() ) {
-		TRACE_ERROR( "MPU configuration failed" );
+		TRACE_ERROR( F("MPU configuration failed") );
 		return false;
 	}
 
@@ -248,16 +250,21 @@ void Application::initOTA()
 		TRACE("OTA: Progress %u%%", progress / (total / 100));
 	});
 	ArduinoOTA.onError([](ota_error_t error) {
-		if (error == OTA_AUTH_ERROR)
-			TRACE_ERROR("OTA: Auth Failed")
-		else if (error == OTA_BEGIN_ERROR)
-			TRACE_ERROR("Begin Failed" )
-		else if (error == OTA_CONNECT_ERROR)
-			TRACE_ERROR("Connect Failed" )
-		else if (error == OTA_RECEIVE_ERROR)
-			TRACE_ERROR("Recieve Failed" )
-		else if (error == OTA_END_ERROR)
-			TRACE_ERROR("End Failed" )
+		if (error == OTA_AUTH_ERROR) {
+			TRACE_ERROR( F("OTA: Auth Failed") );
+		}
+		else if (error == OTA_BEGIN_ERROR) {
+			TRACE_ERROR( F("Begin Failed") );
+		}
+		else if (error == OTA_CONNECT_ERROR) {
+			TRACE_ERROR( F("Connect Failed") );
+		}
+		else if (error == OTA_RECEIVE_ERROR) {
+			TRACE_ERROR( F("Recieve Failed") );
+		}
+		else if (error == OTA_END_ERROR) {
+			TRACE_ERROR( F("End Failed") );
+		}
 	});
 	ArduinoOTA.setHostname(net::hostName);
 	ArduinoOTA.begin();
@@ -268,11 +275,11 @@ bool Application::checkMpu()
 {
 	Optional<mpu::MpuData> data;
 	if ( !m_mpu9250.getData(data) ) {
-		TRACE_ERROR( "MPU check failed" );
+		TRACE_ERROR( F("MPU check failed") );
 		return false;
 	}
 
-	TRACE( "MPU check: %d", !!data );
+	TRACE( F("MPU check: %d"), !!data );
 
 	return !!data;
 }
@@ -285,12 +292,12 @@ bool Application::changeMpuOffset( bool inc )
 {
 	int32_t offset;
 	if ( !m_motors.getMpuOffset( &offset ) ) {
-		TRACE_ERROR( "Get MPU offset failed" );
+		TRACE_ERROR( F("Get MPU offset failed") );
 		return false;
 	}
 	offset += (inc ? MPU_OFFSET_INCREMENT : MPU_OFFSET_DECREMENT);
 	if ( !m_motors.setMpuOffset( offset ) ) {
-		TRACE_ERROR( "Set MPU offset failed" );
+		TRACE_ERROR( F("Set MPU offset failed") );
 		return false;
 	}
 	m_display.mpuOffsetChanged( inc );

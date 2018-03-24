@@ -60,10 +60,6 @@ void Application::loop()
 {
 	ArduinoOTA.handle();
 
-	if ( m_httpServer ) {
-		m_httpServer->impl().handleClient();
-	}
-
 	doInput();
 
 	m_display.update();

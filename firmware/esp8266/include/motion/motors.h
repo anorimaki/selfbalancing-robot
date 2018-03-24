@@ -23,7 +23,7 @@ public:
 					m_fifoCurrentReg( fifoCurrentReg ),
 					m_targetReg( targetReg ) {}
 
-	bool state( std::vector<PitchState>& state );
+	bool state( std::vector<PitchState>& state, uint8_t maxSize );
 
 	bool settins( PIDSettings& settings );
 	bool setSettins( const PIDSettings& settings );

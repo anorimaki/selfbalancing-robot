@@ -1,5 +1,6 @@
 #include "i2c/i2c.h"
 #include "util/trace.h"
+#include "util/delay.h"
 #include <Wire.h>
 
 namespace i2c
@@ -47,7 +48,7 @@ bool read( unsigned char slave_addr, unsigned char reg_addr,
 		return false;
 	}
 
-	delayMicroseconds(5);
+	noyield_delay_us(5);
 
 	err = twi_readFrom(slave_addr, data, length, true);
 	if ( err != 0 ) {

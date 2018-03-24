@@ -1,13 +1,13 @@
 #include "http/httpserver.h"
-#include "http/httphandle.h"
+#include "http/webhandlers.h"
+#include "http/streamresponse.h"
+#include "http/pidstatesstream.h"
 #include "util/trace.h"
 #include "util/printbuffer.h"
 #include "i2c/i2c.h"
 #include "util/arduino_stl_support.h"
 #include "motors_i2c_model.h"
-#include <FS.h>
 #include <ArduinoJson.h>
-#include <StreamString.h>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -15,15 +15,18 @@
 
 
 
-int snprintf( char * s, size_t n, const char * format, ... );
+extern "C" {
 
+//Declared in espconn.h but we can't include here due to type conflicts.
+sint8 espconn_tcp_set_max_con(uint8 num);
+
+}
 
 
 namespace http
 {
 
 static const char* CONTENT_TYPE_JSON = "application/json";
-static const char* CONTENT_TYPE_HTML = "text/html";
 
 #define ACCESS_CONTROL_ALLOW_ORIGIN "Access-Control-Allow-Origin"
 #define ACCESS_CONTROL_REQUEST_HEADERS "Access-Control-Request-Headers"
@@ -31,35 +34,22 @@ static const char* CONTENT_TYPE_HTML = "text/html";
 #define ACCESS_CONTROL_ALLOW_HEADERS "Access-Control-Allow-Headers"
 #define ACCESS_CONTROL_ALLOW_METHODS "Access-Control-Allow-Methods"
 
-static const char* headersToCollect[] = {
-		ACCESS_CONTROL_REQUEST_HEADERS, ACCESS_CONTROL_REQUEST_METHOD
-};
-
 
 template <typename T>
-static void sendJson( ESP8266WebServer& server, T& content )
+static void sendBasicJson( AsyncWebServerRequest* request, T& content )
 {
-			//Send headers
-	server.sendHeader( ACCESS_CONTROL_ALLOW_ORIGIN, "*" );
-	server.setContentLength( content.measureLength() );
-	server.send( 200, CONTENT_TYPE_JSON );
+	AsyncResponseStream *response = request->beginResponseStream(CONTENT_TYPE_JSON);
+	content.printTo(*response);
+	request->send(response);
+}
 
-			//Send body
-	WiFiClient client = server.client();
-	io::PrintBuffer<1760> printBuf(&client);
-	content.printTo( printBuf );
-	printBuf.flush();
+static void sendNoContent( AsyncWebServerRequest* request )
+{
+	request->send(204);
 }
 
 
-static void sendNoContent( ESP8266WebServer& server )
-{
-	server.sendHeader( ACCESS_CONTROL_ALLOW_ORIGIN, "*" );
-	server.setContentLength( 0 );
-	server.send( 204, NULL );
-}
-
-static void sendError( ESP8266WebServer& impl ) {
+static void sendError( AsyncWebServerRequest* request ) {
 	String content = String("{\"error\":\"");
 	while( !error::globalStack().empty() ) {
 		const error::StackItem& item = error::globalStack().top();
@@ -72,127 +62,84 @@ static void sendError( ESP8266WebServer& impl ) {
 	}
 	content.concat("\"}");
 
-	impl.send( 500, CONTENT_TYPE_JSON, content );
+	request->send( 500, CONTENT_TYPE_JSON, content );
 }
-
-typedef std::function<void()> HandlerFunction;
-
 
 
 /************************************************************************/
 // PidService
 /************************************************************************/
-PidService::PidService( ESP8266WebServer* impl, const std::string& path,
+PidService::PidService( AsyncWebServer* impl, const std::string& path,
 						motion::PidEngine* pidEngine, io::Display* display ):
 						m_impl(impl), m_pidEngine(pidEngine), m_display( display ) {
-	MethodHttpHandlerFactory<PidService> handler(this, display);
+
+	AsyncMethodWebHandler<PidService>::Factory handlers(this, display);
 
 	std::string statePath = path + "/state";
-	m_impl->on( statePath.c_str(), HTTPMethod::HTTP_GET, handler( &PidService::handleState ) );
+	m_impl->addHandler( handlers.create(statePath.c_str(), HTTP_GET, &PidService::handleState) );
 
 	std::string settingsPath = path + "/settings";
-	m_impl->on( settingsPath.c_str(), HTTPMethod::HTTP_GET, handler( &PidService::handleSettings ) );
+	m_impl->addHandler( handlers.create(settingsPath.c_str(), HTTP_GET, &PidService::handleSettings) );
 
-	m_impl->on( settingsPath.c_str(), HTTPMethod::HTTP_PUT, handler( &PidService::handleSetSettings ) );
+	m_impl->addHandler( handlers.create(settingsPath.c_str(), HTTP_PUT, &PidService::handleSetSettings) );
 }
 
 
-static StaticJsonBuffer<1024*10> jsonBuffer;
+void PidService::handleState( AsyncWebServerRequest *request ) {
+	static const uint8_t MAX_STATES_SIZE = 150;		//Limit size to prevent RAM from running out
 
-template <typename Print>
-static size_t serialize( const ::PIDStateEntry& state, Print& print ) {
-	jsonBuffer.clear();
-	JsonObject& entry = jsonBuffer.createObject();
-	entry["i"] = state.index;
-	entry["tar"] = state.state.target;
-	entry["cur"] = state.state.current;
-	entry["p_err"] = state.state.previous_error;
-	entry["i_err"] = state.state.integral_error;
-	return entry.printTo(print);
-}
-
-
-class DummyPrint {
-public:
-	size_t print(char) {
-		return 1;
-	}
-
-	size_t print(const char* s) {
-		return strlen(s);
-	}
-};
-
-void PidService::handleState() {
-	std::vector<::PIDStateEntry> states;
-	if ( !m_pidEngine->state(states) ) {
+	std::unique_ptr<std::vector<::PIDStateEntry>> states( new std::vector<::PIDStateEntry>() );
+	states->reserve(MAX_STATES_SIZE);
+	if ( !m_pidEngine->state( *states, MAX_STATES_SIZE ) ) {
 		TRACE_ERROR( F("Error reading PID states") );
-		sendError(*m_impl);
+		sendError(request);
 		return;
 	}
 
-	int length = std::accumulate( states.begin(), states.end(), 0, []( int accum, const ::PIDStateEntry& state) {
-			DummyPrint dummyPrint;
-			return accum + serialize( state, dummyPrint );
-		}) + 1 + states.size();
-
-	//Send headers
-	m_impl->sendHeader( ACCESS_CONTROL_ALLOW_ORIGIN, "*" );
-	m_impl->setContentLength( length );
-	m_impl->send( 200, CONTENT_TYPE_JSON );
-
-	WiFiClient client = m_impl->client();
-	io::PrintBuffer<1760> printBuf(&client);
-
-	printBuf.print('[');
-	std::vector<::PIDStateEntry>::iterator it=states.begin();
-	if ( it != states.end() ) {
-		serialize( *it, printBuf );
-	}
-	++it;
-	std::for_each( it, states.end(), [&printBuf](const ::PIDStateEntry& state) {
-		printBuf.print(',');
-		serialize( state, printBuf );
+	PidStatesStream* statesStream = new PidStatesStream( std::move(states) );
+	request->onDisconnect( [statesStream]() {
+		delete statesStream;
 	});
-	printBuf.print(']');
-	printBuf.flush();
+
+	request->send( new AsyncNoTemplateStreamResponse( statesStream, CONTENT_TYPE_JSON, statesStream->available() ) );
 }
 
 
-void PidService::handleSettings() {
+void PidService::handleSettings( AsyncWebServerRequest *request ) {
 	::PIDSettings settings;
 	if ( !m_pidEngine->settins(settings) ) {
 		TRACE_ERROR( F("Error reading PID settings") );
-		sendError(*m_impl);
+		sendError(request);
 		return;
 	}
 
-	jsonBuffer.clear();
-	JsonObject& jsonSetings = jsonBuffer.createObject();
+	const int BUFFER_SIZE = JSON_OBJECT_SIZE(3) ;
+	StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
+	JsonObject &jsonSetings = jsonBuffer.createObject();
 	jsonSetings["integral"] = settings.k_i;
 	jsonSetings["proportional"] = settings.k_p;
 	jsonSetings["derivative"] = settings.k_d;
 
-	sendJson( *m_impl, jsonSetings );
+	sendBasicJson( request, jsonSetings );
 }
 
 
-void PidService::handleSetSettings() {
-	jsonBuffer.clear();
-	String body = m_impl->arg("plain");
-	const JsonObject& root = jsonBuffer.parseObject( body );
+void PidService::handleSetSettings( AsyncWebServerRequest *request, char* data, size_t len ) {
+	DynamicJsonBuffer jsonBuffer;
+	const JsonObject& root = jsonBuffer.parseObject( data, 1 );
 
 	motion::Motors::PIDSettings settings;
 	settings.k_i = root["integral"];
 	settings.k_p = root["proportional"];
 	settings.k_d = root["derivative"];
+
 	if ( !m_pidEngine->setSettins(settings) ) {
 		TRACE_ERROR( F("Error settings pitch PID settings") );
-		sendError(*m_impl);
+		sendError( request );
 		return;
 	}
 
-	sendNoContent( *m_impl );
+	sendNoContent( request );
 }
 
 
@@ -201,81 +148,80 @@ void PidService::handleSetSettings() {
 // Server
 /************************************************************************/
 Server::Server( motion::Motors* motors, mpu::Mpu9250* mpu, io::Display* display ):
-				m_motors(motors), m_display(display), m_mpu(mpu)
+				m_motors(motors), m_display(display), m_mpu(mpu), m_impl(80)
 {
+	//limits the number of connections to prevent RAM from running out
+	//This is no longer necessary with AsyncNoTemplateStreamResponse and limiting
+	//the states vector size (see PidService::handleState)
+//	espconn_tcp_set_max_con(2);
+
 	m_pitchService = new PidService( &m_impl, "/pitch", &m_motors->pitch(), m_display );
 	m_speedService = new PidService( &m_impl, "/speed", &m_motors->speed(), m_display );
 	m_headingService = new PidService( &m_impl, "/heading", &m_motors->heading(), m_display );
 
-	MethodHttpHandlerFactory<Server> handler(this, display);
+	AsyncMethodWebHandler<Server>::Factory handlers(this, display);
 
-	m_impl.on( "/targets", HTTPMethod::HTTP_PUT, handler( &Server::handlePutTargets ) );
+	m_impl.addHandler( handlers.create("/targets", HTTP_PUT, &Server::handlePutTargets ) );
+	m_impl.addHandler( handlers.create("/mpu/settings", HTTP_GET, &Server::handleGetMpuSettings ) );
+	m_impl.addHandler( handlers.create("/mpu/settings", HTTP_PUT, &Server::handlePutMpuSettings ) );
+	m_impl.addHandler( handlers.create("/mpu/calibration", HTTP_GET, &Server::handleGetMpuCalibration ) );
+	m_impl.addHandler( handlers.create("/mpu/calibration", HTTP_PUT, &Server::handlePutMpuCalibration ) );
 
-	m_impl.on( "/mpu/settings", HTTPMethod::HTTP_GET, handler( &Server::handleGetMpuSettings ) );
-	m_impl.on( "/mpu/settings", HTTPMethod::HTTP_PUT, handler( &Server::handlePutMpuSettings ) );
-
-	m_impl.on( "/mpu/calibration", HTTPMethod::HTTP_GET, handler( &Server::handleGetMpuCalibration ) );
-	m_impl.on( "/mpu/calibration", HTTPMethod::HTTP_PUT, handler( &Server::handlePutMpuCalibration ) );
-
-	SPIFFS.begin();
-	m_impl.serveStatic("/", SPIFFS, "/app/");
-
-	m_impl.on( "/", std::bind( &Server::handleRoot, this ) );
-
-	m_impl.onNotFound([this](){
-			if ( m_impl.method() == HTTP_OPTIONS ) {
-				handleOptionsRequest();
+	m_impl.onNotFound([this](AsyncWebServerRequest* request){
+			if ( request->method() == HTTP_OPTIONS ) {
+				handleOptionsRequest(request);
 			}
 			else {
-				handleNotFound();
+				handleNotFound( request );
 			}
 		});
 
-	m_impl.collectHeaders( headersToCollect, sizeof(headersToCollect)/sizeof(const char*) );
+	SPIFFS.begin();
+	m_impl.serveStatic("/", SPIFFS, "/app").setDefaultFile("index.html");
+
+	DefaultHeaders::Instance().addHeader(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+
 	m_impl.begin();
-	m_impl.client().setNoDelay(1);		//Just for performance
 }
 
 
-void Server::handleGetMpuSettings()
+void Server::handleGetMpuSettings( AsyncWebServerRequest* request )
 {
 	int32_t pitchOffset;
 	if ( !m_motors->getMpuOffset(&pitchOffset) ) {
 		TRACE_ERROR( F("Error reading MPU settings") );
-		sendError( m_impl );
+		sendError( request );
 		return;
 	}
 
-	jsonBuffer.clear();
+	StaticJsonBuffer<JSON_OBJECT_SIZE(1)> jsonBuffer;
 	JsonObject& ret = jsonBuffer.createObject();
 	ret["pitchOffset"] = ((float)pitchOffset) / 0x10000;		//Convert Q16 to float
 
-	sendJson( m_impl, ret );
+	sendBasicJson( request, ret );
 }
 
 
-void Server::handlePutMpuSettings()
+void Server::handlePutMpuSettings( AsyncWebServerRequest* request, char* data, size_t len )
 {
-	jsonBuffer.clear();
-	String body = m_impl.arg("plain");
-	const JsonObject& root = jsonBuffer.parseObject( body );
+	DynamicJsonBuffer jsonBuffer;
+	const JsonObject& root = jsonBuffer.parseObject( data, 1 );
 
-	float pitchOffset;
-	pitchOffset = root["pitchOffset"];
+	float pitchOffset = root["pitchOffset"];
 	if ( !m_motors->setMpuOffset( pitchOffset*0x10000 ) ) {		//Convert float to Q16
 		TRACE_ERROR( F("Error setting MPU settings") );
-		sendError( m_impl );
+		sendError( request );
 		return;
 	}
 
-	sendNoContent( m_impl );
+	sendNoContent( request );
 }
 
 
 
-void Server::handleGetMpuCalibration()
+void Server::handleGetMpuCalibration( AsyncWebServerRequest* request )
 {
-	jsonBuffer.clear();
+	StaticJsonBuffer<JSON_OBJECT_SIZE(2) * JSON_OBJECT_SIZE(3)> jsonBuffer;
 	JsonObject& ret = jsonBuffer.createObject();
 
 	JsonObject& accel = ret.createNestedObject("accel");
@@ -288,11 +234,11 @@ void Server::handleGetMpuCalibration()
 	gyro["y"] = m_mpu->getGyroCalibration()[1];
 	gyro["z"] = m_mpu->getGyroCalibration()[2];
 
-	sendJson( m_impl, ret );
+	sendBasicJson( request, ret );
 }
 
 
-void Server::handlePutMpuCalibration()
+void Server::handlePutMpuCalibration( AsyncWebServerRequest* request )
 {
 	m_motors->pause();
 
@@ -302,62 +248,52 @@ void Server::handlePutMpuCalibration()
 	i2c::init( i2c::MOTORS_SDA, i2c::MOTORS_SCL );	//Recover I2C channel
 	m_motors->resume();
 
-	handleGetMpuCalibration();						//Send calibration data
+	handleGetMpuCalibration( request );				//Send calibration data
 }
 
 
-void Server::handlePutTargets()
+void Server::handlePutTargets( AsyncWebServerRequest* request, char* data, size_t len )
 {
-	jsonBuffer.clear();
-	String body = m_impl.arg("plain");
-	const JsonObject& root = jsonBuffer.parseObject( body );
+	DynamicJsonBuffer jsonBuffer;
+	const JsonObject& root = jsonBuffer.parseObject( data, 1 );
 
 	int16_t speed = root["speed"];
 	if ( !m_motors->speed().setTarget( speed ) ) {
 		TRACE_ERROR( F("Error setting speed target") );
-		sendError( m_impl );
+		sendError( request );
 		return;
 	}
 
 	int16_t heading = root["heading"];
 	if ( !m_motors->heading().setTarget( heading ) ) {
 		TRACE_ERROR( F("Error setting heading target") );
-		sendError( m_impl );
+		sendError( request );
 		return;
 	}
 
-	sendNoContent( m_impl );
+	sendNoContent( request );
 }
 
 
-void Server::handleRoot()
+void Server::handleNotFound( AsyncWebServerRequest* request )
 {
-	File file = SPIFFS.open("/app/index.html", "r");
-	m_impl.streamFile(file, CONTENT_TYPE_HTML);
-	file.close();
+	request->send( 404, "text/html", "<h1>Resource not found</h1>" );
 }
 
 
-void Server::handleNotFound()
+void Server::handleOptionsRequest( AsyncWebServerRequest *request )
 {
-	m_impl.send( 404, CONTENT_TYPE_HTML, "<h1>Resource not found</h1>" );
-}
+	AsyncWebServerResponse* response = request->beginResponse(200, "text/plain", "");
 
-
-void Server::handleOptionsRequest()
-{
-	m_impl.sendHeader( ACCESS_CONTROL_ALLOW_ORIGIN, "*" );
-
-	String requestHeader = m_impl.header(ACCESS_CONTROL_REQUEST_HEADERS);
+	String requestHeader = request->header(ACCESS_CONTROL_REQUEST_HEADERS);
 	if ( requestHeader.length() > 0 ) {
-		m_impl.sendHeader( ACCESS_CONTROL_ALLOW_HEADERS, requestHeader );
+		response->addHeader( ACCESS_CONTROL_ALLOW_HEADERS, requestHeader );
 	}
 
-	requestHeader = m_impl.header(ACCESS_CONTROL_REQUEST_METHOD);
-	m_impl.sendHeader( ACCESS_CONTROL_ALLOW_METHODS, (requestHeader.length()>0) ? requestHeader : "GET, POST, PUT, OPTIONS" );
+	requestHeader = request->header(ACCESS_CONTROL_REQUEST_METHOD);
+	response->addHeader( ACCESS_CONTROL_ALLOW_METHODS, (requestHeader.length()>0) ? requestHeader : "GET, POST, PUT, OPTIONS" );
 
-	sendNoContent( m_impl );
-	//m_impl.send( 200, "text/plain", "" );
+	request->send( response );
 }
 
 

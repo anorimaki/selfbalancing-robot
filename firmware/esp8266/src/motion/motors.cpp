@@ -50,19 +50,21 @@ static bool receive( uint8_t reg_address, T* obj )
 // PidEngine
 /************************************************************************/
 
-bool PidEngine::state( std::vector<Motors::PitchState>& states  )
+bool PidEngine::state( std::vector<Motors::PitchState>& states, uint8_t maxSize )
 {
 	uint8_t fifoSize;
 	if ( !receive( m_fifoSizeReg, &fifoSize ) )
 		MOTORS_ERROR(m_display);
 
-	while( fifoSize > 0 ) {
+	uint8_t toRetieve = (maxSize>fifoSize) ? fifoSize : maxSize;
+
+	while( toRetieve > 0 ) {
 		PitchState state;
 		if ( !receive( m_fifoCurrentReg, &state ) )
 			MOTORS_ERROR(m_display);
 
 		states.push_back( state );
-		--fifoSize;
+		--toRetieve;
 	}
 
 	return true;

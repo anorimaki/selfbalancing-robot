@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import { MpuCalibrationData, MpuSettings } from './mpu-data';
@@ -11,21 +11,19 @@ export class PidService {
 	private stateUrl;
 	private settingsUrl;
 
-	constructor( urlPath: string, private http: Http  ) {
+	constructor( urlPath: string, private http: HttpClient  ) {
 		this.stateUrl = `${environment.robotUrl}${urlPath}/state`;
 		this.settingsUrl = `${environment.robotUrl}${urlPath}/settings`;
 	}
 
 	getState(): Observable<PidState[]> {
-		return this.http.get( this.stateUrl ).
-			map( response => (<any[]>response.json()).
-				map( item => new PidState(item) )
-			);
+		return this.http.get<PidState[]>( this.stateUrl ).
+			map( states => states.map( state => new PidState(state) ) );
 	}
 
 	getSettings(): Observable<PidSettings> {
-		return this.http.get( this.settingsUrl ).
-			map( response => PidSettings.fromJson( response.json() ) );
+		return this.http.get<PidSettings>( this.settingsUrl ).
+			map( settings => PidSettings.fromJson( settings ) );
 	}
 
 	setSettings( settings: PidSettings ): Observable<void> {
@@ -39,29 +37,25 @@ export class MpuService {
 	private calibrationUrl;
 	private settingsUrl;
 
-	constructor( private http: Http  ) {
+	constructor( private http: HttpClient  ) {
 		this.calibrationUrl = `${environment.robotUrl}mpu/calibration`;
 		this.settingsUrl = `${environment.robotUrl}mpu/settings`;
 	}
 
 	getCalibration(): Observable<MpuCalibrationData> {
-		return this.http.get( this.calibrationUrl ).
-			map( response => response.json() );
+		return this.http.get<MpuCalibrationData>( this.calibrationUrl );
 	}
 
 	doCalibration(): Observable<MpuCalibrationData> {
-		return this.http.put( this.calibrationUrl, undefined ).
-			map( response => response.json() );
+		return this.http.put<MpuCalibrationData>( this.calibrationUrl, undefined );
 	}
 
 	getSettings(): Observable<MpuSettings> {
-		return this.http.get( this.settingsUrl ).
-			map( response => response.json() );
+		return this.http.get<MpuSettings>( this.settingsUrl );
 	}
 
 	setSettings( settings: MpuSettings ): Observable<void> {
-		return this.http.put( this.settingsUrl, settings ).
-			map( response => null );
+		return this.http.put<any>( this.settingsUrl, settings );
 	}
 }
 
@@ -72,7 +66,7 @@ export class RobotService {
 	heading: PidService;
 	mpu: MpuService;
 
-	constructor( http: Http ) {
+	constructor( http: HttpClient ) {
 		this.speed = new PidService( 'speed', http );
 		this.pitch = new PidService( 'pitch', http );
 		this.heading = new PidService( 'heading', http );

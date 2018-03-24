@@ -39,7 +39,7 @@ export class PidDataService<T extends PidStep> {
 				this.pidService.getState().
 					map( pitches => pitches.map( state => pidStateFactory(settings, state) ) ).
 					catch( (err, caught) => {
-						this.notificationService.error( 'Error getting PID pitch data' );
+						this.notificationService.error( 'Error getting PID data', err );
 						return caught;
 					}));
 		this.rxData = baseRxData().expand( () => {

@@ -3,8 +3,8 @@
 	<div id="ctrldiv" fxFlex="20%" fxLayout='column' >
 		<div id="chartlegend" fxLayout='column' fxFlex="80%">
 			<mat-slide-toggle *ngFor="let serie of y; index as i"
-				(change)="labelSelectionChanged( i, $event )"
-				[ngModel]="chartOptions.data[i].visible"
+				(change)="onLabelSelectionChanged( i, $event )"
+				[(ngModel)]="chartOptions.data[i].visible"
 				[style.color]="chartOptions.data[i].color"
 			>
 				{{serie.label}}

@@ -86,6 +86,11 @@ export class RbChartComponent implements OnInit, OnDestroy {
 	}
 
 	// Accessed from HTML template
+	public onLabelSelectionChanged = ( index, event ) => {
+		this.chart.render();
+	}
+
+	// Accessed from HTML template
 	public onEnableChanged( event: MatSlideToggleChange ): void {
 		if ( event.checked ) {
 			this.enable.emit();

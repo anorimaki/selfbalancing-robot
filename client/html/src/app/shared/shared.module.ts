@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -19,7 +19,7 @@ import { RbChartComponent } from './chart/chart.component';
 	imports: [
 		BrowserModule,
 		FormsModule,
-		HttpModule,
+		HttpClientModule,
 		FlexLayoutModule,
 		NoopAnimationsModule,
 		MatInputModule,
@@ -34,7 +34,7 @@ import { RbChartComponent } from './chart/chart.component';
 	exports: [
 		CommonModule,
 		FormsModule,
-		HttpModule,
+		HttpClientModule,
 		FlexLayoutModule,
 		MatInputModule,
 		MatButtonModule,

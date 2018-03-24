@@ -32,13 +32,16 @@
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\variants\nodemcu"/>
 									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Hash\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncWebServer_ID306\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266mDNS"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ArduinoOTA"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Wire"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\DNSServer\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\EEPROM"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266AVRISP\src"/>
@@ -294,13 +297,16 @@
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\variants\nodemcu"/>
 									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Hash\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncWebServer_ID306\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266mDNS"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ArduinoOTA"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Wire"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\DNSServer\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\EEPROM"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266AVRISP\src"/>
@@ -556,13 +562,16 @@
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\variants\nodemcu"/>
 									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Hash\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncWebServer_ID306\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266mDNS"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ArduinoOTA"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Wire"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\DNSServer\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\EEPROM"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266AVRISP\src"/>
@@ -844,13 +853,16 @@
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\variants\nodemcu"/>
 									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Hash\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncWebServer_ID306\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266mDNS"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ArduinoOTA"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Wire"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\DNSServer\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\EEPROM"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266AVRISP\src"/>
@@ -1106,13 +1118,16 @@
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\variants\nodemcu"/>
 									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Hash\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncWebServer_ID306\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266mDNS"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ArduinoOTA"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Wire"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\DNSServer\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\EEPROM"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266AVRISP\src"/>
@@ -1368,13 +1383,16 @@
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\variants\nodemcu"/>
 									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Hash\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
-									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\lib\ESPAsyncWebServer_ID306\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266mDNS"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ArduinoOTA"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\Wire"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ArduinoJson_ID64\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESP Async WebServer_ID306\src"/>
+									<listOptionValue builtIn="false" value="C:\cdu\selfbalancing\firmware\esp8266\.piolibdeps\ESPAsyncTCP_ID305\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\DNSServer\src"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\EEPROM"/>
 									<listOptionValue builtIn="false" value="${USERPROFILE}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266AVRISP\src"/>

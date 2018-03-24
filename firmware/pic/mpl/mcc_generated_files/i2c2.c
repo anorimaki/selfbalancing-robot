@@ -205,10 +205,8 @@ void I2C2_Initialize(void)
     i2c2_object.i2cErrors = 0;
     
     // initialize the hardware
-    // Baud Rate Generator Value: I2CBRG 157;   
-//    I2C2BRG = 0x009D;		100KH
-//	I2C2BRG = 0x0025;		400KH
-	I2C2BRG = 0x0050;	
+    // Baud Rate Generator Value: I2CBRG 37;   
+    I2C2BRG = 0x0025;
     // ACKEN disabled; STREN disabled; GCEN disabled; SMEN disabled; DISSLW enabled; I2CSIDL disabled; ACKDT Sends ACK; SCLREL Holds; RSEN disabled; IPMIEN disabled; A10M 7 Bit; PEN disabled; RCEN disabled; SEN disabled; I2CEN enabled; 
     I2C2CON = 0x8000;
     // P disabled; S disabled; I2COV disabled; IWCOL disabled; 

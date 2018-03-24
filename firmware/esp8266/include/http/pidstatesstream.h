@@ -81,7 +81,7 @@ private:
 
 	template <typename Print>
 	size_t serialize( const ::PIDStateEntry& state, Print& print ) {
-		m_jsonBuffer.clear();
+		StaticJsonBuffer<JSON_OBJECT_SIZE(5)> m_jsonBuffer;
 		JsonObject& entry = m_jsonBuffer.createObject();
 		entry["i"] = state.index;
 		entry["tar"] = state.state.target;
@@ -98,8 +98,6 @@ private:
 	std::vector<::PIDStateEntry>::const_iterator m_it;
 	String m_currentSerialization;
 	const char* m_currentSerializationPos;
-	StaticJsonBuffer<JSON_OBJECT_SIZE(5)> m_jsonBuffer;
-//	DynamicJsonBuffer m_jsonBuffer;
 };
 
 }

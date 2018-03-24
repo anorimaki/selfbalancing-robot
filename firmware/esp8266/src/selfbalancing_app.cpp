@@ -15,7 +15,9 @@ void Application::init()
 {
 	delay( 100 );
 	Serial.begin(115200);
-	Serial.setDebugOutput(false);
+#ifdef DEBUG_ESP_CORE
+	Serial.setDebugOutput(true);
+#endif
 	Serial.println();
 
 	TRACE( F("CPU: %u MHz"), ESP.getCpuFreqMHz() );

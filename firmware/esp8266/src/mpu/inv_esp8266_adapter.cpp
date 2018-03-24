@@ -1,13 +1,16 @@
 #include <Arduino.h>		//define min
 #include "mpu/inv_esp8266_adapter.h"
 #include "util/trace.h"
+#include "util/delay.h"
 #include "i2c/i2c.h"
 #include <stdio.h>
 
 
 void esp8266_delay_ms( unsigned long num_ms )
 {
-	delay(num_ms);
+	/* Can't be a Arduino delay() function because it uses esp_yield() that change context.
+	 * esp_yield() isn't supported in AsyncWebServer handlers */
+	noyield_delay_ms(num_ms);
 }
 
 

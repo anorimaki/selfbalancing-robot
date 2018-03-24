@@ -9,8 +9,9 @@ FS_DIR=data
 PIC_CODE_API_DIR=../pic/include/api
 HTML_APP_DIR=../../client/html/dist
 
-USED_LIBS:=ESP8266WebServer Wire ESP8266WiFi
-LIBS:=$(patsubst %,$(ESP_ROOT)/libraries/%,$(USED_LIBS)) libraries/ArduinoJson
+ARDUINO_CORE_LIBS:=Wire ESP8266WiFi ArduinoOTA ESP8266mDNS
+PRIVATE_LIBS:=$(filter-out lib/readme.txt,$(wildcard lib/*))
+LIBS:=$(patsubst %,$(ESP_ROOT)/libraries/%,$(ARDUINO_CORE_LIBS)) $(PRIVATE_LIBS)
 
 UPLOAD_PORT?=COM6			#Default COM6
 

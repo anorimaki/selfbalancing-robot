@@ -41,8 +41,8 @@ public:
 
 	AsyncMethodWebHandler(T* inst, io::Display* display, String uri,
 							WebRequestMethodComposite method, ObjectBodyHandler handler) :
-				m_inst(inst), m_display(display), m_uri(uri), m_method(method),
-				m_onRequest(NULL), m_onBody(handler) {
+			m_inst(inst), m_display(display), m_uri(uri), m_method(method),
+			m_onRequest(NULL), m_onBody(handler) {
 	}
 
 	virtual bool canHandle(AsyncWebServerRequest *request) override final {
@@ -73,7 +73,6 @@ public:
 		}
 
 		m_display->httpRequestBegin();
-
 		if (index == 0 ) {
 			request->_tempObject = malloc(total);
 		}

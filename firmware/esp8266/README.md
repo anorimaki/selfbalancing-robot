@@ -14,27 +14,19 @@ When application starts perform the following actions:
 
 After initialization, the application:
 - Attends the HTTP requests to its REST API. The REST API is documented [here](./doc/restapi.md).
+- Serves files of its filesystem (SPIFFS).
 - Monitor the `flash` button of the circuit. At runtime, this button allows you to change the PID offset calibration. A short pulse increases offset and a long pulse decreases it.
 
+### Third-parties dependencies
+In addition to the ESP8266 Arduino core, the firmware uses third-party libraries located in the `lib` directory. The `lib` directory contains the copy of a specific version of those libraries that are available on GitHub.
+
 ## WiFi modes
-//TBD
+Then firmware supports three WiFi modes: 
+- Station (STA): used to connect the ESP8266 module to an existing WiFi network.
+- Access point (SoftAP): ESP8266 will create its own Wifi network and will act as AP.
+- A combination of two others (STA + SoftAP)
 
-## Build
-Build script is based on [makeEspArduino.mk](https://github.com/plerup/makeEspArduino). If you have problems to build the firmware, you could refer to this project that is pretty well documented. 
-
-Build process has been tested on a Windows OS with the [Cygwin](https://www.cygwin.com/) environment but it is very likely that it will also work on a Linux OS.
-
-### Dependencies
-This software must be installed (in Cygwin environment, if you use Windows):
-- Python
-- Perl
-- Make
-- Git
-- Patch
-
-### Generate firmware
-#### WiFi settings
-Edit `include/wifiproperties.h` file with your WiFi AP definitions. This is an example:
+To configure the desired mode and specific WiFi properties, edit the `include/wifiproperties.h` file. This is an example:
 ```
 #define WIFI_SSID "My AP SSID"
 #define WIFI_PASSWORD "Secret"
@@ -42,9 +34,41 @@ Edit `include/wifiproperties.h` file with your WiFi AP definitions. This is an e
 #define WIFI_OWN_SSID "selfbalancing"
 #define WIFI_OWN_PASSWORD "selfbalancing"
 ```
+
+- `WIFI_SSID` is the name of the AP to which the ESP8266 will connect to in STA mode. If you comment this line, ESP8266 will not run in STA mode.
+- `WIFI_PASSWORD` is the AP password to connect in STA mode.
+- `WIFI_OWN_SSID` is the name of the AP that the ESP8266 will create in SoftAP mode. If you comment this line, ESP8266 will not run in SoftAP mode.
+- `WIFI_OWN_PASSWORD` is the AP password for SoftAP mode.
+
+If you do not define either `WIFI_SSID` or `WIFI_OWN_SSID`, ESP8266 WiFi will be disabled.
+
+## Build
+You can use `make` command or the [PlatformIO](https://platformio.org/) environment to build the firmware.
+
+Makefile will use frozen versions of ESP8266 Arduino core and third-party libraries in the `lib` directory. On the other hand, PlatformIO build will use latest versions of those packages.
+
+### Build with `make`
+Build script is based on [makeEspArduino.mk](https://github.com/plerup/makeEspArduino). If you have problems to build the firmware, you could refer to this project that is pretty well documented.
+
+Build process has been tested on a Windows OS with the [Cygwin](https://www.cygwin.com/) environment but it is very likely that it will also work on a Linux OS.
+
+#### Dependencies
+This software must be installed to use the provided Makefile (in Cygwin environment, if you use Windows):
+- Python
+- Perl
+- Make
+- Git
+- Patch
+
 #### Compile
 ```
 > make
+```
+
+### Build with [PlatformIO](https://platformio.org/)
+To build with PlatformIO you need to install [PlatformIO Core](http://docs.platformio.org/en/latest/core.html) and run
+```
+> platformio run
 ```
 
 ## Upload firmware
@@ -61,12 +85,39 @@ Alternatively, if you do not have RTS and DTR signals, you can set `GPIO0` to lo
 
 In https://github.com/esp8266/Arduino documentation, you will find more about ESP8266 boards and serials interfaces.
 
-### Flash
+### Flash with `make`
 The makefile includes a target to flash the firmware:
 ```
 > make UPLOAD_PORT={COM} flash
 ```
 Where `COM` is the serial port where the ESP8266 is connected. But you can use any software compatible with NodeMCU to do the job.
 
+### Flash with PlatformIO
+Edit the `platformio.ini` file to set the correct value for the `upload_port` setting. The value can be the serial port where the ESP8266 is connected or the robot IP address to upload firmware using OTA. See more on http://docs.platformio.org/en/latest/projectconf/section_env_upload.html.
+
+After setting `upload_port`, run
+```
+> platformio run --target upload
+```
+
+## Console Application
+[Console Web Application](../../client/html) can be uploaded into the ESP filesystem (SPIFFS - SPI Flash File System).
+
+To upload the application to ESP, build Console Web Application in production mode (see instructions in [README.md](../../client/html/README.md)). Then use `make` or PlatformIO to upload it.
+
+### Upload with `make`
+Just run:
+```
+> make UPLOAD_PORT={COM} flash_fs
+```
+`flash_fs` target will copy Console Web Application to the `data` directory and will upload it to ESP.
+
+### Upload with PlatformIO
+- Copy Console Web Application production files to the `data` directory of this project (create it if it doesn't exist). You can do it manually or running the command `> make data`.
+- Run:
+```
+> platformio run --target upload_fs
+```
+
 ## Development IDE
-[Eclipse](https://www.eclipse.org/) with [Sloeber plugin](http://sloeber.io/) has been the IDE used for the development process. If you do not like Eclipse, you can use the Arduino environment by following instructions explained in [Arduino core for ESP8266](https://github.com/esp8266/Arduino).
+[Eclipse](https://www.eclipse.org/) with [Sloeber plugin](http://sloeber.io/) (at the beginning of the project) and [PlatformIO Eclipse Integration](http://docs.platformio.org/en/latest/ide/eclipse.html) (when I discovered PlatformIO...) have been the IDEs used for the development process. If you do not like Eclipse, you can use the Arduino environment by following instructions explained in [Arduino core for ESP8266](https://github.com/esp8266/Arduino). An other interesting option is [PlatformIO IDE](https://platformio.org/platformio-ide).

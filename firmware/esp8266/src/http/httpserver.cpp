@@ -1,5 +1,6 @@
 #include "http/httpserver.h"
 #include "http/webhandlers.h"
+#include "http/streamresponse.h"
 #include "http/pidstatesstream.h"
 #include "util/trace.h"
 #include "util/printbuffer.h"
@@ -16,9 +17,7 @@
 
 extern "C" {
 
-//int snprintf( char * s, size_t n, const char * format, ... );
-
-//Declared in espconn.h but we can't include here due to type conflics.
+//Declared in espconn.h but we can't include here due to type conflicts.
 sint8 espconn_tcp_set_max_con(uint8 num);
 
 }
@@ -87,9 +86,11 @@ PidService::PidService( AsyncWebServer* impl, const std::string& path,
 
 
 void PidService::handleState( AsyncWebServerRequest *request ) {
+	static const uint8_t MAX_STATES_SIZE = 150;		//Limit size to prevent RAM from running out
+
 	std::unique_ptr<std::vector<::PIDStateEntry>> states( new std::vector<::PIDStateEntry>() );
-	states->reserve(200);
-	if ( !m_pidEngine->state( *states ) ) {
+	states->reserve(MAX_STATES_SIZE);
+	if ( !m_pidEngine->state( *states, MAX_STATES_SIZE ) ) {
 		TRACE_ERROR( F("Error reading PID states") );
 		sendError(request);
 		return;
@@ -100,7 +101,7 @@ void PidService::handleState( AsyncWebServerRequest *request ) {
 		delete statesStream;
 	});
 
-	request->send( *statesStream, CONTENT_TYPE_JSON, statesStream->available() );
+	request->send( new AsyncNoTemplateStreamResponse( statesStream, CONTENT_TYPE_JSON, statesStream->available() ) );
 }
 
 
@@ -125,7 +126,7 @@ void PidService::handleSettings( AsyncWebServerRequest *request ) {
 
 void PidService::handleSetSettings( AsyncWebServerRequest *request, char* data, size_t len ) {
 	DynamicJsonBuffer jsonBuffer;
-	const JsonObject& root = jsonBuffer.parseObject( data, 0 );
+	const JsonObject& root = jsonBuffer.parseObject( data, 1 );
 
 	motion::Motors::PIDSettings settings;
 	settings.k_i = root["integral"];
@@ -150,11 +151,9 @@ Server::Server( motion::Motors* motors, mpu::Mpu9250* mpu, io::Display* display 
 				m_motors(motors), m_display(display), m_mpu(mpu), m_impl(80)
 {
 	//limits the number of connections to prevent RAM from running out
-	espconn_tcp_set_max_con(3);
-
-//	m_impl.on( "/", HTTP_ANY, [](AsyncWebServerRequest *request) {
-//			request->redirect("/index.html");
-//		});
+	//This is no longer necessary with AsyncNoTemplateStreamResponse and limiting
+	//the states vector size (see PidService::handleState)
+//	espconn_tcp_set_max_con(2);
 
 	m_pitchService = new PidService( &m_impl, "/pitch", &m_motors->pitch(), m_display );
 	m_speedService = new PidService( &m_impl, "/speed", &m_motors->speed(), m_display );
@@ -206,7 +205,7 @@ void Server::handleGetMpuSettings( AsyncWebServerRequest* request )
 void Server::handlePutMpuSettings( AsyncWebServerRequest* request, char* data, size_t len )
 {
 	DynamicJsonBuffer jsonBuffer;
-	const JsonObject& root = jsonBuffer.parseObject( data, 0 );
+	const JsonObject& root = jsonBuffer.parseObject( data, 1 );
 
 	float pitchOffset = root["pitchOffset"];
 	if ( !m_motors->setMpuOffset( pitchOffset*0x10000 ) ) {		//Convert float to Q16
@@ -256,7 +255,7 @@ void Server::handlePutMpuCalibration( AsyncWebServerRequest* request )
 void Server::handlePutTargets( AsyncWebServerRequest* request, char* data, size_t len )
 {
 	DynamicJsonBuffer jsonBuffer;
-	const JsonObject& root = jsonBuffer.parseObject( data, 0 );
+	const JsonObject& root = jsonBuffer.parseObject( data, 1 );
 
 	int16_t speed = root["speed"];
 	if ( !m_motors->speed().setTarget( speed ) ) {

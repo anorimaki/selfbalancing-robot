@@ -1,7 +1,7 @@
 {
 	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
 	"project": {
-		"name": "a1"
+		"name": "SelfBalancingRobot"
 	},
 	"apps": [
 		{
@@ -20,7 +20,6 @@
 				"app/app-theme.scss",
 				"styles.css"
 			],
-			"scripts": [ "canvasjs.min.js" ],
 			"environmentSource": "environments/environment.ts",
 			"environments": {
 				"dev": "environments/environment.ts",

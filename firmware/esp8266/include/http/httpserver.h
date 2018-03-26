@@ -49,7 +49,7 @@ public:
 
 private:
 	void handleOptionsRequest( AsyncWebServerRequest *request );
-	void handleNotFound( AsyncWebServerRequest *request );
+	void handleDefault( AsyncWebServerRequest *request );
 
 	void handleGetMpuSettings( AsyncWebServerRequest *request );
 	void handlePutMpuSettings( AsyncWebServerRequest* request, char* data, size_t len );

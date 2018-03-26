@@ -155,24 +155,24 @@ Server::Server( motion::Motors* motors, mpu::Mpu9250* mpu, io::Display* display 
 	//the states vector size (see PidService::handleState)
 //	espconn_tcp_set_max_con(2);
 
-	m_pitchService = new PidService( &m_impl, "/pitch", &m_motors->pitch(), m_display );
-	m_speedService = new PidService( &m_impl, "/speed", &m_motors->speed(), m_display );
-	m_headingService = new PidService( &m_impl, "/heading", &m_motors->heading(), m_display );
+	m_pitchService = new PidService( &m_impl, "/rest/pitch", &m_motors->pitch(), m_display );
+	m_speedService = new PidService( &m_impl, "/rest/speed", &m_motors->speed(), m_display );
+	m_headingService = new PidService( &m_impl, "/rest/heading", &m_motors->heading(), m_display );
 
 	AsyncMethodWebHandler<Server>::Factory handlers(this, display);
 
-	m_impl.addHandler( handlers.create("/targets", HTTP_PUT, &Server::handlePutTargets ) );
-	m_impl.addHandler( handlers.create("/mpu/settings", HTTP_GET, &Server::handleGetMpuSettings ) );
-	m_impl.addHandler( handlers.create("/mpu/settings", HTTP_PUT, &Server::handlePutMpuSettings ) );
-	m_impl.addHandler( handlers.create("/mpu/calibration", HTTP_GET, &Server::handleGetMpuCalibration ) );
-	m_impl.addHandler( handlers.create("/mpu/calibration", HTTP_PUT, &Server::handlePutMpuCalibration ) );
+	m_impl.addHandler( handlers.create("/rest/targets", HTTP_PUT, &Server::handlePutTargets ) );
+	m_impl.addHandler( handlers.create("/rest/mpu/settings", HTTP_GET, &Server::handleGetMpuSettings ) );
+	m_impl.addHandler( handlers.create("/rest/mpu/settings", HTTP_PUT, &Server::handlePutMpuSettings ) );
+	m_impl.addHandler( handlers.create("/rest/mpu/calibration", HTTP_GET, &Server::handleGetMpuCalibration ) );
+	m_impl.addHandler( handlers.create("/rest/mpu/calibration", HTTP_PUT, &Server::handlePutMpuCalibration ) );
 
 	m_impl.onNotFound([this](AsyncWebServerRequest* request){
 			if ( request->method() == HTTP_OPTIONS ) {
 				handleOptionsRequest(request);
 			}
 			else {
-				handleNotFound( request );
+				handleDefault( request );
 			}
 		});
 
@@ -182,6 +182,17 @@ Server::Server( motion::Motors* motors, mpu::Mpu9250* mpu, io::Display* display 
 	DefaultHeaders::Instance().addHeader(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
 
 	m_impl.begin();
+}
+
+
+void Server::handleDefault( AsyncWebServerRequest* request )
+{
+	if ( request->url().startsWith("/rest") || (request->method()!=HTTP_GET) ) {
+		request->send( 404, "text/html", "<h1>Resource not found</h1>" );
+		return;
+	}
+	AsyncWebServerResponse* response = new AsyncFileResponse(SPIFFS, "/app/index.html");
+	request->send(response);
 }
 
 
@@ -272,12 +283,6 @@ void Server::handlePutTargets( AsyncWebServerRequest* request, char* data, size_
 	}
 
 	sendNoContent( request );
-}
-
-
-void Server::handleNotFound( AsyncWebServerRequest* request )
-{
-	request->send( 404, "text/html", "<h1>Resource not found</h1>" );
 }
 
 

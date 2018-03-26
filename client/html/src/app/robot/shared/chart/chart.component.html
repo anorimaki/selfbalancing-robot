@@ -1,0 +1,15 @@
+<div id="root" fxLayout='row' fxLayoutGap='10px'>
+	<div id="chartdiv" fxFlex="80%"></div>
+	<div id="ctrldiv" fxFlex="20%" fxLayout='column' >
+		<div id="chartlegend" fxLayout='column' fxFlex="80%">
+			<mat-slide-toggle *ngFor="let serie of y; index as i"
+				(change)="onLabelSelectionChanged( i, $event )"
+				[(ngModel)]="chartOptions.data[i].visible"
+				[style.color]="chartOptions.data[i].color"
+			>
+				{{serie.label}}
+			</mat-slide-toggle>
+		</div>
+		<mat-slide-toggle (change)="onEnableChanged($event)" [(ngModel)]="enabled" fxFlex="20%">Enabled</mat-slide-toggle>
+	</div>
+</div>

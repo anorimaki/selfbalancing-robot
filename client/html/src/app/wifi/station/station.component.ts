@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/material';
 import { MatCheckboxChange } from '@angular/material/material';
 import { MatDialog } from '@angular/material';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
+import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/observable/timer';
 
 import { NotificationService } from 'app/core/notification.service';
 import { WifiService } from 'wifi/core/wifi.service';
@@ -13,10 +17,12 @@ import { StationConfig } from 'wifi/core/station-config';
 	templateUrl: './station.component.html',
 	styleUrls: ['./station.component.css']
 })
-export class WifiStationComponent implements OnInit {
+export class WifiStationComponent implements OnInit, OnDestroy {
 	static STATUS_CONNECTED = 'Got IP';
 
 	public config: StationConfig;
+
+	private refreshSubscription: Subscription;
 
 	constructor( private wifiService: WifiService,
 				private notificationService: NotificationService,
@@ -24,7 +30,17 @@ export class WifiStationComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.fetchInfo();
+		this.refreshSubscription = Observable.timer(0, 1000).
+			flatMap( () => this.wifiService.station.get() ).
+			subscribe(
+				info => this.config = info,
+				err => this.notificationService.error( 'Error getting station config mode', err ) );
+	}
+
+	ngOnDestroy() {
+		if ( this.refreshSubscription ) {
+			this.refreshSubscription.unsubscribe();
+		}
 	}
 
 	onEnabledChanged( event: MatSlideToggleChange ): void {
@@ -56,11 +72,5 @@ export class WifiStationComponent implements OnInit {
 
 	get connected() {
 		return this.config.status === WifiStationComponent.STATUS_CONNECTED;
-	}
-
-	private fetchInfo() {
-		this.wifiService.station.get().subscribe(
-			info => this.config = info,
-			err => this.notificationService.error( 'Error getting station config mode', err ) );
 	}
 }

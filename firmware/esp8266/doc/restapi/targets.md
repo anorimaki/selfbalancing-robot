@@ -16,13 +16,13 @@ Current control algorithms targets. Control algorithms will try to archive those
 Establishes new targets for control algorithms.
 #### Request
 ```
-PUT /targets
+PUT /rest/targets
 ```
 #### Body Request
 The resource representation with desired values.
 #### Request example
 ```
-PUT /targets
+PUT /rest/targets
 
 {
 	"speed": 5000,

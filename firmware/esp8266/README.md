@@ -21,26 +21,25 @@ After initialization, the application:
 In addition to the ESP8266 Arduino core, the firmware uses third-party libraries located in the `lib` directory. The `lib` directory contains the copy of a specific version of those libraries that are available on GitHub.
 
 ## WiFi modes
-Then firmware supports three WiFi modes: 
+The firmware supports the three ESP8266 WiFi modes: 
 - Station (STA): used to connect the ESP8266 module to an existing WiFi network.
 - Access point (SoftAP): ESP8266 will create its own Wifi network and will act as AP.
 - A combination of two others (STA + SoftAP)
 
-To configure the desired mode and specific WiFi properties, edit the `include/wifiproperties.h` file. This is an example:
-```
-#define WIFI_SSID "My AP SSID"
-#define WIFI_PASSWORD "Secret"
+WiFi configuration can be changed with the [Console Application](#console-application) or with the [WiFi REST API](doc/restapi/wifi.md).
 
-#define WIFI_OWN_SSID "selfbalancing"
-#define WIFI_OWN_PASSWORD "selfbalancing"
-```
+### SofAP mode
+When the ESP8266 is started, SoftAP mode will be enabled with the last configuration. If SoftAP has not been configured (for example, at the first boot) it will use the following values:
+- SSID: `selfbalancing`
+- password: `selfbalancing`
 
-- `WIFI_SSID` is the name of the AP to which the ESP8266 will connect to in STA mode. If you comment this line, ESP8266 will not run in STA mode.
-- `WIFI_PASSWORD` is the AP password to connect in STA mode.
-- `WIFI_OWN_SSID` is the name of the AP that the ESP8266 will create in SoftAP mode. If you comment this line, ESP8266 will not run in SoftAP mode.
-- `WIFI_OWN_PASSWORD` is the AP password for SoftAP mode.
+The network configuration for this mode will be:
+- ESP8266: 192.168.4.2
+- Netmask: 255.255.255.0
+- Gateway: 192.168.4.1
 
-If you do not define either `WIFI_SSID` or `WIFI_OWN_SSID`, ESP8266 WiFi will be disabled.
+### Station mode
+When the ESP8266 is started, it will attempt to connect to the last known AP. If the AP is not available or the connection fails, the station mode will be disabled. It can be re-enabled via the Console Application or the REST API (through SoftAP mode).
 
 ## Build
 You can use `make` command or the [PlatformIO](https://platformio.org/) environment to build the firmware.
@@ -101,21 +100,21 @@ After setting `upload_port`, run
 ```
 
 ## Console Application
-[Console Web Application](../../client/html) can be uploaded into the ESP filesystem (SPIFFS - SPI Flash File System).
+Web [Console Application](../../client/html) can be uploaded into the ESP filesystem (SPIFFS - SPI Flash File System).
 
-To upload the application to ESP, build Console Web Application in production mode (see instructions in [README.md](../../client/html/README.md)). Then use `make` or PlatformIO to upload it.
+To upload the application to ESP, build Console Application in production mode (see instructions in [README.md](../../client/html/README.md)). Then use `make` or PlatformIO to upload it.
 
 ### Upload with `make`
 Just run:
 ```
 > make UPLOAD_PORT={COM} flash_fs
 ```
-`flash_fs` target will copy Console Web Application to the `data` directory and will upload it to ESP.
+`flash_fs` target will copy Console Application to the `data` directory and will upload it to ESP.
 
 ### Upload with PlatformIO
-- Copy the build output of the Console Web Application to the `data` directory of this project (create it if it doesn't exist). You can do it manually or by running the command:
+- Copy the build output of the Console Application to the `data` directory of this project (create it if it doesn't exist). You can do it manually or by running the command:
 ```
-make data
+> make data
 ```
 - Run:
 ```

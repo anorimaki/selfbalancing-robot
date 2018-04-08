@@ -3,7 +3,6 @@ import { MatSnackBar } from '@angular/material';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
-
 	constructor( private injector: Injector ) { }
 
 	handleError( error ) {

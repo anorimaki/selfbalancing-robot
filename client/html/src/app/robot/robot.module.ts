@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { ControlModule } from './control/control.module';
 import { SettingsModule } from './settings/settings.module';
 import { RobotRoutingModule } from './robot-routing.module';
-import { CoreModule } from './core/core.module';
+import { RobotCoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 
 import { RobotComponent } from './robot.component';
@@ -16,7 +16,7 @@ import { RobotComponent } from './robot.component';
 		MatToolbarModule,
 		MatButtonModule,
 
-		CoreModule,
+		RobotCoreModule,
 		ControlModule,
 		SettingsModule,
 		SharedModule,

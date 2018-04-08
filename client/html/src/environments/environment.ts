@@ -6,5 +6,5 @@
 export const environment = {
 		production: false,
 	// robotUrl: 'http://localhost:3000'
-		robotUrl: 'http://192.168.1.36/rest/'
+		robotUrl: 'http://192.168.1.35/rest/'
 };

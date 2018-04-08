@@ -1,9 +1,12 @@
 #ifndef INCLUDE_HTTP_HTTPSERVER_H_
 #define INCLUDE_HTTP_HTTPSERVER_H_
 
-#include <ESPAsyncWebServer.h>
+#include "http/wifiservice.h"
 #include "motion/motors.h"
 #include "mpu/mpu9250.h"
+#include "io/display.h"
+#include <ESPAsyncWebServer.h>
+#include <memory>
 
 namespace http
 {
@@ -21,9 +24,7 @@ private:
 	void handleSetSettings( AsyncWebServerRequest* request, char* data, size_t len );
 
 private:
-	AsyncWebServer* m_impl;
 	motion::PidEngine* m_pidEngine;
-	io::Display* m_display;
 };
 
 
@@ -60,13 +61,14 @@ private:
 	void handlePutTargets( AsyncWebServerRequest* request, char* data, size_t len );
 
 private:
+	std::unique_ptr<WifiService> m_wifiService;
 	AsyncWebServerImpl m_impl;
 	motion::Motors* m_motors;
 	io::Display* m_display;
 	mpu::Mpu9250* m_mpu;
-	PidService* m_speedService;
-	PidService* m_pitchService;
-	PidService* m_headingService;
+	std::unique_ptr<PidService> m_speedService;
+	std::unique_ptr<PidService> m_pitchService;
+	std::unique_ptr<PidService> m_headingService;
 };
 
 }

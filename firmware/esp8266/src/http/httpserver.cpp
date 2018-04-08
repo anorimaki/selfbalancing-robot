@@ -2,8 +2,8 @@
 #include "http/webhandlers.h"
 #include "http/streamresponse.h"
 #include "http/pidstatesstream.h"
+#include "http/basicresponses.h"
 #include "util/trace.h"
-#include "util/printbuffer.h"
 #include "i2c/i2c.h"
 #include "util/arduino_stl_support.h"
 #include "motors_i2c_model.h"
@@ -26,8 +26,6 @@ sint8 espconn_tcp_set_max_con(uint8 num);
 namespace http
 {
 
-static const char* CONTENT_TYPE_JSON = "application/json";
-
 #define ACCESS_CONTROL_ALLOW_ORIGIN "Access-Control-Allow-Origin"
 #define ACCESS_CONTROL_REQUEST_HEADERS "Access-Control-Request-Headers"
 #define ACCESS_CONTROL_REQUEST_METHOD "Access-Control-Request-Method"
@@ -35,53 +33,23 @@ static const char* CONTENT_TYPE_JSON = "application/json";
 #define ACCESS_CONTROL_ALLOW_METHODS "Access-Control-Allow-Methods"
 
 
-template <typename T>
-static void sendBasicJson( AsyncWebServerRequest* request, T& content )
-{
-	AsyncResponseStream *response = request->beginResponseStream(CONTENT_TYPE_JSON);
-	content.printTo(*response);
-	request->send(response);
-}
-
-static void sendNoContent( AsyncWebServerRequest* request )
-{
-	request->send(204);
-}
-
-
-static void sendError( AsyncWebServerRequest* request ) {
-	String content = String("{\"error\":\"");
-	while( !error::globalStack().empty() ) {
-		const error::StackItem& item = error::globalStack().top();
-		content.concat( item.file() );
-		content.concat( "," );
-		content.concat( item.line() );
-		content.concat( ": " );
-		content.concat( item.message().c_str() );
-		error::globalStack().pop();
-	}
-	content.concat("\"}");
-
-	request->send( 500, CONTENT_TYPE_JSON, content );
-}
-
 
 /************************************************************************/
 // PidService
 /************************************************************************/
-PidService::PidService( AsyncWebServer* impl, const std::string& path,
+PidService::PidService( AsyncWebServer* server, const std::string& path,
 						motion::PidEngine* pidEngine, io::Display* display ):
-						m_impl(impl), m_pidEngine(pidEngine), m_display( display ) {
+						m_pidEngine(pidEngine) {
 
 	AsyncMethodWebHandler<PidService>::Factory handlers(this, display);
 
 	std::string statePath = path + "/state";
-	m_impl->addHandler( handlers.create(statePath.c_str(), HTTP_GET, &PidService::handleState) );
+	server->addHandler( handlers.create(statePath.c_str(), HTTP_GET, &PidService::handleState) );
 
 	std::string settingsPath = path + "/settings";
-	m_impl->addHandler( handlers.create(settingsPath.c_str(), HTTP_GET, &PidService::handleSettings) );
+	server->addHandler( handlers.create(settingsPath.c_str(), HTTP_GET, &PidService::handleSettings) );
 
-	m_impl->addHandler( handlers.create(settingsPath.c_str(), HTTP_PUT, &PidService::handleSetSettings) );
+	server->addHandler( handlers.create(settingsPath.c_str(), HTTP_PUT, &PidService::handleSetSettings) );
 }
 
 
@@ -155,12 +123,13 @@ Server::Server( motion::Motors* motors, mpu::Mpu9250* mpu, io::Display* display 
 	//the states vector size (see PidService::handleState)
 //	espconn_tcp_set_max_con(2);
 
-	m_pitchService = new PidService( &m_impl, "/rest/pitch", &m_motors->pitch(), m_display );
-	m_speedService = new PidService( &m_impl, "/rest/speed", &m_motors->speed(), m_display );
-	m_headingService = new PidService( &m_impl, "/rest/heading", &m_motors->heading(), m_display );
+	m_wifiService.reset( new WifiService(&m_impl, "/rest/wifi", m_display) );
+
+	m_pitchService.reset( new PidService( &m_impl, "/rest/pitch", &m_motors->pitch(), m_display ) );
+	m_speedService.reset( new PidService( &m_impl, "/rest/speed", &m_motors->speed(), m_display ) );
+	m_headingService.reset( new PidService( &m_impl, "/rest/heading", &m_motors->heading(), m_display ) );
 
 	AsyncMethodWebHandler<Server>::Factory handlers(this, display);
-
 	m_impl.addHandler( handlers.create("/rest/targets", HTTP_PUT, &Server::handlePutTargets ) );
 	m_impl.addHandler( handlers.create("/rest/mpu/settings", HTTP_GET, &Server::handleGetMpuSettings ) );
 	m_impl.addHandler( handlers.create("/rest/mpu/settings", HTTP_PUT, &Server::handlePutMpuSettings ) );

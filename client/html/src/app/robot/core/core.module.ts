@@ -1,15 +1,19 @@
 import { NgModule } from '@angular/core';
 
 import { RobotService } from './robot.service';
-import { NotificationService } from './notification.service';
+import { CoreModule } from 'app/core/core.module';
 
 @NgModule( {
-	imports: [],
+	imports: [
+		CoreModule
+	],
 	declarations: [
+	],
+	exports: [
+		CoreModule
 	],
 	providers: [
 		RobotService,
-		NotificationService
 	],
 } )
-export class CoreModule { }
+export class RobotCoreModule { }

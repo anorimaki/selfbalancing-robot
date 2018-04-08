@@ -114,8 +114,7 @@ void Application::showData( const mpu::MpuData& data )
 
 bool Application::connectAsStation()
 {
-#ifdef WIFI_SSID
-	WiFi.begin( WIFI_SSID, WIFI_PASSWORD );
+	WiFi.begin();
 
 	uint8_t status = WiFi.status();
 	while ( status == WL_DISCONNECTED ) {
@@ -130,7 +129,7 @@ bool Application::connectAsStation()
 	}
 
 	TRACE( F("IP address: %s"), WiFi.localIP().toString().c_str() );
-#endif
+
 	return true;
 }
 
@@ -156,21 +155,11 @@ bool Application::connectAsAP()
 	return true;
 }
 
-#if defined(WIFI_SSID) && defined(WIFI_OWN_SSID)
-#define WIFI_MODE WIFI_AP_STA
-#elif defined(WIFI_OWN_SSID)
-#define WIFI_MODE WIFI_AP
-#elif defined(WIFI_SSID)
-#define WIFI_MODE WIFI_STA
-#else
-#define WIFI_MODE WIFI_OFF
-#endif
 
 bool Application::initWifi()
 {
 	WiFi.hostname(net::hostName);
-	WiFi.persistent(false);
-	WiFi.mode(WIFI_MODE);
+	WiFi.persistent(true);
 	bool c1 = connectAsStation();
 	bool c2 = connectAsAP();
 	WiFi.printDiag(Serial);

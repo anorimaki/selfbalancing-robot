@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MpuCalibrationData } from 'robot/core/mpu-data';
-import { NotificationService } from 'robot/core/notification.service';
+import { NotificationService } from 'app/core/notification.service';
 import { RobotService } from 'robot/core/robot.service';
 
 @Component({

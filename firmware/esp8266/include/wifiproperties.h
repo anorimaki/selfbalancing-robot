@@ -8,11 +8,8 @@ static const char* hostName="robot";
 
 }
 
-#define WIFI_SSID 		<Your AP SSID>
-#define WIFI_PASSWORD 	<Your SP password>
-
-//#define WIFI_OWN_SSID 		"selfbalancing"
-#define WIFI_OWN_PASSWORD 	NULL
+#define WIFI_OWN_SSID 		"selfbalancing"
+#define WIFI_OWN_PASSWORD 	"selfbalancing"
 
 
 #endif /* INCLUDE_HTTP_WIFIPROPERTIES_H_ */

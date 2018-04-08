@@ -1,6 +1,17 @@
-<h1 class="title">Angular Router</h1>
-<nav>
-	<a routerLink="/state" routerLinkActive="active">Crisis Center</a>
-	<a routerLink="/settings" routerLinkActive="active">Heroes</a>
-</nav>
-<router-outlet></router-outlet>
+<mat-toolbar color='primary'>
+	<span>Wifi Portal</span>
+</mat-toolbar>
+
+<mat-tab-group>
+	<mat-tab label="Soft AP">
+		<div class='tab-content'>
+			<wifi-softap></wifi-softap> 
+		</div>
+	</mat-tab>
+
+	<mat-tab label="Station">
+		<div class='tab-content'>
+			<wifi-station></wifi-station> 
+		</div>
+	</mat-tab>
+</mat-tab-group>

@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { RbPidComponent } from './pid/pid.component';
-import { NotificationService } from 'robot/core/notification.service';
+import { NotificationService } from 'app/core/notification.service';
 import { SettingsService, PidSettingsService } from './settings.service';
 import { Subscription } from 'rxjs/Subscription';
 

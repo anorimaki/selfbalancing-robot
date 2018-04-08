@@ -13,7 +13,7 @@ import { RobotService, PidService } from 'robot/core/robot.service';
 import { PidStep } from 'robot/shared/pid-step';
 import { PidSettings } from 'robot/core/pid-settings';
 import { SettingsService, PidSettingsService } from 'robot/settings/settings.service';
-import { NotificationService } from 'robot/core/notification.service';
+import { NotificationService } from 'app/core/notification.service';
 import { PidState } from 'robot/core/pid-state';
 import { SpeedStep } from 'robot/data/speed/speed-step';
 import { PitchStep } from 'robot/data/pitch/pitch-step';

@@ -15,7 +15,8 @@
 			"node_modules/@types"
 		],
 		"paths": {
-			"robot/*": ["app/robot/*"] 
+			"robot/*": ["app/robot/*"],
+			"wifi/*": ["app/wifi/*"] 
 		},
 		"lib": [
 			"es2016",

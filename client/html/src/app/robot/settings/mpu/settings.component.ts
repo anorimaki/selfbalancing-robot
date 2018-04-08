@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RobotService } from 'robot/core/robot.service';
 import { MpuSettings } from 'robot/core/mpu-data';
-import { NotificationService } from 'robot/core/notification.service';
+import { NotificationService } from 'app/core/notification.service';
 
 
 @Component({

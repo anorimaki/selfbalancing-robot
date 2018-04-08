@@ -9,6 +9,6 @@ import retrofit2.http.PUT;
  */
 
 public interface ControlService {
-    @PUT("/targets")
+    @PUT("/rest/targets")
     Completable setTargets(@Body Targets targets );
 }

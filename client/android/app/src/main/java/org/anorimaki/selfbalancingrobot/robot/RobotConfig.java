@@ -39,7 +39,7 @@ public class RobotConfig {
     public URL getUrl() {
         String ip = sharedPref.getString(SettingsActivity.ROBOT_IP, "");
         try {
-            return new URL("http://" + ip );
+            return new URL("http://" + ip + "/rest/" );
         }
         catch( Exception e ) {
             return defaultUrl;

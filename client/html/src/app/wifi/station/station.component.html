@@ -1,0 +1,49 @@
+<form *ngIf='config' fxLayout='column'>
+	<fieldset>
+		<mat-slide-toggle
+			(change)="onEnabledChanged( $event )"
+			[ngModel]="connected"
+			name="enabled"
+			class="formItem"
+		>
+			Enabled
+		</mat-slide-toggle>
+		<mat-form-field>
+			<input matInput placeholder="Status" disabled value={{config.status}}>
+		</mat-form-field>
+	</fieldset>
+	<fieldset fxLayout='column'>
+		<legend>BSS</legend>
+		<mat-form-field>
+			<input matInput placeholder="SSID" disabled value={{config.bss.ssid}}>
+		</mat-form-field>
+	</fieldset>
+	<fieldset fxLayout='column'>	
+		<legend>Network</legend>
+		<mat-checkbox 
+			(change)="onDhcpChanged( $event )"
+			[checked]="config.dhcp"
+			[disabled]="!connected"
+			class="formItem"
+		>
+			DHCP
+		</mat-checkbox>
+		<mat-form-field>
+			<input matInput placeholder="IP" disabled value={{config.network.ip}}>
+		</mat-form-field>
+		<mat-form-field>
+			<input matInput placeholder="Mask" disabled value={{config.network.netmask}}>
+		</mat-form-field>
+		<mat-form-field>
+			<input matInput placeholder="Gateway" disabled value={{config.network.gateway}}>
+		</mat-form-field>
+		<button
+			mat-button
+			(click)="onChangeNetwork()"
+			[disabled]="!connected || config.dhcp" 
+		>
+			Change IP
+		</button>
+	</fieldset>
+</form>
+	

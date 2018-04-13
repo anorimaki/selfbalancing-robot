@@ -9,6 +9,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { WifiRoutingModule } from './wifi-routing.module'
@@ -16,7 +18,9 @@ import { WifiComponent } from './wifi.component';
 import { WifiStationComponent } from './station/station.component';
 import { WifiSoftApComponent } from './softap/softap.component';
 import { WifiCoreModule } from './core/core.module';
-import { NetworkSettingsDialogComponent } from './network/network-settings-dialog.component'
+import { NetworkSettingsDialogComponent } from './network/network-settings-dialog.component';
+import { BssSettingsDialogComponent } from './bss/bss-settings-dialog.component';
+import { SsidScanDialogComponent } from './bss/ssid-scan-dialog.component';
 
 
 @NgModule( {
@@ -32,16 +36,22 @@ import { NetworkSettingsDialogComponent } from './network/network-settings-dialo
 		MatCheckboxModule,
 		MatDividerModule,
 		MatDialogModule,
+		MatTableModule,
+		MatProgressSpinnerModule,
 		FlexLayoutModule,
 	],
 	declarations: [
 		WifiComponent,
 		WifiStationComponent,
 		WifiSoftApComponent,
-		NetworkSettingsDialogComponent
+		NetworkSettingsDialogComponent,
+		BssSettingsDialogComponent,
+		SsidScanDialogComponent
 	],
 	entryComponents: [
-		NetworkSettingsDialogComponent
+		NetworkSettingsDialogComponent,
+		BssSettingsDialogComponent,
+		SsidScanDialogComponent
 	]
 } )
 export class WifiModule { }

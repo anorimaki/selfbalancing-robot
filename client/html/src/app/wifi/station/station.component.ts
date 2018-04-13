@@ -10,6 +10,7 @@ import 'rxjs/add/observable/timer';
 import { NotificationService } from 'app/core/notification.service';
 import { WifiService } from 'wifi/core/wifi.service';
 import { NetworkSettingsDialogComponent } from 'wifi/network/network-settings-dialog.component';
+import { BssSettingsDialogComponent } from 'wifi/bss/bss-settings-dialog.component';
 import { StationConfig } from 'wifi/core/station-config';
 
 @Component({
@@ -65,9 +66,23 @@ export class WifiStationComponent implements OnInit, OnDestroy {
 			if ( result ) {
 				this.wifiService.station.setNetwork( result ).subscribe(
 					info => this.config = info,
-					err => this.notificationService.error( 'Error settings network in station mode', err ) );
+					err => this.notificationService.error( 'Error setting network in station mode', err ) );
 			}
 		});
+	}
+
+	onChangeBss(): void {
+		const dialogRef = this.dialog.open( BssSettingsDialogComponent, {
+			data: this.config.bss
+		});
+		dialogRef.afterClosed().subscribe(result => {
+			if ( result ) {
+				this.wifiService.station.setBss( result ).subscribe(
+					info => this.config = info,
+					err => this.notificationService.error( 'Error setting BSS in station mode', err ) );
+			}
+		});
+
 	}
 
 	get connected() {

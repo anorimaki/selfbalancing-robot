@@ -8,6 +8,8 @@
 			"root": "src",
 			"outDir": "dist",
 			"assets": [
+				"favicon.ico",
+				"fonts/**"
 			],
 			"index": "index.html",
 			"main": "main.ts",
@@ -18,6 +20,7 @@
 			"prefix": "app",
 			"styles": [
 				"app/app-theme.scss",
+				"lib/roboto.css",
 				"styles.css"
 			],
 			"environmentSource": "environments/environment.ts",

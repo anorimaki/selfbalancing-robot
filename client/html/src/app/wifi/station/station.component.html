@@ -12,12 +12,20 @@
 			<input matInput placeholder="Status" disabled value={{config.status}}>
 		</mat-form-field>
 	</fieldset>
+
 	<fieldset fxLayout='column'>
 		<legend>BSS</legend>
 		<mat-form-field>
 			<input matInput placeholder="SSID" disabled value={{config.bss.ssid}}>
 		</mat-form-field>
+		<button
+			mat-button
+			(click)="onChangeBss()"
+		>
+			Change BSS
+		</button>
 	</fieldset>
+
 	<fieldset fxLayout='column'>	
 		<legend>Network</legend>
 		<mat-checkbox 

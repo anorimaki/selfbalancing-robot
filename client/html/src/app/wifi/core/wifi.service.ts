@@ -6,6 +6,7 @@ import { StationConfig } from './station-config';
 import { SoftApConfig } from './softap-config';
 import { BssConfig } from './bss-config';
 import { NetConfig } from './net-config';
+import { BssInfo } from './bss-info';
 
 import { environment } from 'environments/environment';
 
@@ -56,10 +57,15 @@ export class SoftApService {
 export class WifiService {
 	softAp: SoftApService;
 	station: StationService;
+	baseUrl: string;
 
-	constructor( http: HttpClient ) {
-		const baseUrl = environment.robotUrl + 'wifi';
-		this.softAp = new SoftApService( http, baseUrl + '/softap' );
-		this.station = new StationService( http, baseUrl + '/station' );
+	constructor( private http: HttpClient ) {
+		this.baseUrl = environment.robotUrl + 'wifi';
+		this.softAp = new SoftApService( http, this.baseUrl + '/softap' );
+		this.station = new StationService( http, this.baseUrl + '/station' );
+	}
+	
+	scan(): Observable<BssInfo[]> {
+		return this.http.get<BssInfo[]>(this.baseUrl + '/ssids');
 	}
 }

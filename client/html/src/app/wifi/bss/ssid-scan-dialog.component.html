@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>SSID Scan</h2>
+<mat-dialog-content>
+	<mat-spinner *ngIf="isLoadingResults"></mat-spinner>
+
+	<mat-table [dataSource]="dataSource" matSort>
+		<ng-container matColumnDef="ssid">
+			<mat-header-cell *matHeaderCellDef> SSID </mat-header-cell>
+			<mat-cell *matCellDef="let bss"> {{bss.ssid}} </mat-cell>
+		</ng-container>
+
+		<ng-container matColumnDef="channel">
+			<mat-header-cell *matHeaderCellDef> Channel </mat-header-cell>
+			<mat-cell *matCellDef="let bss"> {{bss.channel}} </mat-cell>
+		</ng-container>
+
+		<ng-container matColumnDef="auth">
+			<mat-header-cell *matHeaderCellDef> Authentication </mat-header-cell>
+			<mat-cell *matCellDef="let bss"> {{bss.auth}} </mat-cell>
+		</ng-container>
+
+		<ng-container matColumnDef="signal_strength">
+			<mat-header-cell *matHeaderCellDef> Signal Strength </mat-header-cell>
+			<mat-cell *matCellDef="let bss"> {{bss.rssi}} </mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns;"
+				(click)="onSelected(row)"
+				class="tb-row"
+		>
+		</mat-row>
+	</mat-table>
+</mat-dialog-content>
+
+<mat-dialog-actions [attr.align]="actionsAligment">
+	<button mat-button mat-dialog-close>Cancel</button>
+</mat-dialog-actions>

@@ -46,9 +46,6 @@ void Application::init()
 	if ( !initWifi() ) {
 		m_display.wifiInitError( 2000 );
 	}
-	else {
-		m_httpServer = new http::Server( &m_motors, &m_mpu9250, &m_display );
-	}
 
 	m_display.systemInitialized();
 
@@ -156,14 +153,29 @@ bool Application::connectAsAP()
 }
 
 
+void Application::initServer()
+{
+	m_httpServer = new http::Server( &m_motors, &m_mpu9250, &m_display );
+}
+
+
 bool Application::initWifi()
 {
 	WiFi.hostname(net::hostName);
 	WiFi.persistent(true);
-	bool c1 = connectAsStation();
-	bool c2 = connectAsAP();
+
+	bool c1 = connectAsAP();
+	if ( c1 ) {
+		initServer();
+	}
+
+	bool c2 = connectAsStation();
+	if ( !c1 && c2 ) {
+		initServer();
+	}
+
 	WiFi.printDiag(Serial);
-	return c1 && c2;
+	return c1 || c2;
 }
 
 

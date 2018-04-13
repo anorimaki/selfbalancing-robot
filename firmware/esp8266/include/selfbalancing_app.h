@@ -27,6 +27,7 @@ private:
 	bool initMpu();
 	bool checkMpu();
 
+	void initServer();
 	bool initWifi();
 	bool connectAsStation();
 	bool connectAsAP();

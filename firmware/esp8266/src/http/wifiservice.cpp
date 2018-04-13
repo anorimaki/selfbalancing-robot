@@ -1,8 +1,11 @@
 #include "http/wifiservice.h"
 #include "http/webhandlers.h"
 #include "http/basicresponses.h"
+#include "http/streamresponse.h"
 #include <ArduinoJson.h>
+#include <StreamString.h>
 #include <ESP8266WiFi.h>
+#include <memory>
 
 extern "C" {
 #include "c_types.h"
@@ -30,6 +33,8 @@ WifiService::WifiService( AsyncWebServer* server, const String& path, io::Displa
 	server->addHandler( handlers.create( stationPath + "/bss", HTTP_PUT, &WifiService::handleSetStationBss ) );
 	server->addHandler( handlers.create( stationPath + "/dhcp", HTTP_PUT, &WifiService::handleSetStationDhcp ) );
 	server->addHandler( handlers.create( stationPath + "/network", HTTP_PUT, &WifiService::handleSetStationNetwork ) );
+
+	server->addHandler( handlers.create( path + "/ssids", HTTP_GET, &WifiService::handleGetSsids ) );
 }
 
 void WifiService::handleGetSoftApConfig( AsyncWebServerRequest *request ) {
@@ -155,6 +160,21 @@ void WifiService::handleGetStationConfig( AsyncWebServerRequest *request ) {
 }
 
 
+static bool stationDisconect( AsyncWebServerRequest *request ) {
+	//Don't call WiFi.disconnect to avoid changing configuration
+	ETS_UART_INTR_DISABLE();
+	bool ret = wifi_station_disconnect();
+	ETS_UART_INTR_ENABLE();
+
+	if ( !ret ) {
+		TRACE_ERROR( F("Disabling Station mode") );
+		sendError( request );
+		return false;
+	}
+
+	return true;
+}
+
 
 void WifiService::handleSetStationEnabled( AsyncWebServerRequest *request, char* data, size_t len ) {
 	DynamicJsonBuffer jsonBuffer;
@@ -163,20 +183,13 @@ void WifiService::handleSetStationEnabled( AsyncWebServerRequest *request, char*
 	bool enable = root["enabled"];
 	if ( enable ) {
 		WiFi.begin();
-		WiFi.waitForConnectResult();
 	}
 	else {
 		//Don't call WiFi.disconnect to avoid changing configuration
-		ETS_UART_INTR_DISABLE();
-		bool ret = wifi_station_disconnect();
-		ETS_UART_INTR_ENABLE();
-
-		WiFi.enableSTA(false);
-		if ( !ret ) {
-			TRACE_ERROR( F("Disabling Station mode") );
-			sendError( request );
+		if ( !stationDisconect( request ) ) {
 			return;
 		}
+		WiFi.enableSTA(false);
 	}
 
 	handleGetStationConfig( request );
@@ -208,7 +221,7 @@ void WifiService::handleSetStationDhcp( AsyncWebServerRequest *request, char* da
 	}
 
 	if ( !ret ) {
-		TRACE_ERROR( F("Error %s DHCP"), enable ? "enabling" : "disabling" );
+		TRACE_ERROR( F("%s DHCP"), enable ? "Enabling" : "Disabling" );
 		sendError( request );
 		return;
 	}
@@ -220,7 +233,7 @@ void WifiService::handleSetStationDhcp( AsyncWebServerRequest *request, char* da
 static bool toIp( AsyncWebServerRequest *request, const char* address, u32_t* res ) {
 	IPAddress ip;
 	if ( !ip.fromString( address) ) {
-		TRACE_ERROR( F("Error parsing IP: %s"), address );
+		TRACE_ERROR( F("Parsing IP: %s"), address );
 		sendError( request );
 		return false ;
 	}
@@ -246,12 +259,86 @@ void WifiService::handleSetStationNetwork( AsyncWebServerRequest *request, char*
 	wifi_station_dhcpc_stop();
 
 	if( !wifi_set_ip_info(STATION_IF, &info) ) {
-		TRACE_ERROR( F("Error setting IP station") );
+		TRACE_ERROR( F("Setting IP station") );
 		sendError( request );
 		return ;
 	}
 
 	handleGetStationConfig( request );
+}
+
+
+
+static AsyncWebServerRequest *currentScanRequest;
+static std::unique_ptr<StreamString> scanBodyStream;
+
+
+template <typename Print>
+size_t serialize( struct bss_info* info, Print& print ) {
+	StaticJsonBuffer<JSON_OBJECT_SIZE(4)+35> m_jsonBuffer;
+	JsonObject& entry = m_jsonBuffer.createObject();
+	entry["ssid"] = reinterpret_cast<const char*>(info->ssid);
+	entry["channel"] = info->channel;
+	entry["auth"] = info->authmode;
+	entry["rssi"] = info->rssi;
+	return entry.printTo(print);
+}
+
+
+static void scanDone( void* result, STATUS status ) {
+	if ( currentScanRequest == NULL ) {
+		return;			//Connection has been closed
+	}
+
+	if(status != OK) {
+		TRACE_ERROR( F("Scanning WiFi networks") );
+		sendError( currentScanRequest );
+		currentScanRequest = NULL;
+		return ;
+	}
+
+	bss_info* head = reinterpret_cast<bss_info*>(result);
+
+	scanBodyStream.reset( new StreamString() );
+	scanBodyStream->print('[');
+	for(bss_info* it = head; it; it = STAILQ_NEXT(it, next)) {
+		if ( it != head ) {
+			scanBodyStream->print(',');
+		}
+		serialize( it, *scanBodyStream );
+	}
+	scanBodyStream->print(']');
+
+	currentScanRequest->send( new AsyncNoTemplateStreamResponse( scanBodyStream.get(), CONTENT_TYPE_JSON, scanBodyStream->length() ) );
+}
+
+
+void WifiService::handleGetSsids( AsyncWebServerRequest *request ) {
+	stationDisconect( request );
+	WiFi.enableSTA(true);
+
+	if ( currentScanRequest != NULL ) {
+		TRACE_ERROR( F("WiFi scan in progress") );
+		sendError( request );
+		return ;
+	}
+
+	currentScanRequest = request;
+	currentScanRequest->onDisconnect( []() {
+		currentScanRequest = NULL;
+		scanBodyStream.reset();
+	});
+
+	struct scan_config config;
+	config.ssid = 0;
+	config.bssid = 0;
+	config.channel = 0;
+	config.show_hidden = true;
+	if ( !wifi_station_scan(&config, &scanDone ) ) {
+		TRACE_ERROR( F("Scanning WiFi networks") );
+		sendError( request );
+		return ;
+	}
 }
 
 }

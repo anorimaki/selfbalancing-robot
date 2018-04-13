@@ -20,6 +20,7 @@ private:
 	void handleSetStationBss( AsyncWebServerRequest *request, char* data, size_t len );
 	void handleSetStationDhcp( AsyncWebServerRequest *request, char* data, size_t len );
 	void handleSetStationNetwork( AsyncWebServerRequest *request, char* data, size_t len );
+	void handleGetSsids( AsyncWebServerRequest *request );
 };
 
 }

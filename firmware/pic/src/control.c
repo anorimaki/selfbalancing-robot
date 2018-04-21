@@ -108,7 +108,7 @@ static void update_pitch_target( int16_t speed )
 	
 	//Adjust to PID algorithm input and restrict target to a quarter of max angle
 	pitch_data.target = SCALE_VALUE( pitch, PID_OUTPUT_BIT_SIZE,
-								BOOST_PP_SUB( PID_INPUT_BIT_SIZE, 3 ) );
+								BOOST_PP_SUB( PID_INPUT_BIT_SIZE, 2 ) );
 	if ( pitch_data.target > 0x700 ) {
 		pitch_data.target = 0x700;
 	}

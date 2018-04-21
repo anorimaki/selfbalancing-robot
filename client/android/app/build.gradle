@@ -5,7 +5,7 @@ android {
 
     defaultConfig {
         applicationId "org.anorimaki.selfbalancingrobot"
-        minSdkVersion 23
+        minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"

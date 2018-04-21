@@ -4,7 +4,7 @@
 #include "tmr4.h"
 #include "math/mul.h"
 
-#define PID_MAX_INTEGRAL_ERROR	0x00003FFFl		//No more than 17 bits
+#define PID_MAX_INTEGRAL_ERROR	0x0000FFFFl		//No more than 17 bits
 #define PID_MIN_INTEGRAL_ERROR	-PID_MAX_INTEGRAL_ERROR
 
 

@@ -3,7 +3,7 @@ import { PidState } from 'robot/core/pid-state';
 import { PidSettings } from 'robot/core/pid-settings';
 
 export class SpeedStep extends PidStep {
-	static readonly MOTORS_SPEED_BITS = 10;
+	static readonly MOTORS_SPEED_BITS = 12;
 
 	constructor( state: PidState, settings: PidSettings ) {
 		super( state, settings );

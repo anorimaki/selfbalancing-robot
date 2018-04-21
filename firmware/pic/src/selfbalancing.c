@@ -13,37 +13,44 @@
 #define TIMER_PERIOD			4						//In us
 #define TIMER_STEPS_BY_MS		(1000/TIMER_PERIOD)
 
-#define MOTORS_CONTROL_TIMER_STEPS		(1000000/MPU_DATA_RATE)/TIMER_PERIOD
-#define MAX_MOTORS_CONTROL_TIMER_STEPS	(MOTORS_CONTROL_TIMER_STEPS*2)
+#define PITCH_CONTROL_TIMER_STEPS		(1000000/MPU_DATA_RATE)/TIMER_PERIOD
+#define MAX_PITCH_CONTROL_TIMER_STEPS	(PITCH_CONTROL_TIMER_STEPS*2)
 
-#define SPEED_CONTROL_PERIOD	50					//In ms
+#define SPEED_CONTROL_PERIOD	200					//In ms
 #define SPEED_CONTROL_TIMER_STEPS	((SPEED_CONTROL_PERIOD*1000LU)/TIMER_PERIOD)
 
 
-void main_action() 
+bool crtl_pitch() 
 {
-	static uint32_t last_motors_ctrl_time = 0;
-	static uint32_t next_speed_crtl_time = 0;
-	
-			//Pitch in radians and Q16 format
 	fix16_t current_pitch;
 	MpuStatus status = mpu9250_get_pitch( &current_pitch );
 	display_mpu_result( status );
 	if ( status != MPU_OK ) {
-		return;
+		return false;
 	}
+	ctrl_update_motors_power( current_pitch );
+	return true;
+}
 
+
+
+void main_action() 
+{
+	static uint32_t last_pitch_crtl_time = 0;
+	static uint32_t next_speed_crtl_time = 0;
+	
 	uint32_t current_time = TMR4_Counter32BitGet();
-	uint16_t diff_time = current_time - last_motors_ctrl_time;
-	if ( diff_time > MAX_MOTORS_CONTROL_TIMER_STEPS ) {
-		display_motor_control_overtime();
+	
+	uint16_t diff_time = current_time - last_pitch_crtl_time;
+	if ( diff_time > (PITCH_CONTROL_TIMER_STEPS-200) ) {
+		if ( diff_time > MAX_PITCH_CONTROL_TIMER_STEPS ) {
+			display_motor_control_overtime();
+		}
+		if ( crtl_pitch() ) {
+			last_pitch_crtl_time = current_time;
+		}
 	}
-	last_motors_ctrl_time = current_time;
-
-	if ( !ctrl_update_motors_power( current_pitch ) ) {
-		return;
-	}
-
+	
 	if ( current_time > next_speed_crtl_time ) {
 		ctrl_update_pitch_target_and_steering();
 		next_speed_crtl_time = current_time + SPEED_CONTROL_TIMER_STEPS;
@@ -114,8 +121,7 @@ int main(void)
 				main_resume();
 			}
 		}
-		// 3ms to do all main_action computations
-		__delay_ms((1000/MPU_DATA_RATE) - 4);
+	//	__delay_us(100);
 	}
 		
 	return -1;

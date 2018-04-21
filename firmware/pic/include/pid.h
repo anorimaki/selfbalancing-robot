@@ -5,6 +5,7 @@
 #include "api/motors_i2c_model.h"
 #include "api/motors_i2c_reg.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 #define PID_INPUT_BIT_SIZE      15      //Limited to 
                                         // avoid internals overflows

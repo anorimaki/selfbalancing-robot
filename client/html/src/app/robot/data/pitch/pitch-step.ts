@@ -2,7 +2,7 @@ import { PidStep } from 'robot/shared/pid-step';
 import { PidState } from 'robot/core/pid-state';
 import { PidSettings } from 'robot/core/pid-settings';
 
-const MAX_PITCH_ANGLE_BITS = 15;
+const MAX_PITCH_ANGLE_BITS = 16;
 const ORIGINAL_ANGLE_QBITS = 16;
 const ANGLE_QBITS = ORIGINAL_ANGLE_QBITS - (MAX_PITCH_ANGLE_BITS - PidStep.PID_INPUT_BIT_SIZE);
 const ANGLE_FRACTIONAL_FACTOR = (1 << ANGLE_QBITS) - 1;

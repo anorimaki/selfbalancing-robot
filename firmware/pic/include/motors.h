@@ -10,7 +10,9 @@
 
 //Motors generates ~3953 pulses in 1 second at max power (speed = 3953)
 // SPEED_BITS is calculated as log2( (3953/1000) * PITCH_CONTROL_PERIOD )
-#define MOTORS_SPEED_BITS				10
+#define MOTORS_SPEED_BITS		12
+#define MOTORS_MAX_SPEED		((1 << (MOTORS_SPEED_BITS-1))-1)
+#define MOTORS_MIN_SPEED        -MOTORS_MAX_SPEED
 
 //Internal usage. Declared here to permit inline functions
 extern int16_t motors_left_speed;

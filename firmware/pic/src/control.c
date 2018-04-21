@@ -5,13 +5,8 @@
 #include "speed.h"
 #include "heading.h"
 
-//In Q16 format and RADs, it is equivalent to [-14.2� .. +14.2�] range
-#define MAX_PITCH_ANGLE_BITS	15		//In signed fomat
-#define MAX_PITCH_ANGLE         ((1 << (MAX_PITCH_ANGLE_BITS-1))-1)	//Q16 format
-#define MIN_PITCH_ANGLE			(-MAX_PITCH_ANGLE)					//Q16 format
 
 static int16_t steering_power;
-
 
 void ctrl_init()
 {
@@ -37,8 +32,7 @@ static void robot_fallen()
 
 static int16_t compute_speed_power( int16_t current_pitch )
 {
-	current_pitch = SCALE_VALUE( current_pitch, MAX_PITCH_ANGLE_BITS,
-								PID_INPUT_BIT_SIZE );
+	current_pitch = SCALE_VALUE( current_pitch, 16, PID_INPUT_BIT_SIZE );
 	
 	int16_t power = pid_compute( &pitch_data, current_pitch ) ;
 		
@@ -70,15 +64,20 @@ static int16_t adjust_steering( int16_t speed, int16_t steering )
  */
 bool ctrl_update_motors_power( fix16_t pitch )
 {
-		//Limit angle range to:
-		//	[-14.2 .. +14.2] degrees
-	if ( (pitch > MAX_PITCH_ANGLE) || (pitch < MIN_PITCH_ANGLE) ) {
+	// Restrict pitch to fractional part and conserve sign (first bit of 
+	// fractional part). That is, pitch will be restricted to 
+	// [-0.5 .. 0.5] rads ([-28.6479 .. 28.6479] degrees).
+	// Note: cast to int32_t needed in constant to compare as it (?)
+	if ( (pitch > 0x7FFF) || (pitch < (int32_t)0xFFFF8001L) ) {
 		robot_fallen();
 		return false;
 	}
-				//current_pitch integer's part is discarded
-				// because it's out from allowed pitch range.
-	int16_t speed_power = compute_speed_power( pitch );
+	
+		// pitch integer's part and first bit of fractional part are
+		// discarded because they are out from allowed pitch range.
+	int16_t pitch_fract = pitch & 0x0000FFFF;
+			
+	int16_t speed_power = compute_speed_power( pitch_fract );
 
 	int16_t adjusted_steering_power = adjust_steering( speed_power, steering_power );
 	
@@ -94,13 +93,28 @@ bool ctrl_update_motors_power( fix16_t pitch )
  */
 static void update_pitch_target( int16_t speed )
 {
+		//Maybe readed speed overflows MOTORS_SPEED_BITS -> Set it in range
+		// to avoid averflows when scaling
+	if ( speed > MOTORS_MAX_SPEED ) {
+		speed = MOTORS_MAX_SPEED;
+	}
+	if ( speed < MOTORS_MIN_SPEED ) {
+		speed = MOTORS_MIN_SPEED;
+	}
+	
 	speed = SCALE_VALUE( speed, MOTORS_SPEED_BITS, PID_INPUT_BIT_SIZE );
 	
 	int16_t pitch = pid_compute( &speed_data, speed ) ;
 	
-	//Adjust to PID algorithm input and restrict target to the half of max angle
+	//Adjust to PID algorithm input and restrict target to a quarter of max angle
 	pitch_data.target = SCALE_VALUE( pitch, PID_OUTPUT_BIT_SIZE,
-								BOOST_PP_SUB( PID_INPUT_BIT_SIZE, 1 ) );
+								BOOST_PP_SUB( PID_INPUT_BIT_SIZE, 3 ) );
+	if ( pitch_data.target > 0x700 ) {
+		pitch_data.target = 0x700;
+	}
+	if ( pitch_data.target < -0x700 ) {
+		pitch_data.target = -0x700;
+	}
 }
 
 

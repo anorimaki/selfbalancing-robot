@@ -5,7 +5,7 @@ export class PidStep {
 			// Take this values from motor controller code
 	static readonly PID_MAX_OUTPUT = 0x7FFF;
 	static readonly PID_MIN_OUTPUT = -PidStep.PID_MAX_OUTPUT;
-	static readonly PID_MAX_INTEGRAL_ERROR = 0x0003FFF;
+	static readonly PID_MAX_INTEGRAL_ERROR = 0x000FFFF;
 	static readonly PID_MIN_INTEGRAL_ERROR = -PidStep.PID_MAX_INTEGRAL_ERROR;
 
 	static readonly PID_INPUT_BIT_SIZE = 15;

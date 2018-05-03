@@ -1,8 +1,26 @@
 sudo: required
 
 before_install:
-  - sudo apt-get -q update
-  - sudo apt-get -q install -y python make
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install -y python
 
-script:
-  - cd firmware/esp8266 && make
+matrix:
+  include:
+    - language: cpp
+      before_script:
+        - cd firmware/esp8266
+      script:
+        - make
+
+    - language: android
+      jdk: oraclejdk8
+      android:
+        components:
+          - tools
+          - platform-tools
+          - tools
+      before_script:
+        - cd client/android
+      script:
+        - ./gradlew assemble
+

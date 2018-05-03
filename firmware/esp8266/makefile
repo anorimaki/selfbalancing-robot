@@ -30,8 +30,10 @@ $(ESP_ROOT): |  $(BUILD_DIR)
 
 $(ESP_ROOT)/tools/xtensa-lx106-elf/bin: | $(ESP_ROOT)
 	cd $(ESP_ROOT)/tools && python get.py
+ifeq ($(OS),Windows_NT)	
 	chmod +x $(ESP_ROOT)/tools/esptool/esptool.exe
 	chmod +x $(ESP_ROOT)/tools/mkspiffs/mkspiffs.exe
+endif
 
 $(ESP_ROOT)/.patch: $(ESP_ROOT)/tools/xtensa-lx106-elf/bin arduino_esp8266.patch
 	cd $(ESP_ROOT) && patch -p1 < ../../arduino_esp8266.patch 

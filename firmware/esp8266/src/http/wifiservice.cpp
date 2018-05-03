@@ -229,8 +229,8 @@ void WifiService::handleSetStationDhcp( AsyncWebServerRequest *request, char* da
 	handleGetStationConfig( request );
 }
 
-
-static bool toIp( AsyncWebServerRequest *request, const char* address, u32_t* res ) {
+template<typename UINT32>
+static bool toIp( AsyncWebServerRequest *request, const char* address, UINT32* res ) {
 	IPAddress ip;
 	if ( !ip.fromString( address) ) {
 		TRACE_ERROR( F("Parsing IP: %s"), address );
@@ -240,6 +240,7 @@ static bool toIp( AsyncWebServerRequest *request, const char* address, u32_t* re
 	*res = ip;
 	return true;
 }
+
 
 static bool toIpInfo( AsyncWebServerRequest *request, const JsonObject& json, struct ip_info* res ) {
 	return toIp( request, json["ip"].as<const char*>(), &res->ip.addr ) &&

@@ -2,4 +2,14 @@
 <resources>
     <string name="app_name">SelfBalancingRobot</string>
     <string name="setting_targets_error">Error estableciendo objetivos</string>
+
+    <string name="title_activity_settings">Ajustes</string>
+    <string name="action_settings">Ajustes</string>
+    <string name="pref_robot_robotIpSummary">IP del Self Balancing Robot</string>
+    <string name="pref_robotIp">IP del Robot</string>
+    <string name="pref_general">General</string>
+    <string name="pref_about">Sobre</string>
+    <string name="pref_about_summary">Aplicación para controlar el Self Balancing Robot</string>
+    <string name="pref_app_version">1.0</string>
+    <string name="pref_title_version">Version</string>
 </resources>

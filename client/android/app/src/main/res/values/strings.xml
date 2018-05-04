@@ -3,14 +3,6 @@
     <string name="setting_targets_error">Error setting targets</string>
     <string name="title_activity_settings">Settings</string>
 
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
-
-    <!-- Example settings for Data & Sync -->
-
-    <!-- Example settings for Notifications -->
-
     <string name="action_settings">Settings</string>
     <string name="pref_robot_robotIpSummary">IP of Self Balancing Robot</string>
     <string name="pref_robotIp">Robot IP</string>

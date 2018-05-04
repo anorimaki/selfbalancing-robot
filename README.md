@@ -2,6 +2,8 @@
 
 ![Robot](doc/images/robot.jpg)
 
+[![Build Status](https://travis-ci.org/anorimaki/selfbalancing-robot.svg?branch=master)](https://travis-ci.org/anorimaki/selfbalancing-robot)
+
 Self balanced robot that exposes a REST API to control it.
 
 The Web is plenty of self balancing robots, vehicles with two wheels perpendiculars to the direction of movement that keep the equilibrium. This is just another one with WiFi connection.

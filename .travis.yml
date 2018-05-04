@@ -24,6 +24,8 @@ matrix:
         - ./gradlew assemble
         
     - language: node_js
+      install:
+        - npm install
       before_script:
         - cd client/html
       script:

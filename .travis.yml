@@ -16,18 +16,19 @@ matrix:
       jdk: oraclejdk8
       android:
         components:
-          - build-tools-26.0.2
-          - android-26
+          - build-tools-27.0.2
+          - android-27
+      before_install:
+        - yes | sdkmanager "platforms;android-27"
       before_script:
         - cd client/android
       script:
         - ./gradlew assemble
         
     - language: node_js
-      install:
-        - npm install
       before_script:
         - cd client/html
       script:
+        - npm install
         - npm run-script build-prod
 

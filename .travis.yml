@@ -18,6 +18,10 @@ matrix:
         components:
           - build-tools-27.0.2
           - android-27
+        licenses:
+          - 'android-sdk-preview-license-.+'
+          - 'android-sdk-license-.+'
+          - 'google-gdk-license-.+'
       before_install:
         - yes | sdkmanager "platforms;android-27"
       before_script:
@@ -26,6 +30,8 @@ matrix:
         - ./gradlew assemble
         
     - language: node_js
+      node_js:
+        - "iojs"
       before_script:
         - cd client/html
       script:

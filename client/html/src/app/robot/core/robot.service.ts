@@ -1,7 +1,9 @@
+
+import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
+import { Observable } from 'rxjs';
+
 import { MpuCalibrationData, MpuSettings } from './mpu-data';
 import { PidState } from './pid-state';
 import { PidSettings } from './pid-settings';
@@ -17,18 +19,18 @@ export class PidService {
 	}
 
 	getState(): Observable<PidState[]> {
-		return this.http.get<PidState[]>( this.stateUrl ).
-			map( states => states.map( state => new PidState(state) ) );
+		return this.http.get<PidState[]>( this.stateUrl ).pipe(
+			map( states => states.map( state => new PidState(state) ) ));
 	}
 
 	getSettings(): Observable<PidSettings> {
-		return this.http.get<PidSettings>( this.settingsUrl ).
-			map( settings => PidSettings.fromJson( settings ) );
+		return this.http.get<PidSettings>( this.settingsUrl ).pipe(
+			map( settings => PidSettings.fromJson( settings ) ));
 	}
 
 	setSettings( settings: PidSettings ): Observable<void> {
-		return this.http.put( this.settingsUrl, settings ).
-			map( response => null );
+		return this.http.put( this.settingsUrl, settings ).pipe(
+			map( response => null ));
 	}
 }
 

@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { RbPidComponent } from './pid/pid.component';
 import { NotificationService } from 'app/core/notification.service';
 import { SettingsService, PidSettingsService } from './settings.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 
 class PidComponent {

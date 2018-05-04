@@ -1,14 +1,14 @@
+
+import {empty as observableEmpty, timer as observableTimer,  Observable ,  Subscription ,  ReplaySubject } from 'rxjs';
+import {concatMap, map, catchError, expand} from 'rxjs/operators';
 import { Injectable } from '@angular/core'
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import 'rxjs/add/operator/expand';
-import 'rxjs/add/operator/do'
-import 'rxjs/add/operator/retry';
-import 'rxjs/add/operator/concatMap';
-import 'rxjs/add/observable/empty';
-import 'rxjs/add/observable/timer';
-import 'rxjs/add/operator/catch';
+
+
+
+
+
+
+
 import { RobotService, PidService } from 'robot/core/robot.service';
 import { PidStep } from 'robot/shared/pid-step';
 import { PidSettings } from 'robot/core/pid-settings';
@@ -34,20 +34,20 @@ export class PidDataService<T extends PidStep> {
 				pidStateFactory: (settings: PidSettings, state: PidState) => T,
 				period: number ) {
 		this.isPolling = false;
-		const baseRxData = () => this.settingsService.get().
+		const baseRxData = () => this.settingsService.get().pipe(
 			concatMap( settings =>
-				this.pidService.getState().
-					map( pitches => pitches.map( state => pidStateFactory(settings, state) ) ).
-					catch( (err, caught) => {
+				this.pidService.getState().pipe(
+					map( pitches => pitches.map( state => pidStateFactory(settings, state) ) ),
+					catchError( (err, caught) => {
 						this.notificationService.error( 'Error getting PID data', err );
 						return caught;
-					}));
-		this.rxData = baseRxData().expand( () => {
+					}),)));
+		this.rxData = baseRxData().pipe(expand( () => {
 								if ( this.isPolling ) {
-									return Observable.timer(period).concatMap( baseRxData )
+									return observableTimer(period).pipe(concatMap( baseRxData ))
 								}
-								return Observable.empty();
-							});
+								return observableEmpty();
+							}));
 		this.rxDataBuffer = new ReplaySubject<T[]>(PidDataService.BUFFER_SIZE);
 	}
 
@@ -94,8 +94,10 @@ export class DataService {
 
 	startPolling(): void {
 		this.speed.startPolling();
-		this.pitch.startPolling();
-		this.heading.startPolling();
+		// this.pitch.startPolling();
+		setTimeout( () => this.pitch.startPolling(), 200 );
+		// this.heading.startPolling();
+		setTimeout( () => this.heading.startPolling(), 400 );
 	}
 
 	stopPolling(): void {

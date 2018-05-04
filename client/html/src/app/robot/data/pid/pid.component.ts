@@ -1,5 +1,5 @@
 import { Component, ViewChild, Input, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { RbChartComponent } from 'robot/shared/chart/chart.component';
 import { PidDataService } from '../data.service';
 import { PidStep } from 'robot/shared/pid-step';

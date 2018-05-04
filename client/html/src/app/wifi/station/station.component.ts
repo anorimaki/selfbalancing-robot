@@ -1,11 +1,13 @@
+
+import {timer as observableTimer, Subscription } from 'rxjs';
+
+import { flatMap } from 'rxjs/operators';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/material';
 import { MatCheckboxChange } from '@angular/material/material';
 import { MatDialog } from '@angular/material';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/timer';
+
+
 
 import { NotificationService } from 'app/core/notification.service';
 import { WifiService } from 'wifi/core/wifi.service';
@@ -31,8 +33,8 @@ export class WifiStationComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-		this.refreshSubscription = Observable.timer(0, 1000).
-			flatMap( () => this.wifiService.station.get() ).
+		this.refreshSubscription = observableTimer(0, 1000).pipe(
+			flatMap( () => this.wifiService.station.get() )).
 			subscribe(
 				info => this.config = info,
 				err => this.notificationService.error( 'Error getting station config mode', err ) );

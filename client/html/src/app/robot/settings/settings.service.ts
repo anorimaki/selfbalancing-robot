@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core'
-import { Observable } from 'rxjs/Observable';
-import { AsyncSubject } from 'rxjs/AsyncSubject';
-import 'rxjs/add/observable/of';
+import { Observable, AsyncSubject, Subscription } from 'rxjs';
+
 
 import { RobotService, PidService } from 'robot/core/robot.service';
 import { PidSettings } from 'robot/core/pid-settings';
-import { Subscription } from 'rxjs/Subscription';
 
 export class PidSettingsService {
 	private subject: AsyncSubject<PidSettings>;
